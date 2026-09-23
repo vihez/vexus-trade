@@ -105,6 +105,15 @@
             align-items: center; justify-content: center; cursor: pointer; font-size: 14px;
         }
 
+        /* БАННЕР БАНКРОТСТВА */
+        .bankrupt-banner {
+            display: none; background: linear-gradient(135deg, rgba(255,0,85,0.2), rgba(255,230,0,0.2));
+            border: 1px solid var(--neon-pink); border-radius: 12px; padding: 10px; margin-bottom: 10px;
+            text-align: center; animation: pulseGlow 1.5s infinite alternate;
+        }
+        .bankrupt-banner.show { display: block; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(255,0,85,0.4); } 100% { box-shadow: 0 0 15px rgba(255,0,85,0.8); } }
+
         /* НАВИГАЦИЯ */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
@@ -281,25 +290,19 @@
             border-radius: 8px; padding: 6px; align-items: center; font-size: 10px; color: var(--neon-cyan);
         }
 
-        /* КОЛЕСО ФОРТУНЫ МОДАЛКА */
-        .spin-wheel-container {
-            position: relative; width: 160px; height: 160px; margin: 10px auto;
-            border-radius: 50%; border: 4px solid var(--neon-pink); box-shadow: 0 0 15px var(--neon-pink);
-            overflow: hidden; transition: transform 3s cubic-bezier(0.15, 0.85, 0.1, 1);
+        /* УЛУЧШЕННОЕ КОЛЕСО УДАЧИ (SECTOR CANVAS WHEEL) */
+        .fortune-wheel-wrapper {
+            position: relative; width: 220px; height: 220px; margin: 15px auto;
         }
-        .wheel-sector-bg {
-            width: 100%; height: 100%;
-            background: conic-gradient(
-                var(--neon-cyan) 0deg 90deg, 
-                var(--neon-purple) 90deg 180deg, 
-                var(--neon-yellow) 180deg 270deg, 
-                var(--neon-green) 270deg 360deg
-            );
+        .fortune-pointer {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent;
+            border-top: 18px solid #ffffff; z-index: 30; filter: drop-shadow(0 0 10px var(--neon-pink));
         }
-        .wheel-pointer {
-            position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent;
-            border-top: 14px solid #fff; z-index: 20; filter: drop-shadow(0 0 5px var(--neon-yellow));
+        #fortune-canvas {
+            width: 220px; height: 220px; border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); border: 4px solid rgba(255,255,255,0.2);
+            transition: transform 3.8s cubic-bezier(0.15, 0.85, 0.1, 1);
         }
 
         /* КЕЙСЫ */
@@ -377,6 +380,13 @@
     <!-- ================= СЕКЦИЯ 1: АПГРЕЙДЕР ================= -->
     <div class="view-section active" id="sec-upgrade">
         
+        <!-- АВАРИЙНЫЙ БАННЕР БАНКРОТСТВА -->
+        <div class="bankrupt-banner" id="bankrupt-banner">
+            <div style="font-family:'Orbitron'; font-size:12px; font-weight:900; color:var(--neon-pink);">🚨 ВСЕ ПРЕДМЕТЫ СГОРЕЛИ!</div>
+            <div style="font-size:10px; color:#fff; margin:4px 0;">Заберите стартовый комплект для восстановления:</div>
+            <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900; padding:6px 14px;" onclick="claimBankruptcyKit()">🎁 ПОЛУЧИТЬ ЧИП + 250 VEX</button>
+        </div>
+
         <div class="cyber-tap-btn" onclick="handleTap(event)">
             <div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+25 VEX)</div>
         </div>
@@ -485,28 +495,26 @@
     <!-- ================= СЕКЦИЯ 5: БОНУСЫ, СТРИК, РЕФЕРАЛЫ И ТОП ================= -->
     <div class="view-section" id="sec-bonuses">
         
-        <!-- Ежедневный заход & Колесо -->
+        <!-- Ежедневный заход -->
         <div class="promo-box">
             <div class="promo-title">
                 <span>🎁 ЕЖЕДНЕВНЫЙ БОНУС</span>
                 <span style="font-size:10px; color:var(--neon-green);">СТРИК: <b id="streak-card-val">2</b> ДН.</span>
             </div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn-upgrade-main" style="flex:1; font-size:11px; padding:10px;" id="btn-claim-daily" onclick="claimDailyReward()">ЗАБРАТЬ +500 VEX</button>
-                <button class="btn-upgrade-main" style="flex:1; font-size:11px; padding:10px; background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;" onclick="spinFortuneWheel()">🎰 КРУТИТЬ КОЛЕСО</button>
-            </div>
+            <button class="btn-upgrade-main" style="font-size:11px; padding:10px; margin-top:6px;" id="btn-claim-daily" onclick="claimDailyReward()">ЗАБРАТЬ +500 VEX</button>
         </div>
 
-        <!-- Колесо Фортуны Графика -->
+        <!-- Интерактивное Колесо Фортуны -->
         <div class="promo-box" style="text-align:center;">
             <div class="promo-title">🎰 КОЛЕСО УДАЧИ</div>
-            <div style="position:relative; width:170px; height:170px; margin:0 auto;">
-                <div class="wheel-pointer"></div>
-                <div class="spin-wheel-container" id="fortune-wheel-graphic">
-                    <div class="wheel-sector-bg"></div>
-                </div>
+            
+            <div class="fortune-wheel-wrapper">
+                <div class="fortune-pointer"></div>
+                <canvas id="fortune-canvas" width="220" height="220"></canvas>
             </div>
-            <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">Выигрыши до 5,000 VEX!</div>
+
+            <button class="btn-upgrade-main" id="btn-spin-fortune" style="background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;" onclick="spinFortuneWheel()">🎰 ВРАЩАТЬ (БЕСПЛАТНО)</button>
+            <div id="fortune-timer" style="font-size:10px; color:var(--text-sub); margin-top:6px;">Бесплатный спин доступен!</div>
         </div>
 
         <!-- Промокоды -->
@@ -526,7 +534,6 @@
                 <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="ref-link-url">https://t.me/VexusBot?start=ref9912</span>
                 <button class="filter-chip" onclick="copyRefLink()">КОПИРОВАТЬ</button>
             </div>
-            <div style="font-size:10px; color:var(--neon-yellow); margin-top:6px; font-weight:700;">Приглашено: 3 нетранера | Заработано: 3,000 VEX</div>
         </div>
 
         <!-- Таблица Лидеров -->
@@ -540,39 +547,9 @@
                 <span>🥈 2. @arasaka_ceo</span>
                 <b style="color:var(--neon-yellow);">920,000 VEX</b>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                <span>🥉 3. @neon_runner</span>
-                <b style="color:var(--neon-yellow);">480,000 VEX</b>
-            </div>
             <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; color:var(--neon-cyan);">
                 <span>🎗 14. Вы (CyberPawn)</span>
                 <b><span id="top-user-balance">3,000</span> VEX</b>
-            </div>
-        </div>
-
-        <!-- Достижения и Квесты -->
-        <div class="promo-box">
-            <div class="promo-title">🎯 КВЕСТЫ И АЧИВКИ</div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
-                <div>
-                    <div style="font-size:11px; color:#fff; font-weight:700;">⚡ Кибер-Фармер</div>
-                    <div style="font-size:9px; color:var(--text-sub);">Натапать 500 VEX вручную</div>
-                </div>
-                <button class="filter-chip" id="q1-btn" onclick="claimQuest(1, 500)">+500 VEX</button>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
-                <div>
-                    <div style="font-size:11px; color:#fff; font-weight:700;">🚀 Рискованный Ход</div>
-                    <div style="font-size:9px; color:var(--text-sub);">Сделать 3 апгрейда</div>
-                </div>
-                <button class="filter-chip" id="q2-btn" onclick="claimQuest(2, 1200)">+1,200 VEX</button>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-size:11px; color:#fff; font-weight:700;">🎰 Азартный Лорд</div>
-                    <div style="font-size:9px; color:var(--text-sub);">Сделать ставку в Cyber-Crash</div>
-                </div>
-                <button class="filter-chip" id="q3-btn" onclick="claimQuest(3, 2000)">+2,000 VEX</button>
             </div>
         </div>
     </div>
@@ -592,7 +569,7 @@
         </div>
     </div>
 
-    <!-- НИЖНЯЯ НАВИГАЦИЯ (6 ВКЛАДОК) -->
+    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
     <div class="bottom-nav">
         <div class="nav-tab active" onclick="switchTab('sec-upgrade', this)">
             <span class="icon">🎰</span>Апгрейд
@@ -682,7 +659,7 @@
             { id: 11, name: "Боевой Дрон 'Кобра'", price: 1200, emoji: "🤖", rarity: "rare", color: "var(--rarity-rare)" },
             { id: 12, name: "Неоновый Клинок", price: 2500, emoji: "⚔️", rarity: "rare", color: "var(--rarity-rare)" },
             { id: 13, name: "Плазменный Катана", price: 3000, emoji: "🗡️", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 14, name: "Моноструна Arasaka", price: 7500, emoji: "🧵", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 14, name: "Моноструна Arasaka", price: 7500, emoji: "epic", color: "var(--rarity-epic)" },
             { id: 15, name: "Имплант Sandevistan", price: 15000, emoji: "⚡", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 16, name: "Sandevistan Overclock", price: 18000, emoji: "🔥", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 17, name: "Кибер-Глаз Kiroshi", price: 40000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
@@ -695,11 +672,11 @@
         let myItem = myInventory[0];
         let targetItem = ITEMS[1];
 
-        // P2P ЛИСТИНГИ МАРКЕТА
+        // P2P МАРКЕТ
         let marketListings = [
             { id: 101, seller: "@cyber_jack", item: ITEMS[5], price: 270 },
             { id: 102, seller: "@matrix_ninja", item: ITEMS[11], price: 1100 },
-            { id: 103, seller: "@araka_boss", item: ITEMS[14], price: 7000 }
+            { id: 103, seller: "@araka_boss", item: ITEMS[13], price: 3000 }
         ];
 
         function updateUI() {
@@ -709,6 +686,19 @@
             document.getElementById('xp-fill').style.width = (xp % 100) + '%';
             document.getElementById('streak-days').innerText = streak;
             document.getElementById('streak-card-val').innerText = streak;
+
+            // Проверка на банкротство
+            const bankruptBanner = document.getElementById('bankrupt-banner');
+            if (myInventory.length === 0 && balance < 100) {
+                bankruptBanner.classList.add('show');
+            } else {
+                bankruptBanner.classList.remove('show');
+            }
+
+            // Авто-подбор если выбранный предмет был продан/утерян
+            if (!myItem && myInventory.length > 0) {
+                myItem = myInventory[0];
+            }
 
             // Мой слот
             const slotMy = document.getElementById('slot-my');
@@ -722,7 +712,7 @@
                 slotMy.classList.remove('has-item');
                 slotMy.style.borderColor = 'rgba(255,255,255,0.15)';
                 document.getElementById('my-emoji').innerText = '❓';
-                document.getElementById('my-title').innerText = 'Выбрать скин';
+                document.getElementById('my-title').innerText = 'Нет предметов';
                 document.getElementById('my-val').innerText = '0 VEX';
             }
 
@@ -762,7 +752,7 @@
             if (isRolling) {
                 btn.disabled = true; btn.innerText = "ПРОКАЧКА...";
             } else if (!myItem) {
-                btn.disabled = true; btn.innerText = "ВЫБЕРИТЕ СКИН ИЗ ИНВЕНТАРЯ";
+                btn.disabled = true; btn.innerText = "ИНВЕНТАРЬ ПУСТ";
             } else if (!targetItem || myItem.price >= targetItem.price) {
                 btn.disabled = true; btn.innerText = "ЦЕЛЬ ДЕШЕВЛЕ ТЕКУЩЕГО";
             } else {
@@ -774,46 +764,128 @@
             renderMarket();
         }
 
-        /* ЕЖЕДНЕВНЫЙ БОНУС И КОЛЕСО */
-        function claimDailyReward() {
-            if (dailyClaimed) {
-                alert("Вы уже забирали сегодняшний бонус!"); return;
-            }
-            dailyClaimed = true;
-            balance += 500;
-            streak += 1;
-            document.getElementById('btn-claim-daily').disabled = true;
-            document.getElementById('btn-claim-daily').innerText = "ПОЛУЧЕНО";
-            playSound('win'); triggerParticles();
+        // АВАРИЙНЫЙ НАБОР ПРИ БАНКРОТСТВЕ
+        function claimBankruptcyKit() {
+            myInventory.push(ITEMS[0]);
+            balance += 250;
+            myItem = ITEMS[0];
+            playSound('win');
+            triggerParticles();
+            alert("🎁 ВЫ ПОЛУЧИЛИ: Чип 64KB и +250 VEX!");
             updateUI();
-            alert("🎁 Ежедневный бонус забран! +500 VEX");
         }
 
-        let isWheelSpinning = false;
+        /* КОЛЕСО УДАЧИ С РЕАЛЬНЫМИ СЕКТОРАМИ И ФИЗИКОЙ */
+        const FORTUNE_SECTORS = [
+            { label: "250 VEX", type: "vex", val: 250, color: "#00f3ff" },
+            { label: "500 VEX", type: "vex", val: 500, color: "#9d00ff" },
+            { label: "1,000 VEX", type: "vex", val: 1000, color: "#ffe600" },
+            { label: "2,500 VEX", type: "vex", val: 2500, color: "#00ff66" },
+            { label: "5,000 VEX", type: "vex", val: 5000, color: "#ff0055" },
+            { label: "📼 Скин", type: "item", item: ITEMS[1], color: "#ff8c00" }
+        ];
+
+        let hasFreeSpin = true;
+        let isFortuneSpinning = false;
+        let currentFortuneAngle = 0;
+
+        function drawFortuneWheel() {
+            const canvas = document.getElementById('fortune-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const numSectors = FORTUNE_SECTORS.length;
+            const arcSize = (2 * Math.PI) / numSectors;
+
+            ctx.clearRect(0, 0, 220, 220);
+
+            FORTUNE_SECTORS.forEach((sec, i) => {
+                const angle = i * arcSize;
+                ctx.beginPath();
+                ctx.fillStyle = sec.color;
+                ctx.moveTo(110, 110);
+                ctx.arc(110, 110, 105, angle, angle + arcSize);
+                ctx.lineTo(110, 110);
+                ctx.fill();
+
+                // Текст секторов
+                ctx.save();
+                ctx.translate(110, 110);
+                ctx.rotate(angle + arcSize / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#000000";
+                ctx.font = "900 11px Orbitron, sans-serif";
+                ctx.fillText(sec.label, 95, 4);
+                ctx.restore();
+            });
+
+            // Центр колеса
+            ctx.beginPath();
+            ctx.arc(110, 110, 22, 0, 2 * Math.PI);
+            ctx.fillStyle = "#0a0f1a";
+            ctx.fill();
+            ctx.strokeStyle = "#00f3ff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
         function spinFortuneWheel() {
-            if (isWheelSpinning) return;
-            isWheelSpinning = true;
+            if (isFortuneSpinning) return;
 
-            const wheel = document.getElementById('fortune-wheel-graphic');
-            const randomRotation = 1440 + Math.floor(Math.random() * 360);
-            wheel.style.transform = `rotate(${randomRotation}deg)`;
+            if (!hasFreeSpin) {
+                if (balance < 500) {
+                    alert("Вращение стоит 500 VEX!"); return;
+                }
+                balance -= 500;
+            }
 
-            playSound('tick');
+            isFortuneSpinning = true;
+            const btn = document.getElementById('btn-spin-fortune');
+            btn.disabled = true; btn.innerText = "ВРАЩЕНИЕ...";
+
+            const winIndex = Math.floor(Math.random() * FORTUNE_SECTORS.length);
+            const sectorDegree = 360 / FORTUNE_SECTORS.length;
+            
+            // Вычисляем угол, чтобы победный сектор оказался вверху (-90 градусов)
+            const targetSectorAngle = 360 - (winIndex * sectorDegree) - (sectorDegree / 2) - 90;
+            const totalRotation = currentFortuneAngle + 1800 + (targetSectorAngle - (currentFortuneAngle % 360));
+            currentFortuneAngle = totalRotation;
+
+            const canvas = document.getElementById('fortune-canvas');
+            canvas.style.transform = `rotate(${totalRotation}deg)`;
+
+            let ticks = 0;
+            const tickInterval = setInterval(() => {
+                playSound('tick');
+                if (++ticks > 15) clearInterval(tickInterval);
+            }, 200);
 
             setTimeout(() => {
-                isWheelSpinning = false;
-                const prizes = [250, 500, 1000, 2500, 5000];
-                const prize = prizes[Math.floor(Math.random() * prizes.length)];
-                balance += prize;
-                playSound('win'); triggerParticles();
+                isFortuneSpinning = false;
+                hasFreeSpin = false;
+
+                const won = FORTUNE_SECTORS[winIndex];
+                if (won.type === "vex") {
+                    balance += won.val;
+                    alert(`🎰 ВЫ ВЫИГРАЛИ: ${won.val.toLocaleString()} VEX!`);
+                } else if (won.type === "item") {
+                    myInventory.push(won.item);
+                    alert(`🎰 ВЫ ВЫИГРАЛИ СКИН: ${won.item.name}!`);
+                }
+
+                playSound('win');
+                triggerParticles();
+
+                btn.disabled = false;
+                btn.innerText = "🎰 КРУТИТЬ ЗА 500 VEX";
+                document.getElementById('fortune-timer').innerText = "Следующий бесплатный спин завтра!";
+
                 updateUI();
-                alert(`🎰 Колесо принесло вам: +${prize.toLocaleString()} VEX!`);
-            }, 3000);
+            }, 3900);
         }
 
-        // АВТО-ПОДБОР ЦЕЛИ С ШАНСОМ ОКОЛО 90%
+        // АВТО-ПОДБОР ЦЕЛИ НА 90%
         function selectHighChanceTarget() {
-            if (!myItem) { alert("Сначала выберите свой предмет из инвентаря!"); return; }
+            if (!myItem) { alert("Инвентарь пуст!"); return; }
 
             let bestTarget = null;
             let closestRatio = 0;
@@ -833,7 +905,7 @@
                 updateUI();
                 playSound('tap');
             } else {
-                alert("Это уже самый топовый предмет!");
+                alert("Это самый топовый предмет!");
             }
         }
 
@@ -984,7 +1056,7 @@
             }, 2200);
         }
 
-        // РЕЖИМ CYBER-CRASH ЛОГИКА
+        // РЕЖИМ CYBER-CRASH
         let isCrashRunning = false;
         let crashMultiplier = 1.00;
         let crashCrashPoint = 0;
@@ -1057,7 +1129,7 @@
             }
         }
 
-        // P2P МАРКЕТ ЛОГИКА
+        // P2P МАРКЕТ
         function renderMarket() {
             const list = document.getElementById('market-listings-list');
             list.innerHTML = '';
@@ -1117,27 +1189,34 @@
             }
         }
 
-        // ПРОМОКОДЫ И РЕФЕРАЛЫ
+        // БОНУСЫ И ПРОМО
+        function claimDailyReward() {
+            if (dailyClaimed) { alert("Вы уже забирали бонус!"); return; }
+            dailyClaimed = true;
+            balance += 500;
+            streak += 1;
+            document.getElementById('btn-claim-daily').disabled = true;
+            document.getElementById('btn-claim-daily').innerText = "ПОЛУЧЕНО";
+            playSound('win'); triggerParticles();
+            updateUI();
+            alert("🎁 Ежедневный бонус забран! +500 VEX");
+        }
+
         const usedPromos = new Set();
         function applyPromo() {
             const codeInput = document.getElementById('promo-input');
             const code = codeInput.value.trim().toUpperCase();
 
-            if (usedPromos.has(code)) {
-                alert("Вы уже активировали этот код!"); return;
-            }
+            if (usedPromos.has(code)) { alert("Код уже активирован!"); return; }
 
             if (code === 'VEX2027') {
                 balance += 2000; usedPromos.add(code); playSound('win'); triggerParticles();
-                alert("🎉 Промокод активирован! +2,000 VEX");
+                alert("🎉 +2,000 VEX!");
             } else if (code === 'CYBERPUNK') {
                 balance += 5000; usedPromos.add(code); playSound('win'); triggerParticles();
-                alert("🎉 Промокод активирован! +5,000 VEX");
-            } else if (code === 'NEON90') {
-                balance += 1000; usedPromos.add(code); playSound('win'); triggerParticles();
-                alert("🎉 Промокод активирован! +1,000 VEX");
+                alert("🎉 +5,000 VEX!");
             } else {
-                alert("Неверный или устаревший промокод!");
+                alert("Неверный промокод!");
             }
             codeInput.value = '';
             updateUI();
@@ -1146,7 +1225,7 @@
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('ref-link-url').innerText);
             playSound('tap');
-            alert("📋 Реферальная ссылка скопирована!");
+            alert("📋 Ссылка скопирована!");
         }
 
         function openCase(cost) {
@@ -1194,14 +1273,7 @@
 
         function addXP(amount) {
             xp += amount;
-            if (xp >= 100) { level++; xp = 0; alert("🎖️ НОВЫЙ КИБЕР-УРОВЕНЬ: " + level); }
-        }
-
-        function claimQuest(id, reward) {
-            balance += reward;
-            document.getElementById(`q${id}-btn`).disabled = true;
-            document.getElementById(`q${id}-btn`).innerText = "ПОЛУЧЕНО";
-            updateUI();
+            if (xp >= 100) { level++; xp = 0; alert("🎖️ НОВЫЙ УРОВЕНЬ: " + level); }
         }
 
         function switchTab(secId, tabEl) {
@@ -1272,9 +1344,10 @@
             });
             requestAnimationFrame(animateParticles);
         }
-        animateParticles();
 
+        animateParticles();
         initLiveFeed();
+        drawFortuneWheel();
         updateUI();
     </script>
 </body>
