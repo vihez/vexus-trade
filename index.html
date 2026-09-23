@@ -9,7 +9,7 @@
     <style>
         :root {
             --bg-color: #030509;
-            --card-bg: rgba(13, 18, 30, 0.85);
+            --card-bg: rgba(13, 18, 30, 0.88);
             --neon-cyan: #00f3ff;
             --neon-pink: #ff0055;
             --neon-yellow: #ffe600;
@@ -42,7 +42,6 @@
             min-height: 100vh; overflow-x: hidden;
         }
 
-        /* Scanline Overlay */
         body::before {
             content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
@@ -54,9 +53,9 @@
             pointer-events: none; z-index: 999;
         }
 
-        /* LIVE FEED (Лента выигрышей онлайн) */
+        /* LIVE FEED */
         .live-feed-wrapper {
-            background: rgba(0,0,0,0.8); border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 243, 255, 0.2);
             padding: 6px 0; overflow: hidden; white-space: nowrap; display: flex; align-items: center;
         }
         .live-feed-label {
@@ -75,10 +74,10 @@
 
         @keyframes feedScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* ШАПКА АКТИВНОСТИ */
+        /* ШАПКА */
         .app-header {
             padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(10, 15, 26, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 15, 26, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
         }
         .user-profile { display: flex; align-items: center; gap: 10px; }
@@ -94,9 +93,9 @@
 
         .balance-group { display: flex; align-items: center; gap: 8px; }
         .balance-box {
-            font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900;
+            font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900;
             color: var(--neon-yellow); text-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
-            background: rgba(255, 230, 0, 0.1); padding: 6px 12px; border-radius: 20px;
+            background: rgba(255, 230, 0, 0.1); padding: 6px 10px; border-radius: 20px;
             border: 1px solid rgba(255, 230, 0, 0.3);
         }
         .btn-sound {
@@ -105,56 +104,63 @@
             align-items: center; justify-content: center; cursor: pointer; font-size: 14px;
         }
 
-        /* НАВИГАЦИЯ (ТАБЫ) */
+        /* НАВИГАЦИЯ */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: rgba(8, 12, 20, 0.95); border-top: 1px solid rgba(0, 243, 255, 0.2);
-            display: grid; grid-template-columns: repeat(4, 1fr); z-index: 800;
+            display: grid; grid-template-columns: repeat(6, 1fr); z-index: 800;
             backdrop-filter: blur(15px);
         }
         .nav-tab {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-sub); font-size: 10px; font-weight: 800; cursor: pointer; gap: 2px;
+            color: var(--text-sub); font-size: 9px; font-weight: 800; cursor: pointer; gap: 2px;
             transition: all 0.2s ease;
         }
-        .nav-tab .icon { font-size: 18px; }
+        .nav-tab .icon { font-size: 16px; }
         .nav-tab.active { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
 
-        /* КОНТЕЙНЕР СЕКЦИЙ */
         .view-section { display: none; padding: 12px; }
         .view-section.active { display: block; }
 
-        /* --- СЕКЦИЯ 1: АПГРЕЙДЕР --- */
+        /* ТАПАЛКА */
         .cyber-tap-btn {
             background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(157,0,255,0.1));
-            border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 10px;
-            text-align: center; cursor: pointer; margin-bottom: 12px;
+            border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 8px;
+            text-align: center; cursor: pointer; margin-bottom: 10px;
             box-shadow: 0 0 12px rgba(0,243,255,0.15);
         }
         .cyber-tap-btn:active { transform: scale(0.98); background: rgba(0,243,255,0.2); }
-        .tap-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; color: var(--neon-cyan); }
+        .tap-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 800; color: var(--neon-cyan); }
 
+        /* АРЕНА (АПГРЕЙДЕР) */
         .arena-card {
             background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             margin-bottom: 12px; position: relative; backdrop-filter: blur(10px);
         }
-        .arena-grid { display: grid; grid-template-columns: 1fr 120px 1fr; gap: 6px; align-items: center; margin-bottom: 12px; }
+        .arena-grid { display: grid; grid-template-columns: 1fr 110px 1fr; gap: 6px; align-items: center; margin-bottom: 12px; }
 
         .slot-box {
             background: rgba(0, 0, 0, 0.5); border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 14px; padding: 8px 4px; text-align: center; min-height: 130px;
+            border-radius: 14px; padding: 8px 4px; text-align: center; min-height: 125px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             position: relative; transition: all 0.3s ease;
         }
         .slot-box.has-item { border-style: solid; box-shadow: 0 0 15px rgba(0,0,0,0.6); }
         .slot-tag { position: absolute; top: 6px; font-size: 8px; font-weight: 800; text-transform: uppercase; color: var(--text-sub); }
-        .slot-emoji { font-size: 36px; margin: 6px 0 2px 0; }
+        .slot-emoji { font-size: 32px; margin: 6px 0 2px 0; }
         .slot-title { font-size: 10px; font-weight: 700; line-height: 1.2; height: 24px; overflow: hidden; color: #fff; }
         .slot-val { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); margin-top: 2px; }
 
+        .btn-quick-90 {
+            width: 100%; background: rgba(0, 255, 102, 0.12); border: 1px solid var(--neon-green);
+            color: var(--neon-green); border-radius: 8px; padding: 6px; font-family: 'Orbitron', sans-serif;
+            font-size: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px; text-align: center;
+        }
+        .btn-quick-90:active { background: rgba(0, 255, 102, 0.25); }
+
         /* SVG Wheel */
-        .wheel-wrap { position: relative; width: 115px; height: 115px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+        .wheel-wrap { position: relative; width: 105px; height: 105px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
         .wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
         .wheel-bg-circle { fill: none; stroke: rgba(255, 0, 85, 0.2); stroke-width: 8; }
         .wheel-active-arc {
@@ -165,36 +171,36 @@
             position: absolute; top: 0px; left: 50%; transform: translateX(-50%);
             width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent;
             border-top: 12px solid #fff; z-index: 10; filter: drop-shadow(0 0 8px var(--neon-cyan));
-            transition: transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1); transform-origin: 50% 57px;
+            transition: transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1); transform-origin: 50% 52px;
         }
         .wheel-info { position: absolute; text-align: center; }
-        .chance-num { font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 900; color: #fff; }
+        .chance-num { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: #fff; }
         .chance-lbl { font-size: 8px; font-weight: 800; color: var(--text-sub); }
 
         /* Страховка и кнопка */
         .insurance-bar {
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-size: 11px; font-weight: 700;
+            border-radius: 10px; padding: 6px 12px; margin-bottom: 10px; font-size: 10px; font-weight: 700;
         }
-        .toggle-switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .toggle-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #222; transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--neon-green); }
         input:checked + .slider:before { transform: translateX(16px); }
 
         .btn-upgrade-main {
             width: 100%; background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-            color: #fff; border: none; border-radius: 12px; padding: 14px;
-            font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900;
+            color: #fff; border: none; border-radius: 12px; padding: 12px;
+            font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900;
             letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: all 0.15s ease;
         }
         .btn-upgrade-main:active { transform: scale(0.97); }
         .btn-upgrade-main:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; filter: grayscale(1); }
 
-        /* Фильтры и Каталог */
+        /* КАТАЛОГ */
         .catalog-filter { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
         .filter-chip {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -214,56 +220,94 @@
         .grid-card .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
         .grid-card .price { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; color: var(--neon-yellow); }
 
-        /* --- СЕКЦИЯ 2: ИНВЕНТАРЬ --- */
-        .inventory-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .btn-sell-all {
-            background: rgba(255,0,85,0.15); border: 1px solid var(--neon-pink); color: var(--neon-pink);
-            border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 800; cursor: pointer;
+        /* ================= РЕЖИМ CYBER-CRASH ================= */
+        .crash-card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px;
+        }
+        .crash-canvas-container {
+            position: relative; width: 100%; height: 160px; background: rgba(0,0,0,0.7);
+            border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; overflow: hidden; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #crash-chart { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .crash-mult-display {
+            position: relative; z-index: 5; font-family: 'Orbitron', sans-serif;
+            font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 0 15px var(--neon-cyan);
+        }
+        .crash-mult-display.crashed { color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); }
+
+        .crash-history { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
+        .history-pill {
+            background: rgba(255,255,255,0.05); border-radius: 6px; padding: 2px 8px;
+            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; flex-shrink: 0;
+        }
+        .history-pill.high { color: var(--neon-green); border: 1px solid var(--neon-green); }
+        .history-pill.low { color: var(--neon-pink); border: 1px solid var(--neon-pink); }
+
+        .crash-inputs { display: flex; gap: 8px; margin-bottom: 10px; }
+        .cyber-input {
+            flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px; padding: 8px 12px; color: #fff; font-family: 'Orbitron', sans-serif;
+            font-size: 12px; outline: none;
+        }
+        .btn-crash-action {
+            width: 100%; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #000; border: none; border-radius: 10px; padding: 12px;
+            font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer;
+        }
+        .btn-crash-action.cashout { background: linear-gradient(135deg, var(--neon-green), #00b341); color: #000; }
+
+        /* ================= P2P МАРКЕТ ================= */
+        .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .market-item-card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
+        }
+        .market-item-info { display: flex; align-items: center; gap: 10px; }
+        .market-item-info .emoji { font-size: 28px; }
+        .market-seller { font-size: 9px; color: var(--text-sub); }
+
+        /* ================= ПРОМОКОДЫ И РЕФЕРАЛКА ================= */
+        .promo-box {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px; padding: 12px; margin-bottom: 12px;
+        }
+        .promo-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-yellow); margin-bottom: 8px; }
+        .ref-link-container {
+            display: flex; gap: 6px; background: rgba(0,0,0,0.5); border: 1px border-box rgba(255,255,255,0.1);
+            border-radius: 8px; padding: 6px; align-items: center; font-size: 10px; color: var(--neon-cyan);
         }
 
-        /* --- СЕКЦИЯ 3: КЕЙСЫ (CASE OPENER) --- */
+        /* КЕЙСЫ */
         .case-card {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 14px;
         }
         .case-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: var(--neon-cyan); margin-bottom: 8px; }
         .case-reel-container {
-            position: relative; width: 100%; height: 90px; background: rgba(0,0,0,0.6);
+            position: relative; width: 100%; height: 80px; background: rgba(0,0,0,0.6);
             border: 1px solid rgba(0,243,255,0.3); border-radius: 12px; overflow: hidden; margin: 10px 0;
         }
         .case-reel-pointer {
             position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
             width: 3px; background: var(--neon-yellow); z-index: 10; box-shadow: 0 0 10px var(--neon-yellow);
         }
-        .case-reel-track { display: flex; gap: 8px; position: absolute; left: 0; top: 10px; transition: transform 4s cubic-bezier(0.1, 0.9, 0.1, 1); }
+        .case-reel-track { display: flex; gap: 8px; position: absolute; left: 0; top: 5px; transition: transform 4s cubic-bezier(0.1, 0.9, 0.1, 1); }
         .reel-item {
-            width: 70px; height: 70px; background: rgba(255,255,255,0.05); border-radius: 8px;
+            width: 65px; height: 65px; background: rgba(255,255,255,0.05); border-radius: 8px;
             display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .reel-item .emoji { font-size: 28px; }
+        .reel-item .emoji { font-size: 26px; }
 
         .btn-open-case {
             width: 100%; background: linear-gradient(135deg, var(--neon-yellow), #ff8c00);
-            color: #000; border: none; border-radius: 10px; padding: 12px;
-            font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer;
+            color: #000; border: none; border-radius: 10px; padding: 10px;
+            font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; cursor: pointer;
         }
 
-        /* --- СЕКЦИЯ 4: КВЕСТЫ --- */
-        .quest-item {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex;
-            justify-content: space-between; align-items: center;
-        }
-        .quest-info h4 { margin: 0 0 4px 0; font-size: 12px; color: #fff; }
-        .quest-info p { margin: 0; font-size: 10px; color: var(--text-sub); }
-        .btn-claim-quest {
-            background: var(--neon-green); color: #000; border: none; border-radius: 8px;
-            padding: 6px 12px; font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 900; cursor: pointer;
-        }
-        .btn-claim-quest:disabled { opacity: 0.4; filter: grayscale(1); }
-
-        /* ВЫЛЕТАЮЩИЕ ЦИФРЫ */
         .float-text {
             position: fixed; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 18px;
             pointer-events: none; z-index: 9999; animation: floatUp 0.6s forwards;
@@ -284,25 +328,23 @@
 
     <canvas id="particle-canvas"></canvas>
 
-    <!-- LIVE FEED (БЕГУЩАЯ СТРОКА ВЫИГРЫШЕЙ) -->
+    <!-- LIVE FEED -->
     <div class="live-feed-wrapper">
         <div class="live-feed-label">LIVE DROPS</div>
-        <div class="live-feed-track" id="feed-track">
-            <!-- Генерируется через JS -->
-        </div>
+        <div class="live-feed-track" id="feed-track"></div>
     </div>
 
-    <!-- ШАПКА ПРИЛОЖЕНИЯ -->
+    <!-- ШАПКА -->
     <div class="app-header">
         <div class="user-profile">
             <div class="level-badge" id="user-lvl">1</div>
             <div class="user-meta">
-                <span class="user-name" id="user-name">CyberPawn</span>
+                <span class="user-name">CyberPawn</span>
                 <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-fill"></div></div>
             </div>
         </div>
         <div class="balance-group">
-            <div class="balance-box" id="balance-val">1,500 VEX</div>
+            <div class="balance-box" id="balance-val">3,000 VEX</div>
             <div class="btn-sound" onclick="toggleSound()" id="sound-btn">🔊</div>
         </div>
     </div>
@@ -315,6 +357,8 @@
         </div>
 
         <div class="arena-card" id="arena-card">
+            <button class="btn-quick-90" onclick="selectHighChanceTarget()">🎯 ПОДОБРАТЬ ЦЕЛЬ НА ~90% ШАНС</button>
+
             <div class="arena-grid">
                 <!-- МОЙ ПРЕДМЕТ -->
                 <div class="slot-box" id="slot-my" onclick="switchTab('sec-inventory')">
@@ -360,28 +404,107 @@
         <!-- КАТАЛОГ -->
         <div class="catalog-filter">
             <div class="filter-chip active" onclick="filterCatalog('all', this)">ВСЕ</div>
-            <div class="filter-chip" onclick="filterCatalog('common', this)">ОБЫЧНЫЕ</div>
-            <div class="filter-chip" onclick="filterCatalog('rare', this)">РЕДКИЕ</div>
+            <div class="filter-chip" onclick="filterCatalog('common', this)">БЮДЖЕТ</div>
+            <div class="filter-chip" onclick="filterCatalog('rare', this)">СРЕДНИЕ</div>
             <div class="filter-chip" onclick="filterCatalog('legendary', this)">ТОП</div>
         </div>
 
         <div class="items-grid" id="catalog-grid"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 2: ИНВЕНТАРЬ ================= -->
+    <!-- ================= СЕКЦИЯ 2: CYBER-CRASH ================= -->
+    <div class="view-section" id="sec-crash">
+        <div class="crash-card">
+            <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-cyan); margin-bottom:8px;">📈 CYBER-CRASH // MULTIPLIER</div>
+            
+            <div class="crash-history" id="crash-history">
+                <div class="history-pill high">x2.45</div>
+                <div class="history-pill low">x1.12</div>
+                <div class="history-pill high">x5.80</div>
+                <div class="history-pill high">x1.90</div>
+            </div>
+
+            <div class="crash-canvas-container">
+                <canvas id="crash-chart"></canvas>
+                <div class="crash-mult-display" id="crash-mult">x1.00</div>
+            </div>
+
+            <div class="crash-inputs">
+                <input type="number" class="cyber-input" id="crash-bet-input" placeholder="Ставка VEX" value="200">
+                <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = Math.floor(balance/2)">1/2</button>
+                <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = balance">MAX</button>
+            </div>
+
+            <button class="btn-crash-action" id="btn-crash-toggle" onclick="handleCrashBtn()">ПОСТАВИТЬ И СТАРТ</button>
+        </div>
+    </div>
+
+    <!-- ================= СЕКЦИЯ 3: P2P МАРКЕТ ================= -->
+    <div class="view-section" id="sec-market">
+        <div class="market-header">
+            <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">P2P МАРКЕТ</span>
+            <button class="filter-chip" onclick="openSellModal()">+ ВЫСТАВИТЬ СКИН</button>
+        </div>
+        <div id="market-listings-list"></div>
+    </div>
+
+    <!-- ================= СЕКЦИЯ 4: ИНВЕНТАРЬ ================= -->
     <div class="view-section" id="sec-inventory">
-        <div class="inventory-actions">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">МОИ ПРЕДМЕТЫ (<span id="inv-count">0</span>)</span>
-            <button class="btn-sell-all" onclick="sellAllCommon()">ПРОДАТЬ ВСЕ ОБЫЧНЫЕ</button>
+            <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink);" onclick="sellAllCommon()">ПРОДАТЬ ВСЕ ОБЫЧНЫЕ</button>
         </div>
         <div class="items-grid" id="inventory-grid" style="max-height: none;"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 3: КЕЙСЫ ================= -->
+    <!-- ================= СЕКЦИЯ 5: БОНУСЫ / ПРОМОкоды / РЕФЕРАЛЫ ================= -->
+    <div class="view-section" id="sec-bonuses">
+        
+        <!-- Промокоды -->
+        <div class="promo-box">
+            <div class="promo-title">🎁 ВВЕСТИ ПРОМОКОД</div>
+            <div style="display:flex; gap:6px;">
+                <input type="text" class="cyber-input" id="promo-input" placeholder="Код (напр. VEX2027)" style="text-transform:uppercase;">
+                <button class="filter-chip" style="background:var(--neon-cyan); color:#000; font-weight:900;" onclick="applyPromo()">АКТИВИРОВАТЬ</button>
+            </div>
+        </div>
+
+        <!-- Рефералка -->
+        <div class="promo-box">
+            <div class="promo-title">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</div>
+            <div style="font-size:11px; color:var(--text-sub); margin-bottom:8px;">Получайте +1,000 VEX за каждого приглашенного друга!</div>
+            <div class="ref-link-container">
+                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="ref-link-url">https://t.me/VexusBot?start=ref9912</span>
+                <button class="filter-chip" onclick="copyRefLink()">КОПИРОВАТЬ</button>
+            </div>
+            <div style="font-size:10px; color:var(--neon-yellow); margin-top:6px; font-weight:700;">Приглашено: 3 нетранера | Заработано: 3,000 VEX</div>
+        </div>
+
+        <!-- Квесты -->
+        <div class="promo-box">
+            <div class="promo-title">🎯 ЕЖЕДНЕВНЫЕ КВЕСТЫ</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
+                <div>
+                    <div style="font-size:11px; color:#fff; font-weight:700;">⚡ Кибер-Фармер</div>
+                    <div style="font-size:9px; color:var(--text-sub);">Натапать 500 VEX вручную</div>
+                </div>
+                <button class="filter-chip" id="q1-btn" onclick="claimQuest(1, 500)">+500 VEX</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:11px; color:#fff; font-weight:700;">🚀 Рискованный Ход</div>
+                    <div style="font-size:9px; color:var(--text-sub);">Сделать 3 апгрейда</div>
+                </div>
+                <button class="filter-chip" id="q2-btn" onclick="claimQuest(2, 1200)">+1,200 VEX</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= СЕКЦИЯ 6: КЕЙСЫ ================= -->
     <div class="view-section" id="sec-cases">
         <div class="case-card">
             <div class="case-title">📦 CYBER-CASE // NEON DROP</div>
-            <div style="font-size:11px; color:var(--text-sub);">Содержит скины от $250 до $75,000 VEX</div>
+            <div style="font-size:11px; color:var(--text-sub);">Содержит скины от $100 до $100,000 VEX</div>
             
             <div class="case-reel-container">
                 <div class="case-reel-pointer"></div>
@@ -392,37 +515,25 @@
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 4: КВЕСТЫ ================= -->
-    <div class="view-section" id="sec-quests">
-        <div class="quest-item">
-            <div class="quest-info">
-                <h4>⚡ Кибер-Фармер</h4>
-                <p>Натапать 500 VEX вручную</p>
-            </div>
-            <button class="btn-claim-quest" id="q1-btn" onclick="claimQuest(1, 500)">+500 VEX</button>
-        </div>
-        <div class="quest-item">
-            <div class="quest-info">
-                <h4>🚀 Рискованный Ход</h4>
-                <p>Сделать 3 апгрейда</p>
-            </div>
-            <button class="btn-claim-quest" id="q2-btn" onclick="claimQuest(2, 1200)">+1,200 VEX</button>
-        </div>
-    </div>
-
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+    <!-- НИЖНЯЯ НАВИГАЦИЯ (6 ВКЛАДОК) -->
     <div class="bottom-nav">
         <div class="nav-tab active" onclick="switchTab('sec-upgrade', this)">
-            <span class="icon">🎰</span>Апгрейдер
+            <span class="icon">🎰</span>Апгрейд
+        </div>
+        <div class="nav-tab" onclick="switchTab('sec-crash', this)">
+            <span class="icon">📈</span>Краш
+        </div>
+        <div class="nav-tab" onclick="switchTab('sec-market', this)">
+            <span class="icon">🛒</span>Маркет
         </div>
         <div class="nav-tab" onclick="switchTab('sec-inventory', this)">
-            <span class="icon">🎒</span>Инвентарь
+            <span class="icon">🎒</span>Склад
+        </div>
+        <div class="nav-tab" onclick="switchTab('sec-bonuses', this)">
+            <span class="icon">🎁</span>Бонусы
         </div>
         <div class="nav-tab" onclick="switchTab('sec-cases', this)">
             <span class="icon">📦</span>Кейсы
-        </div>
-        <div class="nav-tab" onclick="switchTab('sec-quests', this)">
-            <span class="icon">🎯</span>Квесты
         </div>
     </div>
 
@@ -430,16 +541,12 @@
         const tg = window.Telegram.WebApp;
         if (tg.expand) tg.expand();
 
-        // СОСТОЯНИЕ
-        let balance = 2500;
+        let balance = 4500;
         let level = 1;
         let xp = 0;
         let soundEnabled = true;
         let isRolling = false;
-        let tapCount = 0;
-        let upgradeCount = 0;
 
-        // ЗВУКОВОЙ ДВИЖОК (WEB AUDIO API — РАБОТАЕТ БЕЗ ВНЕШНИХ ФАЙЛОВ!)
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
@@ -452,38 +559,26 @@
 
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
+            osc.connect(gain); gain.connect(audioCtx.destination);
             const now = audioCtx.currentTime;
 
             if (type === 'tap') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, now);
-                osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
                 osc.start(now); osc.stop(now + 0.05);
             } else if (type === 'tick') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(800, now);
-                gain.gain.setValueAtTime(0.05, now);
-                gain.gain.linearRampToValueAtTime(0.001, now + 0.02);
+                osc.type = 'square'; osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.04, now); gain.gain.linearRampToValueAtTime(0.001, now + 0.02);
                 osc.start(now); osc.stop(now + 0.02);
             } else if (type === 'win') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(440, now);
-                osc.frequency.setValueAtTime(554, now + 0.1);
-                osc.frequency.setValueAtTime(659, now + 0.2);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
-                osc.start(now); osc.stop(now + 0.5);
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(659, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
             } else if (type === 'fail') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(300, now);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(250, now);
                 osc.frequency.linearRampToValueAtTime(80, now + 0.3);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
                 osc.start(now); osc.stop(now + 0.3);
             }
         }
@@ -493,25 +588,41 @@
             document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
         }
 
-        // БАЗА ДАННЫХ ПРЕДМЕТОВ
+        // БАЗА ПРЕДМЕТОВ
         const ITEMS = [
             { id: 1, name: "Чип 64KB", price: 100, emoji: "💾", rarity: "common", color: "var(--rarity-common)" },
-            { id: 2, name: "Флешка Нейро", price: 250, emoji: "🔌", rarity: "common", color: "var(--rarity-common)" },
-            { id: 3, name: "Очки AR", price: 600, emoji: "🕶️", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 4, name: "ИИ-Нейрочип", price: 1500, emoji: "🧠", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 5, name: "Дрон-Разведчик", price: 3500, emoji: "🛸", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 6, name: "Неоновый Клинок", price: 8000, emoji: "⚔️", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 7, name: "Моноструна Arasaka", price: 18000, emoji: "🧵", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 8, name: "Sandevistan", price: 40000, emoji: "⚡", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 9, name: "Глаз Kiroshi", price: 100000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 10, name: "Quadra Sport", price: 300000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" }
+            { id: 2, name: "Чип 128KB", price: 110, emoji: "📼", rarity: "common", color: "var(--rarity-common)" },
+            { id: 3, name: "Кабель Сверхпроводник", price: 125, emoji: "🔌", rarity: "common", color: "var(--rarity-common)" },
+            { id: 4, name: "Флешка Нейро", price: 150, emoji: "📟", rarity: "common", color: "var(--rarity-common)" },
+            { id: 5, name: "Модем NetRunner", price: 200, emoji: "📻", rarity: "common", color: "var(--rarity-common)" },
+            { id: 6, name: "Очки AR Light", price: 300, emoji: "🕶️", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 7, name: "Очки AR CyberPro", price: 350, emoji: "🥽", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 8, name: "ИИ-Процессор V1", price: 500, emoji: "🧠", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 9, name: "ИИ-Процессор V2", price: 600, emoji: "⚡", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 10, name: "Дрон-Разведчик", price: 1000, emoji: "🛸", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 11, name: "Боевой Дрон 'Кобра'", price: 1200, emoji: "🤖", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 12, name: "Неоновый Клинок", price: 2500, emoji: "⚔️", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 13, name: "Плазменный Катана", price: 3000, emoji: "🗡️", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 14, name: "Моноструна Arasaka", price: 7500, emoji: "🧵", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 15, name: "Имплант Sandevistan", price: 15000, emoji: "⚡", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 16, name: "Sandevistan Overclock", price: 18000, emoji: "🔥", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 17, name: "Кибер-Глаз Kiroshi", price: 40000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 18, name: "Рука Mantis Blade", price: 100000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 19, name: "Quadra Turbo-R", price: 250000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 20, name: "Аэродрокер AV-4", price: 1000000, emoji: "🚁", rarity: "godlike", color: "var(--rarity-godlike)" }
         ];
 
-        let myInventory = [ITEMS[0], ITEMS[1]]; // Предметы игрока
+        let myInventory = [ITEMS[0], ITEMS[2], ITEMS[4], ITEMS[6]];
         let myItem = myInventory[0];
-        let targetItem = ITEMS[2];
+        let targetItem = ITEMS[1];
 
-        // ИНИЦИАЛИЗАЦИЯ И РЕНДЕР
+        // P2P ЛИСТИНГИ МАРКЕТА
+        let marketListings = [
+            { id: 101, seller: "@cyber_jack", item: ITEMS[5], price: 270 },
+            { id: 102, seller: "@matrix_ninja", item: ITEMS[11], price: 1100 },
+            { id: 103, seller: "@araka_boss", item: ITEMS[14], price: 7000 }
+        ];
+
         function updateUI() {
             document.getElementById('balance-val').innerText = balance.toLocaleString() + ' VEX';
             document.getElementById('user-lvl').innerText = level;
@@ -533,7 +644,7 @@
                 document.getElementById('my-val').innerText = '0 VEX';
             }
 
-            // Целевой слот
+            // Цель
             const slotTarget = document.getElementById('slot-target');
             if (targetItem) {
                 slotTarget.classList.add('has-item');
@@ -556,7 +667,15 @@
             const strokeOffset = 283 - (283 * (chance / 100));
             circleArc.style.strokeDashoffset = strokeOffset;
 
-            // Кнопка
+            if (chance >= 80) {
+                circleArc.style.stroke = 'var(--neon-green)';
+            } else if (chance >= 40) {
+                circleArc.style.stroke = 'var(--neon-cyan)';
+            } else {
+                circleArc.style.stroke = 'var(--neon-pink)';
+            }
+
+            // Кнопка апгрейда
             const btn = document.getElementById('btn-upgrade');
             if (isRolling) {
                 btn.disabled = true; btn.innerText = "ПРОКАЧКА...";
@@ -570,9 +689,35 @@
 
             renderCatalog();
             renderInventory();
+            renderMarket();
         }
 
-        // РЕНДЕР КАТАЛОГА
+        // АВТО-ПОДБОР ЦЕЛИ С ШАНСОМ ОКОЛО 90%
+        function selectHighChanceTarget() {
+            if (!myItem) { alert("Сначала выберите свой предмет из инвентаря!"); return; }
+
+            let bestTarget = null;
+            let closestRatio = 0;
+
+            ITEMS.forEach(item => {
+                if (item.price > myItem.price) {
+                    let ratio = myItem.price / item.price;
+                    if (ratio <= 0.95 && ratio > closestRatio) {
+                        closestRatio = ratio;
+                        bestTarget = item;
+                    }
+                }
+            });
+
+            if (bestTarget) {
+                targetItem = bestTarget;
+                updateUI();
+                playSound('tap');
+            } else {
+                alert("Это уже самый топовый предмет!");
+            }
+        }
+
         let activeCatalogFilter = 'all';
         function renderCatalog() {
             const grid = document.getElementById('catalog-grid');
@@ -603,7 +748,6 @@
             renderCatalog();
         }
 
-        // РЕНДЕР ИНВЕНТАРЯ
         function renderInventory() {
             document.getElementById('inv-count').innerText = myInventory.length;
             const grid = document.getElementById('inventory-grid');
@@ -622,6 +766,7 @@
                 card.onclick = (e) => {
                     if (e.target.tagName === 'BUTTON') return;
                     myItem = item;
+                    selectHighChanceTarget();
                     switchTab('sec-upgrade');
                     updateUI();
                 };
@@ -649,7 +794,6 @@
             updateUI();
         }
 
-        // АНИМАЦИЯ И ЗАПУСК АПГРЕЙДА
         function runUpgrade() {
             if (isRolling || !myItem || !targetItem) return;
 
@@ -676,7 +820,6 @@
 
             needle.style.transform = `translateX(-50%) rotate(${totalRotation}deg)`;
 
-            // Звуковой таймер вращения
             let tickCount = 0;
             const tickInterval = setInterval(() => {
                 playSound('tick');
@@ -688,13 +831,11 @@
 
             setTimeout(() => {
                 const arena = document.getElementById('arena-card');
-                upgradeCount++;
 
                 if (isSuccess) {
                     playSound('win');
                     triggerParticles();
                     
-                    // Замена в инвентаре
                     const idx = myInventory.indexOf(myItem);
                     if (idx !== -1) myInventory[idx] = targetItem;
                     myItem = targetItem;
@@ -724,7 +865,176 @@
             }, 2200);
         }
 
-        // КЕЙСЫ (CASE OPENER REEL)
+        // ================= РЕЖИМ CYBER-CRASH ЛОГИКА =================
+        let isCrashRunning = false;
+        let crashMultiplier = 1.00;
+        let crashCrashPoint = 0;
+        let crashInterval = null;
+        let crashBet = 0;
+        let hasCashedOut = false;
+
+        function handleCrashBtn() {
+            const btn = document.getElementById('btn-crash-toggle');
+            if (!isCrashRunning) {
+                // Старт игры
+                const betVal = parseInt(document.getElementById('crash-bet-input').value);
+                if (isNaN(betVal) || betVal <= 0 || betVal > balance) {
+                    alert("Некорректная ставка!"); return;
+                }
+                crashBet = betVal;
+                balance -= crashBet;
+                hasCashedOut = false;
+                isCrashRunning = true;
+                crashMultiplier = 1.00;
+
+                // Генерация точки краша
+                crashCrashPoint = Math.max(1.05, (100 / (Math.random() * 95 + 1)).toFixed(2));
+
+                btn.innerText = "ЗАБРАТЬ (CASHOUT)";
+                btn.className = "btn-crash-action cashout";
+                document.getElementById('crash-mult').classList.remove('crashed');
+
+                updateUI();
+
+                crashInterval = setInterval(() => {
+                    crashMultiplier += 0.03 + (crashMultiplier * 0.015);
+                    document.getElementById('crash-mult').innerText = 'x' + crashMultiplier.toFixed(2);
+                    playSound('tick');
+
+                    if (crashMultiplier >= crashCrashPoint) {
+                        // ВЗРЫВ
+                        clearInterval(crashInterval);
+                        isCrashRunning = false;
+                        document.getElementById('crash-mult').innerText = 'x' + crashCrashPoint + ' CRASHED!';
+                        document.getElementById('crash-mult').classList.add('crashed');
+                        playSound('fail');
+
+                        btn.innerText = "ПОСТАВИТЬ И СТАРТ";
+                        btn.className = "btn-crash-action";
+
+                        // Добавить в историю
+                        const hist = document.getElementById('crash-history');
+                        const pill = document.createElement('div');
+                        pill.className = `history-pill ${crashCrashPoint >= 2 ? 'high' : 'low'}`;
+                        pill.innerText = 'x' + crashCrashPoint;
+                        hist.prepend(pill);
+
+                        updateUI();
+                    }
+                }, 100);
+
+            } else {
+                // Cashout
+                if (!hasCashedOut) {
+                    hasCashedOut = true;
+                    clearInterval(crashInterval);
+                    isCrashRunning = false;
+                    const winAmt = Math.floor(crashBet * crashMultiplier);
+                    balance += winAmt;
+                    playSound('win');
+                    triggerParticles();
+
+                    btn.innerText = "ПОСТАВИТЬ И СТАРТ";
+                    btn.className = "btn-crash-action";
+                    document.getElementById('crash-mult').innerText = 'ВЫИГРЫШ ' + winAmt + ' VEX!';
+
+                    updateUI();
+                }
+            }
+        }
+
+        // ================= P2P МАРКЕТ ЛОГИКА =================
+        function renderMarket() {
+            const list = document.getElementById('market-listings-list');
+            list.innerHTML = '';
+
+            marketListings.forEach(listObj => {
+                const card = document.createElement('div');
+                card.className = 'market-item-card';
+                card.innerHTML = `
+                    <div class="market-item-info">
+                        <div class="emoji">${listObj.item.emoji}</div>
+                        <div>
+                            <div style="font-size:11px; font-weight:800; color:#fff;">${listObj.item.name}</div>
+                            <div class="market-seller">Продавец: ${listObj.seller}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="buyMarketItem(${listObj.id})">
+                            ${listObj.price.toLocaleString()} VEX
+                        </button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function buyMarketItem(id) {
+            const idx = marketListings.findIndex(l => l.id === id);
+            if (idx !== -1) {
+                const itemObj = marketListings[idx];
+                if (balance >= itemObj.price) {
+                    balance -= itemObj.price;
+                    myInventory.push(itemObj.item);
+                    marketListings.splice(idx, 1);
+                    playSound('win');
+                    alert(`✅ Вы успешно купили ${itemObj.item.name}!`);
+                    updateUI();
+                } else {
+                    alert("Недостаточно VEX!");
+                }
+            }
+        }
+
+        function openSellModal() {
+            if (myInventory.length === 0) { alert("У вас нет скинов для продажи!"); return; }
+            const sellItemObj = myInventory[0];
+            const price = prompt(`Выставить на маркет ${sellItemObj.name}. Укажите цену VEX:`, sellItemObj.price);
+            if (price && !isNaN(price) && price > 0) {
+                marketListings.unshift({
+                    id: Date.now(),
+                    seller: "@you",
+                    item: sellItemObj,
+                    price: parseInt(price)
+                });
+                myInventory.splice(0, 1);
+                updateUI();
+                alert("✅ Предмет выставлен на маркет!");
+            }
+        }
+
+        // ================= ПРОМОКОДЫ И РЕФЕРАЛЫ =================
+        const usedPromos = new Set();
+        function applyPromo() {
+            const codeInput = document.getElementById('promo-input');
+            const code = codeInput.value.trim().toUpperCase();
+
+            if (usedPromos.has(code)) {
+                alert("Вы уже активировали этот код!"); return;
+            }
+
+            if (code === 'VEX2027') {
+                balance += 2000; usedPromos.add(code); playSound('win'); triggerParticles();
+                alert("🎉 Промокод активирован! +2,000 VEX");
+            } else if (code === 'CYBERPUNK') {
+                balance += 5000; usedPromos.add(code); playSound('win'); triggerParticles();
+                alert("🎉 Промокод активирован! +5,000 VEX");
+            } else if (code === 'NEON90') {
+                balance += 1000; usedPromos.add(code); playSound('win'); triggerParticles();
+                alert("🎉 Промокод активирован! +1,000 VEX");
+            } else {
+                alert("Неверный или устаревший промокод!");
+            }
+            codeInput.value = '';
+            updateUI();
+        }
+
+        function copyRefLink() {
+            navigator.clipboard.writeText(document.getElementById('ref-link-url').innerText);
+            playSound('tap');
+            alert("📋 Реферальная ссылка скопирована!");
+        }
+
         function openCase(cost) {
             if (balance < cost) { alert("Недостаточно VEX!"); return; }
             balance -= cost;
@@ -734,7 +1044,6 @@
             track.style.transform = 'translateX(0px)';
             track.innerHTML = '';
 
-            // Генерируем 30 случайных предметов для рулетки
             const reelItems = [];
             for (let i = 0; i < 30; i++) {
                 const randItem = ITEMS[Math.floor(Math.random() * ITEMS.length)];
@@ -745,11 +1054,11 @@
                 track.appendChild(el);
             }
 
-            const winItem = reelItems[22]; // Фиксированный выигрыш на 22 позиции
+            const winItem = reelItems[22];
 
             setTimeout(() => {
                 track.style.transition = 'transform 3.5s cubic-bezier(0.1, 0.85, 0.1, 1)';
-                track.style.transform = 'translateX(-1650px)';
+                track.style.transform = 'translateX(-1550px)';
             }, 50);
 
             setTimeout(() => {
@@ -760,16 +1069,12 @@
             }, 3600);
         }
 
-        // ТАПИЛКА / ФАРМ
         function handleTap(e) {
             balance += 25;
-            tapCount += 25;
             playSound('tap');
-            
             const x = e.clientX || window.innerWidth / 2;
             const y = e.clientY || window.innerHeight / 2;
             spawnFloatText('+25 VEX', '#ffe600', x, y);
-
             updateUI();
         }
 
@@ -806,7 +1111,6 @@
             setTimeout(() => el.remove(), 600);
         }
 
-        // ЛИВ ФИД ДРОПОВ (ФЕЙК ОНЛАЙН ЛЕНТА)
         function initLiveFeed() {
             const names = ['@alex_v', '@cyber_sam', '@matrix_99', '@v_punk', '@neon_fox'];
             const track = document.getElementById('feed-track');
@@ -814,7 +1118,7 @@
             setInterval(() => {
                 const name = names[Math.floor(Math.random() * names.length)];
                 const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-                const chance = (Math.random() * 40 + 5).toFixed(1);
+                const chance = (Math.random() * 40 + 50).toFixed(1);
 
                 const div = document.createElement('div');
                 div.className = 'feed-item';
@@ -824,7 +1128,6 @@
             }, 3000);
         }
 
-        // ЧАСТИЦЫ И САЛЮТ ПРИ ПОБЕДЕ (CANVAS)
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
