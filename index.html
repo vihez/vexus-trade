@@ -3,294 +3,460 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>CS:UPGRADE // VEX EDITION</title>
+    <title>CYBER // UPGRADE 2077</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0c0e14;
-            --card-bg: #151822;
-            --accent-gold: #ffb700;
-            --accent-gold-glow: rgba(255, 183, 0, 0.4);
-            --accent-green: #00ff88;
-            --accent-red: #ff3355;
-            --text-main: #ffffff;
-            --text-sub: #7b8396;
+            --bg-color: #05070c;
+            --card-bg: rgba(15, 20, 32, 0.85);
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff0055;
+            --neon-yellow: #ffe600;
+            --neon-purple: #9d00ff;
+            --neon-green: #00ff66;
+            --text-main: #f0f5ff;
+            --text-sub: #627293;
             
-            /* Цвета редкостей CS */
-            --rarity-covert: #eb4b4b;
-            --rarity-classified: #d32ce6;
-            --rarity-restricted: #8847ff;
-            --rarity-mil-spec: #4b69ff;
+            /* РЕДКОСТИ (CYBERPUNK / CS STYLE) */
+            --rarity-common: #8b9bb4;
+            --rarity-uncommon: #1e90ff;
+            --rarity-rare: #8847ff;
+            --rarity-epic: #d32ce6;
+            --rarity-legendary: #eb4b4b;
+            --rarity-godlike: #ffe600;
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
         body { 
             background-color: var(--bg-color); 
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.12), transparent 60%),
+                radial-gradient(circle at 100% 100%, rgba(255, 0, 85, 0.08), transparent 50%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
             color: var(--text-main); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            margin: 0; padding: 12px; padding-bottom: 30px; 
+            font-family: 'Rajdhani', sans-serif; 
+            margin: 0; padding: 12px; padding-bottom: 40px;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .title { font-size: 18px; font-weight: 900; color: var(--accent-gold); letter-spacing: 1px; }
-        .balance-box { font-size: 16px; font-weight: 900; color: var(--accent-green); background: rgba(0,255,136,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(0,255,136,0.2); }
-
-        /* Тапалка баланса */
-        .tap-btn {
-            background: linear-gradient(135deg, rgba(255,183,0,0.15), rgba(255,255,255,0.03));
-            border: 1px solid var(--accent-gold); border-radius: 12px;
-            padding: 12px; text-align: center; font-weight: 800; font-size: 14px;
-            color: var(--accent-gold); cursor: pointer; margin-bottom: 12px;
-        }
-        .tap-btn:active { transform: scale(0.98); background: rgba(255,183,0,0.25); }
-
-        /* ЗОНА АПГРЕЙДА (CS-STYLE) */
-        .upgrade-container {
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px; padding: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            margin-bottom: 14px;
+        /* Эффект сканирующей линии (Scanline) */
+        body::before {
+            content: " ";
+            display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px; z-index: 1000; pointer-events: none; opacity: 0.6;
         }
 
-        .upgrade-slots {
-            display: grid;
-            grid-template-columns: 1fr 120px 1fr;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 14px;
+        /* Шапка */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 12px; padding: 8px 12px;
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 12px; backdrop-filter: blur(8px);
+        }
+        .title-box { display: flex; align-items: center; gap: 8px; }
+        .logo-icon { font-size: 20px; filter: drop-shadow(0 0 8px var(--neon-cyan)); }
+        .title { 
+            font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 900; 
+            letter-spacing: 1.5px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .balance-chip { 
+            font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 800; 
+            color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255, 230, 0, 0.5);
+            background: rgba(255, 230, 0, 0.08); padding: 6px 12px; border-radius: 20px; 
+            border: 1px solid rgba(255, 230, 0, 0.3);
         }
 
-        /* Карточки предметов (Слева и Справа) */
-        .slot-card {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 10px; text-align: center;
-            min-height: 120px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        /* Тапалка фарма VEX */
+        .cyber-tap {
             position: relative; overflow: hidden;
+            background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(157,0,255,0.1));
+            border: 1px solid var(--neon-cyan); border-radius: 12px;
+            padding: 12px; text-align: center; cursor: pointer; margin-bottom: 14px;
+            box-shadow: 0 0 15px rgba(0,243,255,0.15), inset 0 0 15px rgba(0,243,255,0.1);
+            transition: all 0.1s ease;
         }
-        .slot-card.active { border-color: var(--accent-gold); box-shadow: 0 0 15px var(--accent-gold-glow); }
-        .slot-label { font-size: 9px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
-        .slot-emoji { font-size: 32px; margin-bottom: 4px; }
-        .slot-name { font-size: 11px; font-weight: 800; line-height: 1.2; height: 26px; overflow: hidden; }
-        .slot-price { font-size: 12px; font-weight: 900; color: var(--accent-gold); margin-top: 4px; }
+        .cyber-tap:active { transform: scale(0.98); background: rgba(0,243,255,0.25); }
+        .cyber-tap-title { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 800; color: var(--neon-cyan); letter-spacing: 1px; }
 
-        /* Радиальный круг рулетки (Центр) */
-        .wheel-box {
-            position: relative; width: 110px; height: 110px;
+        /* ЗОНА АПГРЕЙДА (HUD ARENA) */
+        .upgrade-arena {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px; padding: 14px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.8), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            margin-bottom: 14px; position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .arena-grid {
+            display: grid;
+            grid-template-columns: 1fr 125px 1fr;
+            gap: 6px; align-items: center; margin-bottom: 14px;
+        }
+
+        /* Карточка Слота */
+        .slot-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 14px; padding: 10px 6px; text-align: center;
+            min-height: 135px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .slot-card.has-item {
+            border-style: solid;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        .slot-tag { 
+            position: absolute; top: 6px; font-size: 8px; font-weight: 800; 
+            text-transform: uppercase; letter-spacing: 1px; color: var(--text-sub);
+        }
+        .slot-emoji { font-size: 38px; margin: 8px 0 4px 0; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+        .slot-title { font-size: 11px; font-weight: 700; line-height: 1.2; height: 26px; overflow: hidden; color: #fff; }
+        .slot-val { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 800; color: var(--neon-yellow); margin-top: 4px; }
+
+        /* Круговая Неоновая Рулетка */
+        .wheel-container {
+            position: relative; width: 120px; height: 120px;
             display: flex; align-items: center; justify-content: center; margin: 0 auto;
         }
-        .wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-        .wheel-bg { fill: none; stroke: rgba(255, 51, 85, 0.2); stroke-width: 8; }
-        .wheel-progress { 
-            fill: none; stroke: var(--accent-gold); stroke-width: 8; 
-            stroke-dasharray: 283; stroke-dashoffset: 141; /* 50% по дефолту */
-            transition: stroke-dashoffset 0.3s ease;
+        .wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 0 8px rgba(0,243,255,0.3)); }
+        .wheel-bg-circle { fill: none; stroke: rgba(255, 0, 85, 0.2); stroke-width: 8; }
+        .wheel-active-arc { 
+            fill: none; stroke: var(--neon-cyan); stroke-width: 8; 
+            stroke-dasharray: 283; stroke-dashoffset: 141; 
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.4s ease, stroke 0.3s ease;
         }
 
-        /* Стрелка индикатора */
-        .wheel-arrow {
-            position: absolute; top: 2px; left: 50%;
+        /* Стрелка Указатель */
+        .wheel-needle {
+            position: absolute; top: 0px; left: 50%;
             transform: translateX(-50%);
             width: 0; height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 10px solid #fff;
-            z-index: 10; filter: drop-shadow(0 0 5px #000);
-            transition: transform 2s cubic-bezier(0.15, 0.9, 0.2, 1);
-            transform-origin: 50% 53px;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 12px solid #fff;
+            z-index: 10; 
+            filter: drop-shadow(0 0 8px var(--neon-cyan));
+            transition: transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1);
+            transform-origin: 50% 60px;
         }
 
-        .chance-text {
-            position: absolute; text-align: center; font-size: 16px; font-weight: 900; color: #fff;
-            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+        .wheel-info {
+            position: absolute; text-align: center;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .chance-sub { font-size: 8px; color: var(--text-sub); display: block; text-transform: uppercase; }
+        .chance-num { font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
+        .chance-lbl { font-size: 8px; font-weight: 800; color: var(--text-sub); letter-spacing: 1px; }
 
-        /* Кнопка Прокачать */
-        .btn-upgrade-main {
-            width: 100%; background: linear-gradient(135deg, #ffb700, #ff8c00);
-            color: #000; border: none; border-radius: 12px; padding: 14px;
-            font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase;
-            letter-spacing: 1px; box-shadow: 0 4px 20px var(--accent-gold-glow);
-            transition: transform 0.05s ease;
+        /* Кнопка Апгрейда */
+        .btn-cyber-upgrade {
+            width: 100%; position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            color: #fff; border: none; border-radius: 12px; padding: 14px;
+            font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 900;
+            letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+            transition: all 0.15s ease;
         }
-        .btn-upgrade-main:active { transform: scale(0.97); }
-        .btn-upgrade-main:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
+        .btn-cyber-upgrade:active { transform: scale(0.97); filter: brightness(1.2); }
+        .btn-cyber-upgrade:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); box-shadow: none; }
 
-        /* Сетка выбора предметов */
-        .picker-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; }
-        .items-grid {
+        /* Фильтры и Инвентарь */
+        .section-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 10px; margin-top: 16px;
+        }
+        .section-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; color: var(--neon-cyan); letter-spacing: 1px; }
+        
+        .rarity-tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; }
+        .tab-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; padding: 4px 8px; font-size: 10px; font-weight: 700;
+            color: var(--text-sub); cursor: pointer; white-space: nowrap;
+        }
+        .tab-btn.active { background: rgba(0,243,255,0.15); border-color: var(--neon-cyan); color: #fff; }
+
+        /* Сетка предметов */
+        .catalog-grid {
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-            max-height: 180px; overflow-y: auto; padding-right: 4px;
+            max-height: 230px; overflow-y: auto; padding-right: 2px;
         }
-        .item-card-mini {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 8px; text-align: center; cursor: pointer;
+        .item-card {
+            background: rgba(10, 14, 23, 0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px; padding: 8px 4px; text-align: center;
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.15s ease;
         }
-        .item-card-mini:active { transform: scale(0.95); background: rgba(255,255,255,0.08); }
-        .item-card-mini.selected { border-color: var(--accent-gold); background: rgba(255,183,0,0.1); }
-        .item-card-mini .emoji { font-size: 22px; }
-        .item-card-mini .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .item-card-mini .price { font-size: 10px; font-weight: 900; color: var(--accent-gold); }
+        .item-card:active { transform: scale(0.95); }
+        .item-card.selected-target { border-color: var(--neon-cyan); box-shadow: 0 0 12px rgba(0,243,255,0.4); background: rgba(0,243,255,0.1); }
+        .item-card.selected-my { border-color: var(--neon-pink); box-shadow: 0 0 12px rgba(255,0,85,0.4); background: rgba(255,0,85,0.1); }
+        
+        .item-rarity-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .item-card .emoji { font-size: 26px; margin: 4px 0; }
+        .item-card .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+        .item-card .price { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; color: var(--neon-yellow); margin-top: 2px; }
 
-        /* Вылетающий текст */
-        .floating-text { position: fixed; font-weight: 900; font-size: 20px; pointer-events: none; z-index: 999; animation: floatUp 0.6s forwards; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -100px) scale(1.2); } }
+        /* Кнопка Покупки дефолтного предмета */
+        .btn-buy-starter {
+            width: 100%; background: rgba(0, 255, 102, 0.12); border: 1px solid var(--neon-green);
+            color: var(--neon-green); border-radius: 10px; padding: 10px; font-family: 'Orbitron', sans-serif;
+            font-size: 11px; font-weight: 800; cursor: pointer; margin-top: 8px;
+        }
+        .btn-buy-starter:active { background: rgba(0, 255, 102, 0.25); }
+
+        /* Всплывающий текст эффектов */
+        .float-num {
+            position: fixed; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 18px;
+            pointer-events: none; z-index: 9999; animation: floatUp 0.6s forwards;
+        }
+        @keyframes floatUp { 
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 
+            100% { opacity: 0; transform: translate(-50%, -100px) scale(1.3); } 
+        }
+
+        /* Анимация Вспышки Победы */
+        @keyframes winFlash {
+            0% { box-shadow: 0 0 0 rgba(0, 255, 102, 0); }
+            50% { box-shadow: 0 0 40px var(--neon-green); border-color: var(--neon-green); }
+            100% { box-shadow: 0 0 0 rgba(0, 255, 102, 0); }
+        }
+        .flash-win { animation: winFlash 0.8s ease; }
     </style>
 </head>
 <body>
 
+    <!-- Шапка приложения -->
     <div class="header">
-        <span class="title">VEX // UPGRADE</span>
-        <div class="balance-box" id="balance">1,000 VEX</div>
+        <div class="title-box">
+            <span class="logo-icon">⚡</span>
+            <span class="title">CYBER // UP</span>
+        </div>
+        <div class="balance-chip" id="balance">1,000 VEX</div>
     </div>
 
-    <!-- Клик кнопка фарма -->
-    <div class="tap-btn" onclick="handleTap(event)">
-        ⚡ ФАРМИТЬ БАЛАНС (+10 VEX)
+    <!-- Кликер фарма VEX -->
+    <div class="cyber-tap" onclick="handleTap(event)">
+        <div class="cyber-tap-title">⚡ ФАРМИТЬ КИБЕР-КРЕДИТЫ (+25 VEX)</div>
     </div>
 
-    <!-- ЗОНА АПГРЕЙДА (РУЛЕТКА В ЦЕНТРЕ) -->
-    <div class="upgrade-container">
-        <div class="upgrade-slots">
+    <!-- ОСНОВНАЯ АРЕНА АПГРЕЙДА -->
+    <div class="upgrade-arena" id="arena">
+        <div class="arena-grid">
             
             <!-- Левый слот: Твой предмет -->
-            <div class="slot-card active" id="slot-my">
-                <span class="slot-label">Ваш предмет</span>
-                <div class="slot-emoji" id="my-emoji">🛴</div>
-                <div class="slot-name" id="my-name">Самокат</div>
-                <div class="slot-price" id="my-price">100 VEX</div>
+            <div class="slot-card" id="slot-my">
+                <span class="slot-tag">Твой Скин</span>
+                <div class="slot-emoji" id="my-emoji">❓</div>
+                <div class="slot-title" id="my-title">Нет предмета</div>
+                <div class="slot-val" id="my-val">0 VEX</div>
             </div>
 
-            <!-- Центр: Радиальный круг с процентом -->
-            <div class="wheel-box">
+            <!-- Центр: Неоновый рулеточный круг -->
+            <div class="wheel-container">
                 <svg class="wheel-svg" viewBox="0 0 100 100">
-                    <circle class="wheel-bg" cx="50" cy="50" r="45"></circle>
-                    <circle class="wheel-progress" id="wheel-arc" cx="50" cy="50" r="45"></circle>
+                    <circle class="wheel-bg-circle" cx="50" cy="50" r="45"></circle>
+                    <circle class="wheel-active-arc" id="wheel-arc" cx="50" cy="50" r="45"></circle>
                 </svg>
-                <div class="wheel-arrow" id="wheel-needle"></div>
-                <div class="chance-text">
-                    <span id="chance-val">50.00%</span>
-                    <span class="chance-sub">ШАНС</span>
+                <div class="wheel-needle" id="needle"></div>
+                <div class="wheel-info">
+                    <span class="chance-num" id="chance-val">0.0%</span>
+                    <span class="chance-lbl">ШАНС</span>
                 </div>
             </div>
 
             <!-- Правый слот: Цель -->
             <div class="slot-card" id="slot-target">
-                <span class="slot-label">Цель</span>
-                <div class="slot-emoji" id="target-emoji">📱</div>
-                <div class="slot-name" id="target-name">iPhone 11</div>
-                <div class="slot-price" id="target-price">200 VEX</div>
+                <span class="slot-tag">Цель</span>
+                <div class="slot-emoji" id="target-emoji">❓</div>
+                <div class="slot-title" id="target-title">Выберите</div>
+                <div class="slot-val" id="target-val">0 VEX</div>
             </div>
 
         </div>
 
-        <button class="btn-upgrade-main" id="btn-upgrade" onclick="runUpgrade()">⚡ ПРОКАЧАТЬ</button>
+        <button class="btn-cyber-upgrade" id="btn-upgrade" onclick="runUpgrade()">🚀 ПРОКАЧАТЬ</button>
+        <button class="btn-buy-starter" id="btn-starter" style="display:none;" onclick="buyStarterItem()">🛒 КУПИТЬ БАЗОВЫЙ ЧИП (100 VEX)</button>
     </div>
 
-    <!-- Каталог предметов для выбора цели -->
-    <div class="picker-header">
-        <span>Выбрать целевой предмет:</span>
+    <!-- Фильтры редких предметов -->
+    <div class="section-header">
+        <span class="section-title">КАТАЛОГ КИБЕР-ВЕЩЕЙ</span>
+        <div class="rarity-tabs">
+            <button class="tab-btn active" onclick="filterItems('all', this)">Все</button>
+            <button class="tab-btn" onclick="filterItems('budget', this)">Бюджет</button>
+            <button class="tab-btn" onclick="filterItems('top', this)">ТОП</button>
+        </div>
     </div>
-    <div class="items-grid" id="catalog-grid">
-        <!-- Генерируется через JS -->
+
+    <!-- Сетка выбора целевых предметов -->
+    <div class="catalog-grid" id="catalog">
+        <!-- Заполняется динамически JS -->
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         if (tg.expand) tg.expand();
 
-        let balance = 1000;
+        let balance = 1500;
         let isRolling = false;
 
-        // Предметы в инвентаре / магазине
-        const SKINS = [
-            { id: 1, name: "Старый Самокат", price: 100, emoji: "🛴" },
-            { id: 2, name: "iPhone 11", price: 200, emoji: "📱" },
-            { id: 3, name: "Игровой ПК", price: 500, emoji: "🖥️" },
-            { id: 4, name: "Приора B33", price: 1200, emoji: "🏎️" },
-            { id: 5, name: "Перчатки 'Scarlet'", price: 3000, emoji: "🧤" },
-            { id: 6, name: "Tesla Model S", price: 8000, emoji: "⚡" },
-            { id: 7, name: "Керамбит 'Gradation'", price: 20000, emoji: "🔪" },
-            { id: 8, name: "Вилла в Дубае", price: 50000, emoji: "🏰" },
-            { id: 9, name: "Бизнес-Джет", price: 150000, emoji: "🛩️" }
+        // БАЗА ДАННЫХ ПРЕДМЕТОВ (15+ КИБЕРПАНК СКИНОВ С РЕДКОСТЯМИ)
+        const ITEMS = [
+            { id: 1, name: "Чип Памяти 64KB", price: 100, emoji: "💾", rarity: "common", color: "var(--rarity-common)" },
+            { id: 2, name: "Кибер-Флешка Нейро", price: 250, emoji: "🔌", rarity: "common", color: "var(--rarity-common)" },
+            { id: 3, name: "Очки Доп.Реальности", price: 600, emoji: "🕶️", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 4, name: "ИИ-Нейрочип 'Vex'", price: 1200, emoji: "🧠", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 5, name: "Дрон-Разведчик", price: 2800, emoji: "🛸", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 6, name: "Неоновый Клинок", price: 6000, emoji: "⚔️", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 7, name: "Моноструна 'Arasaka'", price: 14000, emoji: "🧵", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 8, name: "Имплант Sandevistan", price: 30000, emoji: "⚡", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 9, name: "Кибер-Глаз Kiroshi", price: 75000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 10, name: "Плазменная Винтовка", price: 180000, emoji: "🔫", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 11, name: "Рука Mantis Blade", price: 400000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 12, name: "Кибер-Спорткар Quadra", price: 1000000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 13, name: "Летающий Аэродрокер", price: 2500000, emoji: "🚁", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 14, name: "Орбитальная Станция", price: 7000000, emoji: "🛰️", rarity: "godlike", color: "var(--rarity-godlike)" }
         ];
 
-        let myItem = SKINS[0];      // Начальный выбор предмета у игрока
-        let targetItem = SKINS[1];  // Начальный выбор цели
+        let myItem = ITEMS[0];     // Начальный скин игрока
+        let targetItem = ITEMS[2]; // Начальная цель
 
         function updateUI() {
             document.getElementById('balance').innerText = balance.toLocaleString() + ' VEX';
 
-            // Карточка слева
-            document.getElementById('my-emoji').innerText = myItem ? myItem.emoji : '❓';
-            document.getElementById('my-name').innerText = myItem ? myItem.name : 'Нет предмета';
-            document.getElementById('my-price').innerText = myItem ? `${myItem.price.toLocaleString()} VEX` : '0 VEX';
+            // Левый слот (Мой скин)
+            const slotMy = document.getElementById('slot-my');
+            if (myItem) {
+                slotMy.classList.add('has-item');
+                slotMy.style.borderColor = myItem.color;
+                document.getElementById('my-emoji').innerText = myItem.emoji;
+                document.getElementById('my-title').innerText = myItem.name;
+                document.getElementById('my-val').innerText = myItem.price.toLocaleString() + ' VEX';
+                document.getElementById('btn-starter').style.display = 'none';
+            } else {
+                slotMy.classList.remove('has-item');
+                slotMy.style.borderColor = 'rgba(255,255,255,0.15)';
+                document.getElementById('my-emoji').innerText = '❓';
+                document.getElementById('my-title').innerText = 'Нет предмета';
+                document.getElementById('my-val').innerText = '0 VEX';
+                document.getElementById('btn-starter').style.display = 'block';
+            }
 
-            // Карточка справа
-            document.getElementById('target-emoji').innerText = targetItem ? targetItem.emoji : '❓';
-            document.getElementById('target-name').innerText = targetItem ? targetItem.name : 'Выберите';
-            document.getElementById('target-price').innerText = targetItem ? `${targetItem.price.toLocaleString()} VEX` : '0 VEX';
+            // Правый слот (Цель)
+            const slotTarget = document.getElementById('slot-target');
+            if (targetItem) {
+                slotTarget.classList.add('has-item');
+                slotTarget.style.borderColor = targetItem.color;
+                document.getElementById('target-emoji').innerText = targetItem.emoji;
+                document.getElementById('target-title').innerText = targetItem.name;
+                document.getElementById('target-val').innerText = targetItem.price.toLocaleString() + ' VEX';
+            }
 
-            // Расчет шанса: (Мой предмет / Цель) * 100
+            // Расчет шанса
             let chance = 0;
             if (myItem && targetItem) {
                 chance = (myItem.price / targetItem.price) * 100;
-                if (chance > 95) chance = 95; // Максимальный шанс 95%
+                if (chance > 95) chance = 95; // Лимит 95%
             }
 
-            document.getElementById('chance-val').innerText = chance.toFixed(2) + '%';
+            document.getElementById('chance-val').innerText = chance.toFixed(1) + '%';
 
-            // Обновление зеленого сектора в SVG (окружность ~ 283)
+            // Обновление цветного сектора SVG
+            const circleArc = document.getElementById('wheel-arc');
             const circumference = 283;
             const strokeOffset = circumference - (circumference * (chance / 100));
-            document.getElementById('wheel-arc').style.strokeDashoffset = strokeOffset;
+            circleArc.style.strokeDashoffset = strokeOffset;
+            
+            if (chance > 50) {
+                circleArc.style.stroke = 'var(--neon-cyan)';
+            } else if (chance > 20) {
+                circleArc.style.stroke = 'var(--neon-yellow)';
+            } else {
+                circleArc.style.stroke = 'var(--neon-pink)';
+            }
 
             // Кнопка
             const btn = document.getElementById('btn-upgrade');
-            if (!myItem || !targetItem || myItem.price >= targetItem.price || isRolling) {
+            if (isRolling) {
                 btn.disabled = true;
-                if (myItem && targetItem && myItem.price >= targetItem.price) {
-                    btn.innerText = "ЦЕЛЬ ДЕШЕВЛЕ ТЕКУЩЕГО";
-                } else if (isRolling) {
-                    btn.innerText = "КРУТИМ...";
-                } else {
-                    btn.innerText = "ВЫБЕРИТЕ ЦЕЛЬ";
-                }
+                btn.innerText = "ПРОКАЧКА...";
+            } else if (!myItem) {
+                btn.disabled = true;
+                btn.innerText = "КУПИТЕ ПРЕДМЕТ";
+            } else if (!targetItem || myItem.price >= targetItem.price) {
+                btn.disabled = true;
+                btn.innerText = "ЦЕЛЬ ДЕШЕВЛЕ ТЕКУЩЕГО";
             } else {
                 btn.disabled = false;
-                btn.innerText = "⚡ ПРОКАЧАТЬ";
+                btn.innerText = "🚀 ПРОКАЧАТЬ";
             }
 
             renderCatalog();
         }
 
-        // Рендер каталога целей
+        // Рендер Каталога
+        let currentFilter = 'all';
         function renderCatalog() {
-            const grid = document.getElementById('catalog-grid');
+            const grid = document.getElementById('catalog');
             grid.innerHTML = '';
 
-            SKINS.forEach(skin => {
-                const el = document.createElement('div');
-                el.className = `item-card-mini ${targetItem && targetItem.id === skin.id ? 'selected' : ''}`;
-                el.onclick = () => {
+            ITEMS.forEach(item => {
+                if (currentFilter === 'budget' && item.price > 10000) return;
+                if (currentFilter === 'top' && item.price <= 10000) return;
+
+                const isTarget = targetItem && targetItem.id === item.id;
+                const isMy = myItem && myItem.id === item.id;
+
+                const card = document.createElement('div');
+                card.className = `item-card ${isTarget ? 'selected-target' : ''} ${isMy ? 'selected-my' : ''}`;
+                card.onclick = () => {
                     if (isRolling) return;
-                    targetItem = skin;
+                    targetItem = item;
                     updateUI();
                 };
-                el.innerHTML = `
-                    <div class="emoji">${skin.emoji}</div>
-                    <div class="name">${skin.name}</div>
-                    <div class="price">${skin.price.toLocaleString()} VEX</div>
+
+                card.innerHTML = `
+                    <div class="item-rarity-bar" style="background: ${item.color};"></div>
+                    <div class="emoji">${item.emoji}</div>
+                    <div class="name">${item.name}</div>
+                    <div class="price">${item.price.toLocaleString()} VEX</div>
                 `;
-                grid.appendChild(el);
+                grid.appendChild(card);
             });
         }
 
-        // Запуск рулетки (анимация кручения стрелки)
+        function filterItems(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderCatalog();
+        }
+
+        // Покупка стартового предмета при проигрыше
+        function buyStarterItem() {
+            if (balance < 100) {
+                alert("Недостаточно VEX! Потапайте кнопку сверху для фарма.");
+                return;
+            }
+            balance -= 100;
+            myItem = ITEMS[0];
+            updateUI();
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }
+
+        // ЗАПУСК РУЛЕТКИ (CYBER-UPGRADE)
         function runUpgrade() {
             if (isRolling || !myItem || !targetItem) return;
 
@@ -298,68 +464,72 @@
             isRolling = true;
             updateUI();
 
-            const needle = document.getElementById('wheel-needle');
-            
-            // Расчет победного угла (выигрышный сектор от 0 до (chance/100)*360 градусов)
+            const needle = document.getElementById('needle');
             const winAngle = (chance / 100) * 360;
             const isSuccess = (Math.random() * 100) <= chance;
 
-            // Определяем финальный угол остановки стрелки
             let finalDegrees;
             if (isSuccess) {
-                // Стрелка останавливается в зеленом секторе
-                finalDegrees = Math.random() * (winAngle - 5) + 2; 
+                // Остановка в секторе успеха
+                finalDegrees = Math.random() * (winAngle - 6) + 3;
             } else {
-                // Стрелка останавливается в красном секторе
-                finalDegrees = Math.random() * (355 - winAngle) + winAngle + 2;
+                // Остановка в красном секторе
+                finalDegrees = Math.random() * (350 - winAngle) + winAngle + 3;
             }
 
-            // Добавляем 5 полных оборотов (1800 deg) для эффекта вращения
-            const totalRotation = 1800 + finalDegrees;
+            // 6 полных оборотов (2160 deg) для мощного эффекта
+            const totalRotation = 2160 + finalDegrees;
             needle.style.transform = `translateX(-50%) rotate(${totalRotation}deg)`;
 
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
 
             setTimeout(() => {
+                const arena = document.getElementById('arena');
+
                 if (isSuccess) {
-                    // УСПЕХ: предмет заменяется на целевой
                     myItem = targetItem;
+                    arena.classList.add('flash-win');
+                    setTimeout(() => arena.classList.remove('flash-win'), 800);
+
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                    alert(`🎉 УСПЕХ! Вы получили [${targetItem.name}]!`);
+                    spawnFloatText("УСПЕХ! + " + myItem.name, '#00ff66');
                 } else {
-                    // НЕУДАЧА: предмет сгорает
                     myItem = null;
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                    alert(`💥 НЕУДАЧА! Предмет сгорел.`);
+                    spawnFloatText("СГОРеЛО!", '#ff0055');
                 }
 
-                // Сброс положения стрелки без анимации
+                // Мгновенный сброс угла для следующего раза
                 needle.style.transition = 'none';
                 needle.style.transform = `translateX(-50%) rotate(${finalDegrees % 360}deg)`;
-                setTimeout(() => needle.style.transition = 'transform 2s cubic-bezier(0.15, 0.9, 0.2, 1)', 50);
+                setTimeout(() => needle.style.transition = 'transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1)', 50);
 
                 isRolling = false;
                 updateUI();
-            }, 2000);
+            }, 2200);
         }
 
-        // Тапалка фарма баланса
+        // Тапалка фарма
         function handleTap(e) {
-            balance += 10;
+            balance += 25;
             const x = e.clientX || window.innerWidth / 2;
             const y = e.clientY || window.innerHeight / 2;
+            spawnFloatText('+25 VEX', '#ffe600', x, y);
             
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.innerText = '+10 VEX';
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-            el.style.color = '#ffb700';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 600);
-
             updateUI();
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function spawnFloatText(text, color, x, y) {
+            const el = document.createElement('div');
+            el.className = 'float-num';
+            el.innerText = text;
+            el.style.color = color;
+            el.style.textShadow = `0 0 10px ${color}`;
+            el.style.left = (x || window.innerWidth / 2) + 'px';
+            el.style.top = (y || window.innerHeight / 2) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 600);
         }
 
         updateUI();
