@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>CYBERPUNK UPGRADE // ULTIMATE EDITION</title>
+    <title>CYBERPUNK UPGRADE // ULTIMATE PERSISTENT EDITION</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
@@ -118,15 +118,15 @@
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: rgba(8, 12, 20, 0.95); border-top: 1px solid rgba(0, 243, 255, 0.2);
-            display: grid; grid-template-columns: repeat(6, 1fr); z-index: 800;
+            display: grid; grid-template-columns: repeat(7, 1fr); z-index: 800;
             backdrop-filter: blur(15px);
         }
         .nav-tab {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-sub); font-size: 9px; font-weight: 800; cursor: pointer; gap: 2px;
+            color: var(--text-sub); font-size: 8px; font-weight: 800; cursor: pointer; gap: 2px;
             transition: all 0.2s ease;
         }
-        .nav-tab .icon { font-size: 16px; }
+        .nav-tab .icon { font-size: 15px; }
         .nav-tab.active { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
 
         .view-section { display: none; padding: 12px; }
@@ -240,7 +240,6 @@
             border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; overflow: hidden; margin-bottom: 12px;
             display: flex; align-items: center; justify-content: center;
         }
-        #crash-chart { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .crash-mult-display {
             position: relative; z-index: 5; font-family: 'Orbitron', sans-serif;
             font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 0 15px var(--neon-cyan);
@@ -279,7 +278,7 @@
         .market-item-info .emoji { font-size: 28px; }
         .market-seller { font-size: 9px; color: var(--text-sub); }
 
-        /* ПРОМОКОДЫ, БОНУСЫ И ЛИДЕРБОРД */
+        /* ПРОМОКОДЫ, БОНУСЫ И ДОСТИЖЕНИЯ */
         .promo-box {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 14px; padding: 12px; margin-bottom: 12px;
@@ -290,7 +289,7 @@
             border-radius: 8px; padding: 6px; align-items: center; font-size: 10px; color: var(--neon-cyan);
         }
 
-        /* УЛУЧШЕННОЕ КОЛЕСО УДАЧИ (SECTOR CANVAS WHEEL) */
+        /* КОЛЕСО УДАЧИ */
         .fortune-wheel-wrapper {
             position: relative; width: 220px; height: 220px; margin: 15px auto;
         }
@@ -332,6 +331,34 @@
             color: #000; border: none; border-radius: 10px; padding: 10px;
             font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; cursor: pointer;
         }
+
+        /* НОВЫЙ РЕЖИМ: PVP КИБЕР-ДУЭЛИ */
+        .duel-card {
+            background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px;
+        }
+        .duel-match-arena {
+            display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center;
+            background: rgba(0,0,0,0.6); border-radius: 12px; padding: 10px; margin: 10px 0;
+        }
+        .duel-avatar { font-size: 36px; margin-bottom: 4px; }
+        .duel-versus { font-family: 'Orbitron'; font-size: 16px; font-weight: 900; color: var(--neon-pink); }
+        .duel-progress-bar {
+            width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;
+            overflow: hidden; margin-top: 8px;
+        }
+        .duel-progress-fill { height: 100%; width: 0%; background: var(--neon-cyan); transition: width 0.1s linear; }
+
+        /* ДОСТИЖЕНИЯ (ACHIEVEMENTS) */
+        .achievement-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px; padding: 8px 10px; margin-bottom: 6px;
+        }
+        .achievement-info { display: flex; align-items: center; gap: 8px; text-align: left; }
+        .achievement-icon { font-size: 20px; }
+        .achievement-title { font-size: 11px; font-weight: 800; color: #fff; }
+        .achievement-desc { font-size: 9px; color: var(--text-sub); }
 
         .float-text {
             position: fixed; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 18px;
@@ -456,11 +483,9 @@
                 <div class="history-pill high">x2.45</div>
                 <div class="history-pill low">x1.12</div>
                 <div class="history-pill high">x5.80</div>
-                <div class="history-pill high">x1.90</div>
             </div>
 
             <div class="crash-canvas-container">
-                <canvas id="crash-chart"></canvas>
                 <div class="crash-mult-display" id="crash-mult">x1.00</div>
             </div>
 
@@ -474,7 +499,35 @@
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 3: P2P МАРКЕТ ================= -->
+    <!-- ================= СЕКЦИЯ 3: КИБЕР-ДУЭЛИ (НОВАЯ ФИЧА) ================= -->
+    <div class="view-section" id="sec-duels">
+        <div class="duel-card">
+            <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-pink);">⚔️ КИБЕР-ДУЭЛЬ (PVP P2P)</div>
+            <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">Сразитесь с случайным хакером на перехват кредитов!</div>
+
+            <div class="duel-match-arena">
+                <div>
+                    <div class="duel-avatar">👤</div>
+                    <div style="font-size:10px; font-weight:800; color:var(--neon-cyan);">ВЫ</div>
+                </div>
+                <div class="duel-versus">VS</div>
+                <div>
+                    <div class="duel-avatar" id="duel-opp-avatar">🤖</div>
+                    <div style="font-size:10px; font-weight:800; color:var(--neon-pink);" id="duel-opp-name">NetRunner_99</div>
+                </div>
+            </div>
+
+            <div style="font-family:'Orbitron'; font-size:11px; font-weight:800; color:var(--neon-yellow); margin-bottom:6px;">СТАВКА ДУЭЛИ: 500 VEX</div>
+
+            <div class="duel-progress-bar">
+                <div class="duel-progress-fill" id="duel-bar"></div>
+            </div>
+
+            <button class="btn-upgrade-main" style="margin-top:12px; background:linear-gradient(135deg, var(--neon-pink), var(--neon-yellow)); color:#000;" id="btn-start-duel" onclick="startCyberDuel()">⚔️ ВЗЛОМАТЬ И НАЧАТЬ ДУЭЛЬ</button>
+        </div>
+    </div>
+
+    <!-- ================= СЕКЦИЯ 4: P2P МАРКЕТ ================= -->
     <div class="view-section" id="sec-market">
         <div class="market-header">
             <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">P2P МАРКЕТ</span>
@@ -483,7 +536,7 @@
         <div id="market-listings-list"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 4: ИНВЕНТАРЬ ================= -->
+    <!-- ================= СЕКЦИЯ 5: ИНВЕНТАРЬ ================= -->
     <div class="view-section" id="sec-inventory">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">МОИ ПРЕДМЕТЫ (<span id="inv-count">0</span>)</span>
@@ -492,7 +545,7 @@
         <div class="items-grid" id="inventory-grid" style="max-height: none;"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 5: БОНУСЫ, СТРИК, РЕФЕРАЛЫ И ТОП ================= -->
+    <!-- ================= СЕКЦИЯ 6: БОНУСЫ, ДОСТИЖЕНИЯ И ТОП ================= -->
     <div class="view-section" id="sec-bonuses">
         
         <!-- Ежедневный заход -->
@@ -504,7 +557,13 @@
             <button class="btn-upgrade-main" style="font-size:11px; padding:10px; margin-top:6px;" id="btn-claim-daily" onclick="claimDailyReward()">ЗАБРАТЬ +500 VEX</button>
         </div>
 
-        <!-- Интерактивное Колесо Фортуны -->
+        <!-- Достижения (Ачивки) -->
+        <div class="promo-box">
+            <div class="promo-title">🏆 ДОСТИЖЕНИЯ (АЧИВКИ)</div>
+            <div id="achievements-list"></div>
+        </div>
+
+        <!-- Колесо Фортуны -->
         <div class="promo-box" style="text-align:center;">
             <div class="promo-title">🎰 КОЛЕСО УДАЧИ</div>
             
@@ -526,35 +585,13 @@
             </div>
         </div>
 
-        <!-- Рефералка -->
-        <div class="promo-box">
-            <div class="promo-title">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</div>
-            <div style="font-size:11px; color:var(--text-sub); margin-bottom:8px;">Получайте +1,000 VEX за каждого приглашенного друга!</div>
-            <div class="ref-link-container">
-                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="ref-link-url">https://t.me/VexusBot?start=ref9912</span>
-                <button class="filter-chip" onclick="copyRefLink()">КОПИРОВАТЬ</button>
-            </div>
-        </div>
-
-        <!-- Таблица Лидеров -->
-        <div class="promo-box">
-            <div class="promo-title">🏆 ТОП ТРЕЙДЕРОВ</div>
-            <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                <span>🥇 1. @cyber_king</span>
-                <b style="color:var(--neon-yellow);">1,850,000 VEX</b>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                <span>🥈 2. @arasaka_ceo</span>
-                <b style="color:var(--neon-yellow);">920,000 VEX</b>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; color:var(--neon-cyan);">
-                <span>🎗 14. Вы (CyberPawn)</span>
-                <b><span id="top-user-balance">3,000</span> VEX</b>
-            </div>
+        <!-- Сброс сохранения -->
+        <div class="promo-box" style="text-align:center;">
+            <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink); font-weight:900;" onclick="resetProgress()">🗑️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС</button>
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 6: КЕЙСЫ ================= -->
+    <!-- ================= СЕКЦИЯ 7: КЕЙСЫ ================= -->
     <div class="view-section" id="sec-cases">
         <div class="case-card">
             <div class="case-title">📦 CYBER-CASE // NEON DROP</div>
@@ -577,6 +614,9 @@
         <div class="nav-tab" onclick="switchTab('sec-crash', this)">
             <span class="icon">📈</span>Краш
         </div>
+        <div class="nav-tab" onclick="switchTab('sec-duels', this)">
+            <span class="icon">⚔️</span>Дуэли
+        </div>
         <div class="nav-tab" onclick="switchTab('sec-market', this)">
             <span class="icon">🛒</span>Маркет
         </div>
@@ -595,6 +635,8 @@
         const tg = window.Telegram.WebApp;
         if (tg.expand) tg.expand();
 
+        const SAVE_KEY = 'cyberpunk_upgrade_save_v2';
+
         let balance = 4500;
         let level = 1;
         let xp = 0;
@@ -602,6 +644,7 @@
         let soundEnabled = true;
         let isRolling = false;
         let dailyClaimed = false;
+        let usedPromos = new Set();
 
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
@@ -659,7 +702,7 @@
             { id: 11, name: "Боевой Дрон 'Кобра'", price: 1200, emoji: "🤖", rarity: "rare", color: "var(--rarity-rare)" },
             { id: 12, name: "Неоновый Клинок", price: 2500, emoji: "⚔️", rarity: "rare", color: "var(--rarity-rare)" },
             { id: 13, name: "Плазменный Катана", price: 3000, emoji: "🗡️", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 14, name: "Моноструна Arasaka", price: 7500, emoji: "epic", color: "var(--rarity-epic)" },
+            { id: 14, name: "Моноструна Arasaka", price: 7500, emoji: "🕸️", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 15, name: "Имплант Sandevistan", price: 15000, emoji: "⚡", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 16, name: "Sandevistan Overclock", price: 18000, emoji: "🔥", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 17, name: "Кибер-Глаз Kiroshi", price: 40000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
@@ -668,20 +711,104 @@
             { id: 20, name: "Аэродрокер AV-4", price: 1000000, emoji: "🚁", rarity: "godlike", color: "var(--rarity-godlike)" }
         ];
 
+        let achievements = [
+            { id: 'tap_10', icon: '⚡', title: 'Первый фарм', desc: 'Нафармить кредиты кликом', reward: 100, done: false },
+            { id: 'upgrade_win', icon: '🚀', title: 'Успешный хак', desc: 'Успешно прокачать скин', reward: 300, done: false },
+            { id: 'crash_play', icon: '📈', title: 'Трейдер', desc: 'Сделать ставку в Краше', reward: 250, done: false },
+            { id: 'inventory_5', icon: '🎒', title: 'Коллекционер', desc: 'Собрать 5 предметов', reward: 500, done: false }
+        ];
+
         let myInventory = [ITEMS[0], ITEMS[2], ITEMS[4], ITEMS[6]];
         let myItem = myInventory[0];
         let targetItem = ITEMS[1];
 
-        // P2P МАРКЕТ
         let marketListings = [
             { id: 101, seller: "@cyber_jack", item: ITEMS[5], price: 270 },
             { id: 102, seller: "@matrix_ninja", item: ITEMS[11], price: 1100 },
             { id: 103, seller: "@araka_boss", item: ITEMS[13], price: 3000 }
         ];
 
+        // ФУНКЦИИ СОХРАНЕНИЯ И ЗАГРУЗКИ (LOCALSTORAGE)
+        function saveData() {
+            const data = {
+                balance,
+                level,
+                xp,
+                streak,
+                dailyClaimed,
+                hasFreeSpin,
+                myInventory,
+                usedPromos: Array.from(usedPromos),
+                achievements
+            };
+            localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem(SAVE_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    balance = data.balance ?? 4500;
+                    level = data.level ?? 1;
+                    xp = data.xp ?? 0;
+                    streak = data.streak ?? 2;
+                    dailyClaimed = data.dailyClaimed ?? false;
+                    hasFreeSpin = data.hasFreeSpin ?? true;
+                    if (data.myInventory) myInventory = data.myInventory;
+                    if (data.usedPromos) data.usedPromos.forEach(p => usedPromos.add(p));
+                    if (data.achievements) achievements = data.achievements;
+                } catch (e) { console.error("Save load error", e); }
+            }
+        }
+
+        function resetProgress() {
+            if (confirm("Вы уверены, что хотите сбросить весь прогресс и инвентарь?")) {
+                localStorage.removeItem(SAVE_KEY);
+                location.reload();
+            }
+        }
+
+        function triggerAchievement(id) {
+            const ach = achievements.find(a => a.id === id);
+            if (ach && !ach.done) {
+                ach.done = true;
+                balance += ach.reward;
+                addXP(50);
+                playSound('win');
+                triggerParticles();
+                alert(`🏆 ДОСТИЖЕНИЕ ПОЛУЧЕНО: ${ach.title} (+${ach.reward} VEX)!`);
+                saveData();
+            }
+        }
+
+        function renderAchievements() {
+            const container = document.getElementById('achievements-list');
+            if (!container) return;
+            container.innerHTML = '';
+            achievements.forEach(ach => {
+                const div = document.createElement('div');
+                div.className = 'achievement-row';
+                div.innerHTML = `
+                    <div class="achievement-info">
+                        <div class="achievement-icon">${ach.icon}</div>
+                        <div>
+                            <div class="achievement-title">${ach.title}</div>
+                            <div class="achievement-desc">${ach.desc}</div>
+                        </div>
+                    </div>
+                    <div>
+                        ${ach.done 
+                            ? `<span style="font-size:10px; color:var(--neon-green); font-weight:900;">ВЫПОЛНЕНО</span>`
+                            : `<span style="font-size:10px; color:var(--neon-yellow); font-weight:800;">+${ach.reward} VEX</span>`}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
         function updateUI() {
             document.getElementById('balance-val').innerText = balance.toLocaleString() + ' VEX';
-            document.getElementById('top-user-balance').innerText = balance.toLocaleString();
             document.getElementById('user-lvl').innerText = level;
             document.getElementById('xp-fill').style.width = (xp % 100) + '%';
             document.getElementById('streak-days').innerText = streak;
@@ -695,7 +822,7 @@
                 bankruptBanner.classList.remove('show');
             }
 
-            // Авто-подбор если выбранный предмет был продан/утерян
+            // Авто-подбор если выбранный предмет был продан
             if (!myItem && myInventory.length > 0) {
                 myItem = myInventory[0];
             }
@@ -739,13 +866,9 @@
             const strokeOffset = 283 - (283 * (chance / 100));
             circleArc.style.strokeDashoffset = strokeOffset;
 
-            if (chance >= 80) {
-                circleArc.style.stroke = 'var(--neon-green)';
-            } else if (chance >= 40) {
-                circleArc.style.stroke = 'var(--neon-cyan)';
-            } else {
-                circleArc.style.stroke = 'var(--neon-pink)';
-            }
+            if (chance >= 80) circleArc.style.stroke = 'var(--neon-green)';
+            else if (chance >= 40) circleArc.style.stroke = 'var(--neon-cyan)';
+            else circleArc.style.stroke = 'var(--neon-pink)';
 
             // Кнопка апгрейда
             const btn = document.getElementById('btn-upgrade');
@@ -759,9 +882,13 @@
                 btn.disabled = false; btn.innerText = "🚀 ПРОКАЧАТЬ";
             }
 
+            if (myInventory.length >= 5) triggerAchievement('inventory_5');
+
             renderCatalog();
             renderInventory();
             renderMarket();
+            renderAchievements();
+            saveData();
         }
 
         // АВАРИЙНЫЙ НАБОР ПРИ БАНКРОТСТВЕ
@@ -775,7 +902,7 @@
             updateUI();
         }
 
-        /* КОЛЕСО УДАЧИ С РЕАЛЬНЫМИ СЕКТОРАМИ И ФИЗИКОЙ */
+        /* КОЛЕСО УДАЧИ */
         const FORTUNE_SECTORS = [
             { label: "250 VEX", type: "vex", val: 250, color: "#00f3ff" },
             { label: "500 VEX", type: "vex", val: 500, color: "#9d00ff" },
@@ -807,7 +934,6 @@
                 ctx.lineTo(110, 110);
                 ctx.fill();
 
-                // Текст секторов
                 ctx.save();
                 ctx.translate(110, 110);
                 ctx.rotate(angle + arcSize / 2);
@@ -818,7 +944,6 @@
                 ctx.restore();
             });
 
-            // Центр колеса
             ctx.beginPath();
             ctx.arc(110, 110, 22, 0, 2 * Math.PI);
             ctx.fillStyle = "#0a0f1a";
@@ -832,9 +957,7 @@
             if (isFortuneSpinning) return;
 
             if (!hasFreeSpin) {
-                if (balance < 500) {
-                    alert("Вращение стоит 500 VEX!"); return;
-                }
+                if (balance < 500) { alert("Вращение стоит 500 VEX!"); return; }
                 balance -= 500;
             }
 
@@ -845,7 +968,6 @@
             const winIndex = Math.floor(Math.random() * FORTUNE_SECTORS.length);
             const sectorDegree = 360 / FORTUNE_SECTORS.length;
             
-            // Вычисляем угол, чтобы победный сектор оказался вверху (-90 градусов)
             const targetSectorAngle = 360 - (winIndex * sectorDegree) - (sectorDegree / 2) - 90;
             const totalRotation = currentFortuneAngle + 1800 + (targetSectorAngle - (currentFortuneAngle % 360));
             currentFortuneAngle = totalRotation;
@@ -883,7 +1005,50 @@
             }, 3900);
         }
 
-        // АВТО-ПОДБОР ЦЕЛИ НА 90%
+        /* НОВАЯ МЕХАНИКА: КИБЕР-ДУЭЛЬ */
+        let isDuelRunning = false;
+        function startCyberDuel() {
+            if (isDuelRunning) return;
+            if (balance < 500) { alert("Недостаточно 500 VEX для дуэли!"); return; }
+
+            balance -= 500;
+            isDuelRunning = true;
+            const btn = document.getElementById('btn-start-duel');
+            btn.disabled = true; btn.innerText = "ИДЕТ ВЗЛОМ СЕТИ...";
+
+            const bar = document.getElementById('duel-bar');
+            let progress = 0;
+
+            const oppNames = ['@hacker_x', '@phantom_99', '@v_cyber', '@neo_tokyo'];
+            document.getElementById('duel-opp-name').innerText = oppNames[Math.floor(Math.random() * oppNames.length)];
+
+            const interval = setInterval(() => {
+                progress += 5;
+                bar.style.width = progress + '%';
+                playSound('tick');
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    isDuelRunning = false;
+                    btn.disabled = false;
+                    btn.innerText = "⚔️ ВЗЛОМАТЬ И НАЧАТЬ ДУЭЛЬ";
+                    bar.style.width = '0%';
+
+                    const win = Math.random() > 0.5;
+                    if (win) {
+                        balance += 1000;
+                        playSound('win');
+                        triggerParticles();
+                        alert("🎉 ВЫ ПОБЕДИЛИ В ДУЭЛИ! +1,000 VEX");
+                    } else {
+                        playSound('fail');
+                        alert("💀 ВАС ВЗЛОМАЛИ! Ставка 500 VEX потеряна.");
+                    }
+                    updateUI();
+                }
+            }, 100);
+        }
+
         function selectHighChanceTarget() {
             if (!myItem) { alert("Инвентарь пуст!"); return; }
 
@@ -992,8 +1157,7 @@
             const insuranceCost = Math.floor(myItem.price * 0.2);
 
             if (isInsured && balance < insuranceCost) {
-                alert("Нехватка VEX на страховку!");
-                return;
+                alert("Нехватка VEX на страховку!"); return;
             }
 
             if (isInsured) balance -= insuranceCost;
@@ -1018,8 +1182,6 @@
                 if (tickCount > 12) clearInterval(tickInterval);
             }, 150);
 
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
-
             setTimeout(() => {
                 const arena = document.getElementById('arena-card');
 
@@ -1032,7 +1194,7 @@
                     myItem = targetItem;
 
                     addXP(25);
-                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    triggerAchievement('upgrade_win');
                 } else {
                     playSound('fail');
                     arena.classList.add('shake');
@@ -1043,8 +1205,6 @@
                         if (idx !== -1) myInventory.splice(idx, 1);
                         myItem = null;
                     }
-
-                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                 }
 
                 needle.style.transition = 'none';
@@ -1083,6 +1243,7 @@
                 btn.className = "btn-crash-action cashout";
                 document.getElementById('crash-mult').classList.remove('crashed');
 
+                triggerAchievement('crash_play');
                 updateUI();
 
                 crashInterval = setInterval(() => {
@@ -1202,7 +1363,6 @@
             alert("🎁 Ежедневный бонус забран! +500 VEX");
         }
 
-        const usedPromos = new Set();
         function applyPromo() {
             const codeInput = document.getElementById('promo-input');
             const code = codeInput.value.trim().toUpperCase();
@@ -1220,12 +1380,6 @@
             }
             codeInput.value = '';
             updateUI();
-        }
-
-        function copyRefLink() {
-            navigator.clipboard.writeText(document.getElementById('ref-link-url').innerText);
-            playSound('tap');
-            alert("📋 Ссылка скопирована!");
         }
 
         function openCase(cost) {
@@ -1268,6 +1422,7 @@
             const x = e.clientX || window.innerWidth / 2;
             const y = e.clientY || window.innerHeight / 2;
             spawnFloatText('+25 VEX', '#ffe600', x, y);
+            triggerAchievement('tap_10');
             updateUI();
         }
 
@@ -1345,6 +1500,8 @@
             requestAnimationFrame(animateParticles);
         }
 
+        // СТАРТ ИНИЦИАЛИЗАЦИИ
+        loadData();
         animateParticles();
         initLiveFeed();
         drawFortuneWheel();
