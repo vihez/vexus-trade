@@ -20,7 +20,7 @@
             --warning-yellow: #ffcc00;
         }
 
-        * { box-sizing: border-box; user-select: none; }
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
             background-color: var(--bg-color);
@@ -66,6 +66,7 @@
             padding: 14px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             margin-bottom: 14px;
+            transition: transform 0.2s ease;
         }
 
         .dashboard {
@@ -90,6 +91,7 @@
             font-weight: 800;
             color: var(--accent-green);
             text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            transition: transform 0.1s ease;
         }
 
         .stats-block {
@@ -129,28 +131,32 @@
             transition: width 0.2s ease;
         }
 
+        /* Кнопка кликера с эффектами */
         .clicker-btn {
+            position: relative;
             background: rgba(0, 255, 136, 0.1);
             border: 1px solid var(--accent-green);
             color: var(--accent-green);
             border-radius: 12px;
-            padding: 14px;
+            padding: 16px;
             font-weight: 800;
             font-size: 16px;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            transition: all 0.1s ease;
+            transition: transform 0.08s ease, background 0.15s ease, box-shadow 0.15s ease;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
         }
 
         .clicker-btn:active {
-            transform: scale(0.97);
-            background: var(--accent-green);
-            color: #000;
+            transform: scale(0.95);
+            background: rgba(0, 255, 136, 0.25);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
         }
 
         .asset-info {
@@ -201,12 +207,12 @@
             flex-direction: column;
             align-items: center;
             gap: 2px;
-            transition: transform 0.1s;
+            transition: transform 0.1s ease, filter 0.1s ease;
         }
 
         .btn-up { background: linear-gradient(135deg, #00e676, #00b0ff); box-shadow: 0 4px 15px rgba(0, 230, 118, 0.2); }
         .btn-down { background: linear-gradient(135deg, #ff1744, #ff5252); box-shadow: 0 4px 15px rgba(255, 23, 68, 0.2); }
-        .btn-trade:active { transform: scale(0.96); }
+        .btn-trade:active { transform: scale(0.95); filter: brightness(1.2); }
 
         .status-msg {
             text-align: center;
@@ -239,15 +245,15 @@
             border-radius: 12px;
             padding: 12px;
             cursor: pointer;
-            transition: 0.1s;
+            transition: transform 0.1s ease, background 0.15s ease;
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
 
         .action-card:active {
-            transform: scale(0.96);
-            background: rgba(255, 255, 255, 0.08);
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .action-card h4 { margin: 0; font-size: 13px; color: #fff; }
@@ -264,8 +270,47 @@
             font-weight: 600;
             font-size: 11px;
             cursor: pointer;
+            transition: transform 0.1s ease;
         }
-        .btn-vex:active { background: rgba(255,255,255,0.15); }
+        .btn-vex:active { transform: scale(0.95); background: rgba(255,255,255,0.15); }
+
+        /* ВЫЛЕТАЮЩИЙ ТЕКСТ (ЭФФЕКТ ТАПА) */
+        .floating-text {
+            position: fixed;
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--accent-green);
+            pointer-events: none;
+            z-index: 9999;
+            text-shadow: 0 0 12px rgba(0, 255, 136, 0.8);
+            animation: floatUp 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -90px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -130px) scale(0.8);
+            }
+        }
+
+        /* ЭФФЕКТ ТРЯСКИ ПРИ ОШИБКЕ */
+        .shake {
+            animation: shakeAnim 0.3s ease-in-out;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
     </style>
 </head>
 <body>
@@ -277,7 +322,7 @@
     </div>
 
     <!-- Основной Дашборд -->
-    <div class="glass-card">
+    <div class="glass-card" id="main-card">
         <div class="dashboard">
             <div class="balance-block">
                 <div class="balance-title">Баланс</div>
@@ -302,7 +347,7 @@
         </div>
 
         <!-- Клик кнопка -->
-        <button class="clicker-btn" onclick="tapEarn()">
+        <button class="clicker-btn" id="tap-btn" onclick="tapEarn(event)">
             <span>💰 КЛИК:</span>
             <span id="click-power-text">+1 ₽</span>
         </button>
@@ -320,11 +365,11 @@
 
     <!-- Трейдинг Вверх/Вниз -->
     <div class="trade-actions">
-        <button class="btn-trade btn-up" onclick="makeTrade('UP')">
+        <button class="btn-trade btn-up" onclick="makeTrade('UP', event)">
             <span>▲ ВВЕРХ</span>
             <span style="font-size: 10px; opacity: 0.8;">Ставка 20 ₽</span>
         </button>
-        <button class="btn-trade btn-down" onclick="makeTrade('DOWN')">
+        <button class="btn-trade btn-down" onclick="makeTrade('DOWN', event)">
             <span>▼ ВНИЗ</span>
             <span style="font-size: 10px; opacity: 0.8;">Ставка 20 ₽</span>
         </button>
@@ -334,19 +379,19 @@
     <!-- Рынок токена VEX -->
     <div class="section-title">🪙 Биржа VEX (Курс: <span id="vex-price" style="color:#00f2fe;">12.50 ₽</span>)</div>
     <div class="glass-card" style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
-        <button class="btn-vex" onclick="buyVex()">Купить 1 VEX</button>
-        <button class="btn-vex" onclick="sellVex()">Продать 1 VEX</button>
+        <button class="btn-vex" onclick="buyVex(event)">Купить 1 VEX</button>
+        <button class="btn-vex" onclick="sellVex(event)">Продать 1 VEX</button>
     </div>
 
     <!-- Прокачка и Улучшения -->
     <div class="section-title">⚡ Улучшения и Майнинг</div>
     <div class="grid-2">
-        <div class="action-card" onclick="upgradeClick()">
+        <div class="action-card" id="card-click" onclick="upgradeClick(event)">
             <h4>💪 Сила клика</h4>
             <p id="click-desc">Клик: +1 ₽ (след: +2 ₽)</p>
             <div class="price-tag" id="click-upgrade-price">Цена: 50 ₽</div>
         </div>
-        <div class="action-card" onclick="buyMiner()">
+        <div class="action-card" id="card-miner" onclick="buyMiner(event)">
             <h4>⛏ Майнинг ферма</h4>
             <p id="miner-desc">Пассив доход +0 ₽/сек</p>
             <div class="price-tag" id="miner-upgrade-price">Цена: 100 ₽</div>
@@ -356,7 +401,7 @@
     <!-- Бонусы и Рефералы -->
     <div class="section-title">🎁 Бонусы и Рефералы</div>
     <div class="grid-2">
-        <div class="action-card" onclick="claimDailyReward()">
+        <div class="action-card" onclick="claimDailyReward(event)">
             <h4>🎁 Ежедневный бонус</h4>
             <p>Получи +500 ₽ (раз в 24ч)</p>
             <div class="price-tag" style="color:#00f2fe;">Забрать</div>
@@ -372,7 +417,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // СОСТОЯНИЕ ИГРЫ ПО УМОЛЧАНИЮ
+        // СОСТОЯНИЕ ИГРЫ
         let balance = 100;
         let energy = 1000;
         let maxEnergy = 1000;
@@ -387,23 +432,15 @@
 
         let btcPrice = 65000;
         let isTrading = false;
-        let currentTrend = 0; // -1 (медвежий), 0 (флэт), 1 (бычий)
+        let currentTrend = 0;
 
         let lastDailyReward = 0;
 
         // СОХРАНЕНИЕ И ЗАГРУЗКА
         function saveProgress() {
             const state = {
-                balance,
-                energy,
-                maxEnergy,
-                clickPower,
-                clickUpgradePrice,
-                miners,
-                minerPrice,
-                vexTokens,
-                vexPrice,
-                lastDailyReward
+                balance, energy, maxEnergy, clickPower, clickUpgradePrice,
+                miners, minerPrice, vexTokens, vexPrice, lastDailyReward
             };
             localStorage.setItem('vexus_game_state', JSON.stringify(state));
         }
@@ -424,8 +461,33 @@
                     if (data.vexPrice !== undefined) vexPrice = data.vexPrice;
                     if (data.lastDailyReward !== undefined) lastDailyReward = data.lastDailyReward;
                 } catch (e) {
-                    console.error('Ошибка загрузки сохранения:', e);
+                    console.error('Ошибка сохранения:', e);
                 }
+            }
+        }
+
+        // ВЫЛЕТАЮЩИЙ ТЕКСТ ПРИ ТАПЕ / ПОКУПКЕ
+        function spawnFloatingText(x, y, text, color = '#00ff88') {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.innerText = text;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            el.style.color = color;
+            el.style.textShadow = `0 0 12px ${color}`;
+            document.body.appendChild(el);
+
+            setTimeout(() => {
+                el.remove();
+            }, 700);
+        }
+
+        // ЭФФЕКТ ТРЯСКИ ПРИ ОШИБКЕ
+        function triggerShake(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.classList.add('shake');
+                setTimeout(() => el.classList.remove('shake'), 300);
             }
         }
 
@@ -435,7 +497,6 @@
             updateUI();
 
             const chartContainer = document.getElementById('chart-container');
-            
             const chart = LightweightCharts.createChart(chartContainer, {
                 autoSize: true,
                 layout: { background: { type: 'solid', color: '#161a25' }, textColor: '#787e87' },
@@ -497,14 +558,13 @@
                 btcPrice = close;
                 document.getElementById('current-price').innerText = '$' + Math.round(btcPrice).toLocaleString();
 
-                // Колебание курса VEX
                 let vexDelta = (Math.random() - 0.49) * 0.3 + (currentTrend * 0.1);
                 vexPrice = Math.max(2, Math.min(100, vexPrice + vexDelta));
                 document.getElementById('vex-price').innerText = vexPrice.toFixed(2) + ' ₽';
             }, 1000);
         });
 
-        // ВОССТАНОВЛЕНИЕ ЭНЕРГИИ И ПАССИВНЫЙ ДОХОД
+        // РЕГЕНЕРАЦИЯ И ПАССИВНЫЙ ДОХОД
         setInterval(() => {
             if (energy < maxEnergy) {
                 energy = Math.min(maxEnergy, energy + 3);
@@ -522,12 +582,10 @@
             document.getElementById('vex-count').innerText = vexTokens;
             document.getElementById('income-rate').innerText = '+' + miners + ' ₽ / сек';
             
-            // Энергия
             document.getElementById('energy-text').innerText = `${energy} / ${maxEnergy}`;
             document.getElementById('energy-fill').style.width = `${(energy / maxEnergy) * 100}%`;
             document.getElementById('click-power-text').innerText = `+${clickPower} ₽`;
 
-            // Динамические описания и цены улучшений
             document.getElementById('click-desc').innerText = `Клик: +${clickPower} ₽ (след: +${clickPower + 1} ₽)`;
             document.getElementById('click-upgrade-price').innerText = `Цена: ${clickUpgradePrice} ₽`;
             
@@ -541,87 +599,129 @@
             document.getElementById('status').innerText = text;
         }
 
-        // КЛИКЕР
-        function tapEarn() {
+        // КЛИКЕР С ЭФФЕКТАМИ
+        function tapEarn(e) {
             if (energy < 1) {
-                showStatus('⚡ Закончилась энергия! Подожди немного.');
+                showStatus('⚡ Закончилась энергия!');
+                triggerShake('main-card');
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
                 return;
             }
+
             energy -= 1;
             balance += clickPower;
+
+            // Получаем координаты клика/тапа для анимации
+            const x = e.clientX || e.touches?.[0]?.clientX || window.innerWidth / 2;
+            const y = e.clientY || e.touches?.[0]?.clientY || window.innerHeight / 2;
+
+            spawnFloatingText(x, y, `+${clickPower} ₽`, '#00ff88');
+
             updateUI();
+
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
         // ПРОКАЧКА КЛИКА
-        function upgradeClick() {
+        function upgradeClick(e) {
             if (balance >= clickUpgradePrice) {
                 balance -= clickUpgradePrice;
                 clickPower += 1;
                 clickUpgradePrice = Math.floor(clickUpgradePrice * 1.8);
+
+                const x = e.clientX || window.innerWidth / 2;
+                const y = e.clientY || window.innerHeight / 2;
+                spawnFloatingText(x, y, `+1 Клик!`, '#00f2fe');
+
                 updateUI();
                 showStatus('✅ Сила клика увеличена!');
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             } else {
-                showStatus(`❌ Не хватает ₽ на прокачку (${clickUpgradePrice} ₽)`);
+                triggerShake('card-click');
+                showStatus(`❌ Не хватает ₽ (${clickUpgradePrice} ₽)`);
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
         // ПОКУПКА МАЙНЕРА
-        function buyMiner() {
+        function buyMiner(e) {
             if (balance >= minerPrice) {
                 balance -= minerPrice;
                 miners++;
                 minerPrice = Math.floor(minerPrice * 1.5);
+
+                const x = e.clientX || window.innerWidth / 2;
+                const y = e.clientY || window.innerHeight / 2;
+                spawnFloatingText(x, y, `+1 Ферма!`, '#00f2fe');
+
                 updateUI();
                 showStatus('✅ Майнинг ферма куплена!');
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             } else {
-                showStatus(`❌ Не хватает ₽ на Майнер (${minerPrice} ₽)`);
+                triggerShake('card-miner');
+                showStatus(`❌ Не хватает ₽ (${minerPrice} ₽)`);
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
         // КУПИТЬ / ПРОДАТЬ VEX
-        function buyVex() {
+        function buyVex(e) {
             let cost = Math.round(vexPrice);
             if (balance >= cost) {
                 balance -= cost;
                 vexTokens += 1;
+
+                const x = e.clientX || window.innerWidth / 2;
+                const y = e.clientY || window.innerHeight / 2;
+                spawnFloatingText(x, y, `+1 VEX`, '#00f2fe');
+
                 updateUI();
                 showStatus(`✅ Куплен 1 VEX за ${cost} ₽`);
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             } else {
-                showStatus(`❌ Нужно ${cost} ₽ для покупки 1 VEX`);
+                showStatus(`❌ Нужно ${cost} ₽`);
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
-        function sellVex() {
+        function sellVex(e) {
             if (vexTokens >= 1) {
                 let payout = Math.round(vexPrice);
                 vexTokens -= 1;
                 balance += payout;
+
+                const x = e.clientX || window.innerWidth / 2;
+                const y = e.clientY || window.innerHeight / 2;
+                spawnFloatingText(x, y, `+${payout} ₽`, '#00ff88');
+
                 updateUI();
                 showStatus(`💰 Продан 1 VEX за ${payout} ₽`);
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             } else {
-                showStatus('❌ У вас нет токенов VEX для продажи');
+                showStatus('❌ Нет токенов VEX');
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
         // ЕЖЕДНЕВНЫЙ БОНУС
-        function claimDailyReward() {
+        function claimDailyReward(e) {
             const now = Date.now();
             const oneDay = 24 * 60 * 60 * 1000;
             if (now - lastDailyReward >= oneDay) {
                 balance += 500;
                 lastDailyReward = now;
+
+                const x = e.clientX || window.innerWidth / 2;
+                const y = e.clientY || window.innerHeight / 2;
+                spawnFloatingText(x, y, `+500 ₽!`, '#ffcc00');
+
                 updateUI();
                 showStatus('🎁 Ежедневный бонус +500 ₽ получен!');
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             } else {
                 const hoursLeft = Math.ceil((oneDay - (now - lastDailyReward)) / (1000 * 60 * 60));
-                showStatus(`⏳ Бонус уже забран. Приходи через ${hoursLeft} ч.`);
+                showStatus(`⏳ Приходи через ${hoursLeft} ч.`);
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
             }
         }
 
@@ -632,7 +732,7 @@
             
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(link);
-                showStatus('📋 Ссылка скопирована в буфер обмена!');
+                showStatus('📋 Ссылка скопирована!');
             } else {
                 showStatus('📋 Ссылка: ' + link);
             }
@@ -640,10 +740,11 @@
         }
 
         // ТРЕЙДИНГ ВВЕРХ/ВНИЗ
-        function makeTrade(direction) {
+        function makeTrade(direction, e) {
             if(isTrading) return;
             if(balance < 20) {
-                showStatus('❌ Недостаточно средств для ставки (нужно 20 ₽)');
+                showStatus('❌ Недостаточно средств для ставки (20 ₽)');
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                 return;
             }
 
@@ -669,9 +770,14 @@
 
                     if(win) {
                         balance += 40;
+                        const x = window.innerWidth / 2;
+                        const y = window.innerHeight / 2;
+                        spawnFloatingText(x, y, `+40 ₽!`, '#00ff88');
+
                         showStatus(`✅ Прогноз верен! Выиграно +40 ₽`);
                         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     } else {
+                        triggerShake('main-card');
                         showStatus(`❌ Рынок пошел против вас (-20 ₽)`);
                         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                     }
@@ -683,6 +789,5 @@
         }
     </script>
 </body>
-</html>
-                    
+</html>           
        
