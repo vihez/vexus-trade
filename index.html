@@ -566,7 +566,7 @@
                 btcPrice = close;
                 document.getElementById('current-price').innerText = '$' + Math.round(btcPrice).toLocaleString();
 
-                // ДИНАМИЧЕСКАЯ ПРОВЕРКА ЦВЕТА МЕТКИ СДЕЛКИ (ЗЕЛЕНЫЙ/СЕРЫЙ)
+                // ДИНАМИЧЕСКАЯ ПРОВЕРКА ЦВЕТА ЛИНИИ (ЗЕЛЕНАЯ/СЕРАЯ БЕЗ НАДПИСЕЙ)
                 if (isTrading && activeTradeDetails && activeTradePriceLine) {
                     let isWinning = false;
                     if (activeTradeDetails.direction === 'UP' && btcPrice > activeTradeDetails.entryPrice) {
@@ -576,13 +576,10 @@
                     }
 
                     const currentColor = isWinning ? '#00ff88' : '#888888';
-                    const currentTitle = isWinning 
-                        ? (activeTradeDetails.direction === 'UP' ? '🟢 ВЫИГРЫШ (UP)' : '🟢 ВЫИГРЫШ (DOWN)')
-                        : (activeTradeDetails.direction === 'UP' ? '🔘 ПРОИГРЫШ (UP)' : '🔘 ПРОИГРЫШ (DOWN)');
 
                     activeTradePriceLine.applyOptions({
                         color: currentColor,
-                        title: currentTitle
+                        title: '' // Без текста
                     });
                 }
 
@@ -767,7 +764,7 @@
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // ТРЕЙДИНГ ВВЕРХ/ВНИЗ С ДИНАМИЧЕСКОЙ МЕТКОЙ (ЗЕЛЕНАЯ / СЕРАЯ)
+        // ТРЕЙДИНГ ВВЕРХ/ВНИЗ
         function makeTrade(direction, e) {
             if(isTrading) return;
             if(balance < 20) {
@@ -786,26 +783,26 @@
 
             activeTradeDetails = { direction, entryPrice };
 
-            // 1. МЕТКА-СТРЕЛКА НА СВЕЧЕ ВХОДА
+            // 1. ТОЛЬКО СТРЕЛКА-МЕТКА НА СВЕЧЕ ВХОДА (без текста)
             const isUp = direction === 'UP';
             const tradeMarker = {
                 time: currentChartTime,
                 position: isUp ? 'belowBar' : 'aboveBar',
                 color: isUp ? '#00ff88' : '#ff3366',
                 shape: isUp ? 'arrowUp' : 'arrowDown',
-                text: isUp ? '▲ ВХОД' : '▼ ВХОД'
+                text: '' // Текст «ВХОД» убран
             };
             activeTradeMarkers.push(tradeMarker);
             candleSeries.setMarkers(activeTradeMarkers);
 
-            // 2. ДИНАМИЧЕСКАЯ ЛИНИЯ УРОВНЯ ВХОДА (изначально серая)
+            // 2. ДИНАМИЧЕСКАЯ ЛИНИЯ УРОВНЯ ВХОДА (без надписей)
             activeTradePriceLine = candleSeries.createPriceLine({
                 price: entryPrice,
                 color: '#888888',
                 lineWidth: 2,
                 lineStyle: 2, // Пунктирная линия
                 axisLabelVisible: true,
-                title: '🔘 СТАВКА ' + direction
+                title: '' // Текст с линии убран
             });
 
             // Таймер сделки
@@ -851,4 +848,4 @@
         }
     </script>
 </body>
-</html>  
+</html>
