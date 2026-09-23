@@ -87,7 +87,8 @@
             font-weight: 900; font-size: 13px; color: #000; box-shadow: 0 0 10px var(--neon-cyan);
         }
         .user-meta { display: flex; flex-direction: column; }
-        .user-name { font-size: 13px; font-weight: 800; color: #fff; }
+        .user-name { font-size: 13px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
+        .streak-badge { font-size: 10px; color: var(--neon-pink); font-weight: 800; background: rgba(255,0,85,0.15); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--neon-pink); }
         .xp-bar-bg { width: 80px; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 3px; overflow: hidden; }
         .xp-bar-fill { height: 100%; width: 45%; background: var(--neon-cyan); }
 
@@ -220,7 +221,7 @@
         .grid-card .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
         .grid-card .price { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; color: var(--neon-yellow); }
 
-        /* ================= РЕЖИМ CYBER-CRASH ================= */
+        /* РЕЖИМ CYBER-CRASH */
         .crash-card {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px;
@@ -258,7 +259,7 @@
         }
         .btn-crash-action.cashout { background: linear-gradient(135deg, var(--neon-green), #00b341); color: #000; }
 
-        /* ================= P2P МАРКЕТ ================= */
+        /* P2P МАРКЕТ */
         .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .market-item-card {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08);
@@ -269,15 +270,36 @@
         .market-item-info .emoji { font-size: 28px; }
         .market-seller { font-size: 9px; color: var(--text-sub); }
 
-        /* ================= ПРОМОКОДЫ И РЕФЕРАЛКА ================= */
+        /* ПРОМОКОДЫ, БОНУСЫ И ЛИДЕРБОРД */
         .promo-box {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 14px; padding: 12px; margin-bottom: 12px;
         }
-        .promo-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-yellow); margin-bottom: 8px; }
+        .promo-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-yellow); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .ref-link-container {
-            display: flex; gap: 6px; background: rgba(0,0,0,0.5); border: 1px border-box rgba(255,255,255,0.1);
+            display: flex; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px; padding: 6px; align-items: center; font-size: 10px; color: var(--neon-cyan);
+        }
+
+        /* КОЛЕСО ФОРТУНЫ МОДАЛКА */
+        .spin-wheel-container {
+            position: relative; width: 160px; height: 160px; margin: 10px auto;
+            border-radius: 50%; border: 4px solid var(--neon-pink); box-shadow: 0 0 15px var(--neon-pink);
+            overflow: hidden; transition: transform 3s cubic-bezier(0.15, 0.85, 0.1, 1);
+        }
+        .wheel-sector-bg {
+            width: 100%; height: 100%;
+            background: conic-gradient(
+                var(--neon-cyan) 0deg 90deg, 
+                var(--neon-purple) 90deg 180deg, 
+                var(--neon-yellow) 180deg 270deg, 
+                var(--neon-green) 270deg 360deg
+            );
+        }
+        .wheel-pointer {
+            position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent;
+            border-top: 14px solid #fff; z-index: 20; filter: drop-shadow(0 0 5px var(--neon-yellow));
         }
 
         /* КЕЙСЫ */
@@ -339,7 +361,10 @@
         <div class="user-profile">
             <div class="level-badge" id="user-lvl">1</div>
             <div class="user-meta">
-                <span class="user-name">CyberPawn</span>
+                <span class="user-name">
+                    CyberPawn
+                    <span class="streak-badge" id="streak-tag">🔥 <span id="streak-days">2</span> дн.</span>
+                </span>
                 <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-fill"></div></div>
             </div>
         </div>
@@ -457,12 +482,36 @@
         <div class="items-grid" id="inventory-grid" style="max-height: none;"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 5: БОНУСЫ / ПРОМОкоды / РЕФЕРАЛЫ ================= -->
+    <!-- ================= СЕКЦИЯ 5: БОНУСЫ, СТРИК, РЕФЕРАЛЫ И ТОП ================= -->
     <div class="view-section" id="sec-bonuses">
         
+        <!-- Ежедневный заход & Колесо -->
+        <div class="promo-box">
+            <div class="promo-title">
+                <span>🎁 ЕЖЕДНЕВНЫЙ БОНУС</span>
+                <span style="font-size:10px; color:var(--neon-green);">СТРИК: <b id="streak-card-val">2</b> ДН.</span>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn-upgrade-main" style="flex:1; font-size:11px; padding:10px;" id="btn-claim-daily" onclick="claimDailyReward()">ЗАБРАТЬ +500 VEX</button>
+                <button class="btn-upgrade-main" style="flex:1; font-size:11px; padding:10px; background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;" onclick="spinFortuneWheel()">🎰 КРУТИТЬ КОЛЕСО</button>
+            </div>
+        </div>
+
+        <!-- Колесо Фортуны Графика -->
+        <div class="promo-box" style="text-align:center;">
+            <div class="promo-title">🎰 КОЛЕСО УДАЧИ</div>
+            <div style="position:relative; width:170px; height:170px; margin:0 auto;">
+                <div class="wheel-pointer"></div>
+                <div class="spin-wheel-container" id="fortune-wheel-graphic">
+                    <div class="wheel-sector-bg"></div>
+                </div>
+            </div>
+            <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">Выигрыши до 5,000 VEX!</div>
+        </div>
+
         <!-- Промокоды -->
         <div class="promo-box">
-            <div class="promo-title">🎁 ВВЕСТИ ПРОМОКОД</div>
+            <div class="promo-title">🔑 ВВЕСТИ ПРОМОКОД</div>
             <div style="display:flex; gap:6px;">
                 <input type="text" class="cyber-input" id="promo-input" placeholder="Код (напр. VEX2027)" style="text-transform:uppercase;">
                 <button class="filter-chip" style="background:var(--neon-cyan); color:#000; font-weight:900;" onclick="applyPromo()">АКТИВИРОВАТЬ</button>
@@ -480,9 +529,30 @@
             <div style="font-size:10px; color:var(--neon-yellow); margin-top:6px; font-weight:700;">Приглашено: 3 нетранера | Заработано: 3,000 VEX</div>
         </div>
 
-        <!-- Квесты -->
+        <!-- Таблица Лидеров -->
         <div class="promo-box">
-            <div class="promo-title">🎯 ЕЖЕДНЕВНЫЕ КВЕСТЫ</div>
+            <div class="promo-title">🏆 ТОП ТРЕЙДЕРОВ</div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <span>🥇 1. @cyber_king</span>
+                <b style="color:var(--neon-yellow);">1,850,000 VEX</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <span>🥈 2. @arasaka_ceo</span>
+                <b style="color:var(--neon-yellow);">920,000 VEX</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <span>🥉 3. @neon_runner</span>
+                <b style="color:var(--neon-yellow);">480,000 VEX</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding:4px 0; color:var(--neon-cyan);">
+                <span>🎗 14. Вы (CyberPawn)</span>
+                <b><span id="top-user-balance">3,000</span> VEX</b>
+            </div>
+        </div>
+
+        <!-- Достижения и Квесты -->
+        <div class="promo-box">
+            <div class="promo-title">🎯 КВЕСТЫ И АЧИВКИ</div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
                 <div>
                     <div style="font-size:11px; color:#fff; font-weight:700;">⚡ Кибер-Фармер</div>
@@ -490,12 +560,19 @@
                 </div>
                 <button class="filter-chip" id="q1-btn" onclick="claimQuest(1, 500)">+500 VEX</button>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;">
                 <div>
                     <div style="font-size:11px; color:#fff; font-weight:700;">🚀 Рискованный Ход</div>
                     <div style="font-size:9px; color:var(--text-sub);">Сделать 3 апгрейда</div>
                 </div>
                 <button class="filter-chip" id="q2-btn" onclick="claimQuest(2, 1200)">+1,200 VEX</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:11px; color:#fff; font-weight:700;">🎰 Азартный Лорд</div>
+                    <div style="font-size:9px; color:var(--text-sub);">Сделать ставку в Cyber-Crash</div>
+                </div>
+                <button class="filter-chip" id="q3-btn" onclick="claimQuest(3, 2000)">+2,000 VEX</button>
             </div>
         </div>
     </div>
@@ -544,8 +621,10 @@
         let balance = 4500;
         let level = 1;
         let xp = 0;
+        let streak = 2;
         let soundEnabled = true;
         let isRolling = false;
+        let dailyClaimed = false;
 
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
@@ -625,8 +704,11 @@
 
         function updateUI() {
             document.getElementById('balance-val').innerText = balance.toLocaleString() + ' VEX';
+            document.getElementById('top-user-balance').innerText = balance.toLocaleString();
             document.getElementById('user-lvl').innerText = level;
             document.getElementById('xp-fill').style.width = (xp % 100) + '%';
+            document.getElementById('streak-days').innerText = streak;
+            document.getElementById('streak-card-val').innerText = streak;
 
             // Мой слот
             const slotMy = document.getElementById('slot-my');
@@ -690,6 +772,43 @@
             renderCatalog();
             renderInventory();
             renderMarket();
+        }
+
+        /* ЕЖЕДНЕВНЫЙ БОНУС И КОЛЕСО */
+        function claimDailyReward() {
+            if (dailyClaimed) {
+                alert("Вы уже забирали сегодняшний бонус!"); return;
+            }
+            dailyClaimed = true;
+            balance += 500;
+            streak += 1;
+            document.getElementById('btn-claim-daily').disabled = true;
+            document.getElementById('btn-claim-daily').innerText = "ПОЛУЧЕНО";
+            playSound('win'); triggerParticles();
+            updateUI();
+            alert("🎁 Ежедневный бонус забран! +500 VEX");
+        }
+
+        let isWheelSpinning = false;
+        function spinFortuneWheel() {
+            if (isWheelSpinning) return;
+            isWheelSpinning = true;
+
+            const wheel = document.getElementById('fortune-wheel-graphic');
+            const randomRotation = 1440 + Math.floor(Math.random() * 360);
+            wheel.style.transform = `rotate(${randomRotation}deg)`;
+
+            playSound('tick');
+
+            setTimeout(() => {
+                isWheelSpinning = false;
+                const prizes = [250, 500, 1000, 2500, 5000];
+                const prize = prizes[Math.floor(Math.random() * prizes.length)];
+                balance += prize;
+                playSound('win'); triggerParticles();
+                updateUI();
+                alert(`🎰 Колесо принесло вам: +${prize.toLocaleString()} VEX!`);
+            }, 3000);
         }
 
         // АВТО-ПОДБОР ЦЕЛИ С ШАНСОМ ОКОЛО 90%
@@ -865,7 +984,7 @@
             }, 2200);
         }
 
-        // ================= РЕЖИМ CYBER-CRASH ЛОГИКА =================
+        // РЕЖИМ CYBER-CRASH ЛОГИКА
         let isCrashRunning = false;
         let crashMultiplier = 1.00;
         let crashCrashPoint = 0;
@@ -876,7 +995,6 @@
         function handleCrashBtn() {
             const btn = document.getElementById('btn-crash-toggle');
             if (!isCrashRunning) {
-                // Старт игры
                 const betVal = parseInt(document.getElementById('crash-bet-input').value);
                 if (isNaN(betVal) || betVal <= 0 || betVal > balance) {
                     alert("Некорректная ставка!"); return;
@@ -887,7 +1005,6 @@
                 isCrashRunning = true;
                 crashMultiplier = 1.00;
 
-                // Генерация точки краша
                 crashCrashPoint = Math.max(1.05, (100 / (Math.random() * 95 + 1)).toFixed(2));
 
                 btn.innerText = "ЗАБРАТЬ (CASHOUT)";
@@ -902,7 +1019,6 @@
                     playSound('tick');
 
                     if (crashMultiplier >= crashCrashPoint) {
-                        // ВЗРЫВ
                         clearInterval(crashInterval);
                         isCrashRunning = false;
                         document.getElementById('crash-mult').innerText = 'x' + crashCrashPoint + ' CRASHED!';
@@ -912,7 +1028,6 @@
                         btn.innerText = "ПОСТАВИТЬ И СТАРТ";
                         btn.className = "btn-crash-action";
 
-                        // Добавить в историю
                         const hist = document.getElementById('crash-history');
                         const pill = document.createElement('div');
                         pill.className = `history-pill ${crashCrashPoint >= 2 ? 'high' : 'low'}`;
@@ -924,7 +1039,6 @@
                 }, 100);
 
             } else {
-                // Cashout
                 if (!hasCashedOut) {
                     hasCashedOut = true;
                     clearInterval(crashInterval);
@@ -943,7 +1057,7 @@
             }
         }
 
-        // ================= P2P МАРКЕТ ЛОГИКА =================
+        // P2P МАРКЕТ ЛОГИКА
         function renderMarket() {
             const list = document.getElementById('market-listings-list');
             list.innerHTML = '';
@@ -1003,7 +1117,7 @@
             }
         }
 
-        // ================= ПРОМОКОДЫ И РЕФЕРАЛЫ =================
+        // ПРОМОКОДЫ И РЕФЕРАЛЫ
         const usedPromos = new Set();
         function applyPromo() {
             const codeInput = document.getElementById('promo-input');
