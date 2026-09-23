@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>VEXUS Trade</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --card-bg: rgba(22, 26, 37, 0.75);
+            --accent-green: #00ff88;
+            --accent-green-glow: rgba(0, 255, 136, 0.35);
+            --brand-blue: #00f2fe;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-green), var(--brand-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 8px 0;
+        }
+
+        .balance-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(8px);
+            margin-bottom: 20px;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            color: #8a8d93;
+            margin-bottom: 6px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-green);
+            text-shadow: 0 0 12px var(--accent-green-glow);
+        }
+
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00ff88, #00b8ff);
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            color: #000;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">VEXUS TRADE</h1>
+        <div style="font-size: 13px; color: #6c757d;">Финансовый симулятор</div>
+    </div>
+
+    <div class="balance-card">
+        <div class="balance-label">Ваш баланс</div>
+        <div class="balance-amount" id="balance">$0</div>
+    </div>
+
+    <button class="action-btn" onclick="addMoney()">💰 Заработать $10</button>
+
+    <script>
+        let balance = 0;
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function addMoney() {
+            balance += 10;
+            document.getElementById('balance').innerText = '$' + balance;
+            
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        }
+    </script>
+</body>
+</html>
