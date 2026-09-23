@@ -436,6 +436,11 @@
 
         let lastDailyReward = 0;
 
+        // Переменные графика
+        let candleSeries = null;
+        let currentChartTime = 0;
+        let activeTradeMarkers = [];
+
         // СОХРАНЕНИЕ И ЗАГРУЗКА
         function saveProgress() {
             const state = {
@@ -506,23 +511,24 @@
                 crosshair: { mode: 0 }
             });
 
-            const candleSeries = chart.addCandlestickSeries({
+            candleSeries = chart.addCandlestickSeries({
                 upColor: '#00ff88', downColor: '#ff3366', borderVisible: false, wickUpColor: '#00ff88', wickDownColor: '#ff3366'
             });
 
-            let currentTime = Math.floor(Date.now() / 1000) - 60;
+            currentChartTime = Math.floor(Date.now() / 1000) - 60;
             let chartData = [];
             for(let i = 0; i < 60; i++) {
                 let open = btcPrice;
                 let close = open + (Math.random() - 0.5) * 30;
                 chartData.push({ 
-                    time: currentTime + i, open: open, 
+                    time: currentChartTime + i, open: open, 
                     high: Math.max(open, close) + Math.random() * 5, 
                     low: Math.min(open, close) - Math.random() * 5, close: close 
                 });
                 btcPrice = close;
             }
             candleSeries.setData(chartData);
+            currentChartTime = currentChartTime + 59;
 
             // Смена тренда каждые 15 секунд
             setInterval(() => {
@@ -547,10 +553,10 @@
                 let open = btcPrice;
                 let trendBias = currentTrend * 12;
                 let close = open + (Math.random() - 0.48) * 35 + trendBias;
-                currentTime = Math.floor(Date.now() / 1000);
+                currentChartTime = Math.floor(Date.now() / 1000);
                 
                 candleSeries.update({
-                    time: currentTime, open: open,
+                    time: currentChartTime, open: open,
                     high: Math.max(open, close) + Math.random() * 6,
                     low: Math.min(open, close) - Math.random() * 6, close: close
                 });
@@ -611,7 +617,6 @@
             energy -= 1;
             balance += clickPower;
 
-            // Получаем координаты клика/тапа для анимации
             const x = e.clientX || e.touches?.[0]?.clientX || window.innerWidth / 2;
             const y = e.clientY || e.touches?.[0]?.clientY || window.innerHeight / 2;
 
@@ -739,7 +744,7 @@
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // ТРЕЙДИНГ ВВЕРХ/ВНИЗ
+        // ТРЕЙДИНГ ВВЕРХ/ВНИЗ С МЕТКАМИ НА ГРАФИКЕ
         function makeTrade(direction, e) {
             if(isTrading) return;
             if(balance < 20) {
@@ -756,6 +761,31 @@
             let timer = 5;
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
+            // 1. СОЗДАЁМ СТРЕЛКУ-МЕТКУ НА СВЕЧЕ
+            const isUp = direction === 'UP';
+            const markerColor = isUp ? '#00ff88' : '#ff3366';
+            
+            const tradeMarker = {
+                time: currentChartTime,
+                position: isUp ? 'belowBar' : 'aboveBar',
+                color: markerColor,
+                shape: isUp ? 'arrowUp' : 'arrowDown',
+                text: isUp ? '▲ ВХОД' : '▼ ВХОД'
+            };
+            activeTradeMarkers.push(tradeMarker);
+            candleSeries.setMarkers(activeTradeMarkers);
+
+            // 2. СОЗДАЁМ ЛИНИЮ УРОВНЯ ВХОДА С ЦЕНОЙ
+            const tradePriceLine = candleSeries.createPriceLine({
+                price: entryPrice,
+                color: markerColor,
+                lineWidth: 2,
+                lineStyle: 2, // Пунктир
+                axisLabelVisible: true,
+                title: isUp ? '▲ СТАВКА UP' : '▼ СТАВКА DOWN'
+            });
+
+            // Таймер сделки
             let countdown = setInterval(() => {
                 timer--;
                 if(timer > 0) {
@@ -768,6 +798,11 @@
                     if(direction === 'UP' && exitPrice > entryPrice) win = true;
                     if(direction === 'DOWN' && exitPrice < entryPrice) win = true;
 
+                    // Удаляем горизонтальную линию после окончания сделки
+                    try {
+                        candleSeries.removePriceLine(tradePriceLine);
+                    } catch(err) {}
+
                     if(win) {
                         balance += 40;
                         const x = window.innerWidth / 2;
@@ -778,7 +813,7 @@
                         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     } else {
                         triggerShake('main-card');
-                        showStatus(`❌ Рынок пошел против вас (-20 ₽)`);
+                        showStatus(`❌ Рынок пошёл против вас (-20 ₽)`);
                         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                     }
                     
@@ -789,5 +824,5 @@
         }
     </script>
 </body>
-</html>           
+</html>       
        
