@@ -3,848 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>VEXUS Trade Pro</title>
-    <!-- Telegram WebApp SDK -->
+    <title>VEXNET // Deep Angler Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Свечной график TradingView -->
     <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         :root {
-            --bg-color: #0b0e14;
-            --card-bg: #161a25;
+            --bg-color: #050811;
+            --card-bg: #0d1322;
+            --accent-cyan: #00f2fe;
+            --accent-purple: #ff00ff;
             --accent-green: #00ff88;
-            --accent-red: #ff3366;
-            --brand-blue: #00f2fe;
+            --accent-orange: #ff9900;
             --text-main: #ffffff;
             --text-sub: #787e87;
-            --warning-yellow: #ffcc00;
         }
-
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 14px; padding-bottom: 50px; overflow-x: hidden; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .title { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+        .badge { font-size: 11px; background: rgba(0, 242, 254, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 242, 254, 0.3); padding: 4px 8px; border-radius: 20px; font-weight: 600; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 14px;
-            overflow-x: hidden;
-            padding-bottom: 30px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .event-banner {
+            background: linear-gradient(90deg, rgba(255,153,0,0.15), rgba(255,0,255,0.15));
+            border: 1px dashed var(--accent-orange);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: var(--accent-orange);
             margin-bottom: 12px;
-        }
-
-        .title {
-            font-size: 20px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-green), var(--brand-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0;
-            letter-spacing: 1px;
-        }
-
-        .badge {
-            font-size: 11px;
-            background: rgba(0, 242, 254, 0.1);
-            color: var(--brand-blue);
-            border: 1px solid rgba(0, 242, 254, 0.3);
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-
-        .glass-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 14px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            margin-bottom: 14px;
-            transition: transform 0.2s ease;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .balance-block {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .balance-title {
-            font-size: 11px;
-            color: var(--text-sub);
-            text-transform: uppercase;
-        }
-
-        .balance-value {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--accent-green);
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-            transition: transform 0.1s ease;
-        }
-
-        .stats-block {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            font-size: 12px;
-            color: var(--text-sub);
-            text-align: right;
-            gap: 2px;
-        }
-
+        .glass-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 14px; transition: transform 0.1s; }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .balance-value { font-size: 24px; font-weight: 800; color: var(--accent-green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+        .stats-block { font-size: 12px; color: var(--text-sub); text-align: right; }
         .stats-block span { color: #fff; font-weight: 600; }
+        
+        .energy-container { margin-top: 10px; }
+        .energy-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-top: 4px; }
+        .energy-bar-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green)); transition: width 0.2s; }
 
-        /* Шкала энергии */
-        .energy-container {
-            margin-top: 10px;
-        }
-        .energy-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: var(--text-sub);
-            margin-bottom: 4px;
-        }
-        .energy-bar-bg {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .energy-bar-fill {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #00f2fe, #00ff88);
-            transition: width 0.2s ease;
-        }
-
-        /* Кнопка кликера с эффектами */
-        .clicker-btn {
+        .action-main-btn { 
             position: relative;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-            border-radius: 12px;
-            padding: 16px;
-            font-weight: 800;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: transform 0.08s ease, background 0.15s ease, box-shadow 0.15s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            outline: none;
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+            background: linear-gradient(135deg, rgba(0,242,254,0.2), rgba(255,0,255,0.2)); 
+            border: 1px solid var(--accent-cyan); 
+            color: #fff; border-radius: 14px; padding: 18px; font-weight: 800; font-size: 17px; cursor: pointer; width: 100%; margin-top: 14px; 
+            text-shadow: 0 0 10px rgba(0,242,254,0.6);
+            transition: transform 0.08s, box-shadow 0.15s;
+            box-shadow: 0 0 15px rgba(0,242,254,0.15);
         }
+        .action-main-btn:active { transform: scale(0.96); background: rgba(0,242,254,0.35); box-shadow: 0 0 25px rgba(0,242,254,0.4); }
 
-        .clicker-btn:active {
-            transform: scale(0.95);
-            background: rgba(0, 255, 136, 0.25);
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
-        }
-
-        .asset-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .trend-tag {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--warning-yellow);
-        }
-
-        .asset-price {
-            color: var(--accent-green);
-            font-family: monospace;
-            font-size: 15px;
-        }
-
-        #chart-container {
-            width: 100%;
-            height: 200px;
-            position: relative;
-        }
-
-        .trade-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .btn-trade {
-            flex: 1;
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 800;
-            color: #fff;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            transition: transform 0.1s ease, filter 0.1s ease;
-        }
-
-        .btn-up { background: linear-gradient(135deg, #00e676, #00b0ff); box-shadow: 0 4px 15px rgba(0, 230, 118, 0.2); }
-        .btn-down { background: linear-gradient(135deg, #ff1744, #ff5252); box-shadow: 0 4px 15px rgba(255, 23, 68, 0.2); }
-        .btn-trade:active { transform: scale(0.95); filter: brightness(1.2); }
-
-        .status-msg {
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-sub);
-            min-height: 18px;
-            margin-bottom: 14px;
-            font-weight: 600;
-        }
-
-        .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-sub);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .action-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 12px;
-            cursor: pointer;
-            transition: transform 0.1s ease, background 0.15s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .action-card:active {
-            transform: scale(0.95);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .action-card h4 { margin: 0; font-size: 13px; color: #fff; }
+        #chart-container { width: 100%; height: 150px; }
+        .section-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        .action-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; cursor: pointer; transition: transform 0.1s, background 0.15s; }
+        .action-card:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
+        .action-card h4 { margin: 0 0 4px 0; font-size: 13px; color: #fff; }
         .action-card p { margin: 0; font-size: 10px; color: var(--text-sub); }
-        .price-tag { color: var(--accent-green); font-weight: bold; font-size: 11px; margin-top: 4px; }
+        .price-tag { color: var(--accent-cyan); font-weight: bold; font-size: 11px; margin-top: 6px; }
 
-        .btn-vex {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.05);
+        .floating-text { position: fixed; font-weight: 800; font-size: 20px; pointer-events: none; z-index: 9999; animation: floatUp 0.7s forwards; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -120px) scale(1.15); } }
+
+        .pvp-card {
+            background: linear-gradient(135deg, rgba(255,0,255,0.08), rgba(0,242,254,0.08));
+            border: 1px solid rgba(255,0,255,0.2);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-pvp {
+            background: rgba(255,0,255,0.15);
+            border: 1px solid var(--accent-purple);
             color: #fff;
-            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 10px;
             font-size: 11px;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.1s ease;
         }
-        .btn-vex:active { transform: scale(0.95); background: rgba(255,255,255,0.15); }
+        .btn-pvp:active { transform: scale(0.95); background: rgba(255,0,255,0.3); }
 
-        /* ВЫЛЕТАЮЩИЙ ТЕКСТ (ЭФФЕКТ ТАПА) */
-        .floating-text {
-            position: fixed;
-            font-weight: 800;
-            font-size: 22px;
-            color: var(--accent-green);
-            pointer-events: none;
-            z-index: 9999;
-            text-shadow: 0 0 12px rgba(0, 255, 136, 0.8);
-            animation: floatUp 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-        }
-
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(0.8);
-            }
-            50% {
-                opacity: 1;
-                transform: translate(-50%, -90px) scale(1.2);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -130px) scale(0.8);
-            }
-        }
-
-        /* ЭФФЕКТ ТРЯСКИ ПРИ ОШИБКЕ */
-        .shake {
-            animation: shakeAnim 0.3s ease-in-out;
-        }
-
-        @keyframes shakeAnim {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-6px); }
-            40%, 80% { transform: translateX(6px); }
-        }
+        .shake { animation: shakeAnim 0.3s ease-in-out; }
+        @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
-
-    <!-- Шапка -->
     <div class="header">
-        <h1 class="title">VEXUS TRADE</h1>
-        <span class="badge">PRO TRADER</span>
+        <h1 class="title">VEXNET // ANGLER</h1>
+        <span class="badge" id="rank-badge">NOVICE-0</span>
     </div>
 
-    <!-- Основной Дашборд -->
-    <div class="glass-card" id="main-card">
+    <!-- Ивент-полоса (динамический кипиш) -->
+    <div class="event-banner" id="event-bar">
+        <span>⚡ Сектор чист. Сигнал стабилен.</span>
+        <span id="event-timer" style="font-family:monospace;">--:--</span>
+    </div>
+
+    <!-- Главная плашка статуса -->
+    <div class="glass-card" id="main-panel">
         <div class="dashboard">
-            <div class="balance-block">
-                <div class="balance-title">Баланс</div>
-                <div class="balance-value" id="balance">100 ₽</div>
+            <div>
+                <div style="font-size:11px; color:var(--text-sub);">УЛОВ ПОДСЕТИ</div>
+                <div class="balance-value" id="balance">1.40 TB</div>
             </div>
             <div class="stats-block">
-                <div>⛏ Фермы: <span id="miner-count">0</span></div>
-                <div>🪙 VEX: <span id="vex-count" style="color: #00f2fe;">0</span></div>
-                <div style="color: var(--accent-green); font-size: 10px; margin-top: 2px;" id="income-rate">+0 ₽ / сек</div>
+                <div>🤖 ИИ-Трассеры: <span id="demons">0</span></div>
+                <div>⚡ Буер: <span id="power">100 GB/тап</span></div>
+                <div style="color:var(--accent-green); font-size:10px;" id="passive-rate">+0 GB/сек</div>
             </div>
         </div>
-
-        <!-- Шкала энергии -->
         <div class="energy-container">
-            <div class="energy-header">
-                <span>⚡ Энергия</span>
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-sub);">
+                <span>❄️ Крио-охлаждение ядра</span>
                 <span id="energy-text">1000 / 1000</span>
             </div>
-            <div class="energy-bar-bg">
-                <div class="energy-bar-fill" id="energy-fill"></div>
-            </div>
+            <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-fill"></div></div>
         </div>
-
-        <!-- Клик кнопка -->
-        <button class="clicker-btn" id="tap-btn" onclick="tapEarn(event)">
-            <span>💰 КЛИК:</span>
-            <span id="click-power-text">+1 ₽</span>
-        </button>
+        <button class="action-main-btn" onclick="castProbe(event)">🎣 ЗАЛЕТЕТЬ В СТРИМ (PULL)</button>
     </div>
 
-    <!-- Свечной График с Аналитикой Трендов -->
-    <div class="glass-card" style="padding: 12px 12px 6px 12px;">
-        <div class="asset-info">
-            <span>📈 BTC / USD</span>
-            <span class="trend-tag" id="trend-indicator">↔️ Флэт / Боковик</span>
-            <span class="asset-price" id="current-price">$65,000</span>
-        </div>
+    <!-- Осциллограф подсети -->
+    <div class="glass-card" style="padding: 10px;">
+        <div style="font-size:11px; color:var(--accent-cyan); margin-bottom:6px; font-weight:600; text-transform:uppercase;">📡 Осциллограф стрима (Subnet-9)</div>
         <div id="chart-container"></div>
     </div>
 
-    <!-- Трейдинг Вверх/Вниз -->
-    <div class="trade-actions">
-        <button class="btn-trade btn-up" onclick="makeTrade('UP', event)">
-            <span>▲ ВВЕРХ</span>
-            <span style="font-size: 10px; opacity: 0.8;">Ставка 20 ₽</span>
-        </button>
-        <button class="btn-trade btn-down" onclick="makeTrade('DOWN', event)">
-            <span>▼ ВНИЗ</span>
-            <span style="font-size: 10px; opacity: 0.8;">Ставка 20 ₽</span>
-        </button>
-    </div>
-    <div class="status-msg" id="status">Анализируй тренд и делай прогноз (5 сек)</div>
+    <!-- PvP / Рейд по рефералам (Ноль вложений, симуляция воровства из сети друга) -->
+    <section>
+        <div class="section-title">🏴‍☠️ Охота на ноды (PvP шпионаж)</div>
+        <div class="pvp-card mb-3" style="margin-bottom:14px;">
+            <div>
+                <h4 style="margin:0; font-size:13px; color:#fff;">Скан node_link_friend</h4>
+                <p style="margin:2px 0 0 0; font-size:10px; color:var://text-sub; color:var(--text-sub);">Утащить пассив у неактивной ноды</p>
+            </div>
+            <button class="btn-pvp" onclick="raidFriendNode(event)">ПРОСКАНИТЬ</button>
+        </div>
+    </section>
 
-    <!-- Рынок токена VEX -->
-    <div class="section-title">🪙 Биржа VEX (Курс: <span id="vex-price" style="color:#00f2fe;">12.50 ₽</span>)</div>
-    <div class="glass-card" style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
-        <button class="btn-vex" onclick="buyVex(event)">Купить 1 VEX</button>
-        <button class="btn-vex" onclick="sellVex(event)">Продать 1 VEX</button>
-    </div>
-
-    <!-- Прокачка и Улучшения -->
-    <div class="section-title">⚡ Улучшения и Майнинг</div>
-    <div class="grid-2">
-        <div class="action-card" id="card-click" onclick="upgradeClick(event)">
-            <h4>💪 Сила клика</h4>
-            <p id="click-desc">Клик: +1 ₽ (след: +2 ₽)</p>
-            <div class="price-tag" id="click-upgrade-price">Цена: 50 ₽</div>
+    <!-- Апгрейды -->
+    <section>
+        <div class="section-title">⚡ Апгрейды снаряжения</div>
+        <div class="grid-2">
+            <div class="action-card" id="card-power" onclick="upgradePower(event)">
+                <h4>⚡ Квант-буер</h4>
+                <p>Мощность заброса</p>
+                <div class="price-tag" id="price-power">Цена: 5.0 TB</div>
+            </div>
+            <div class="action-card" id="card-demon" onclick="buyDemon(event)">
+                <h4>🤖 ИИ-Трассер</h4>
+                <p>Пассивный фарм</p>
+                <div class="price-tag" id="price-demon">Цена: 10.0 TB</div>
+            </div>
         </div>
-        <div class="action-card" id="card-miner" onclick="buyMiner(event)">
-            <h4>⛏ Майнинг ферма</h4>
-            <p id="miner-desc">Пассив доход +0 ₽/сек</p>
-            <div class="price-tag" id="miner-upgrade-price">Цена: 100 ₽</div>
-        </div>
-    </div>
-
-    <!-- Бонусы и Рефералы -->
-    <div class="section-title">🎁 Бонусы и Рефералы</div>
-    <div class="grid-2">
-        <div class="action-card" onclick="claimDailyReward(event)">
-            <h4>🎁 Ежедневный бонус</h4>
-            <p>Получи +500 ₽ (раз в 24ч)</p>
-            <div class="price-tag" style="color:#00f2fe;">Забрать</div>
-        </div>
-        <div class="action-card" onclick="copyRefLink()">
-            <h4>👥 Рефералы</h4>
-            <p>Скопировать ссылку</p>
-            <div class="price-tag" style="color:#00f2fe;" id="ref-count-text">Друзей: 0</div>
-        </div>
-    </div>
+    </section>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // СОСТОЯНИЕ ИГРЫ
-        let balance = 100;
-        let energy = 1000;
-        let maxEnergy = 1000;
-        let clickPower = 1;
-        let clickUpgradePrice = 50;
+        // Стейт
+        let storageTB = 1.40;
+        let energy = 1000, maxEnergy = 1000;
+        let powerGB = 100;
+        let powerPriceTB = 5.0;
+        let demons = 0;
+        let demonPriceTB = 10.0;
+        let signalVal = 50;
+        let multMultiplier = 1; // от ивента
 
-        let miners = 0;
-        let minerPrice = 100;
+        // Ивент стейт
+        let eventActive = false;
+        let eventEndTimestamp = 0;
 
-        let vexTokens = 0;
-        let vexPrice = 12.50;
+        let candleSeries, currentChartTime;
 
-        let btcPrice = 65000;
-        let isTrading = false;
-        let currentTrend = 0;
-
-        let lastDailyReward = 0;
-
-        // Переменные графика и сделок
-        let candleSeries = null;
-        let currentChartTime = 0;
-        let activeTradeMarkers = [];
-        let activeTradePriceLine = null;
-        let activeTradeDetails = null;
-
-        // СОХРАНЕНИЕ И ЗАГРУЗКА
-        function saveProgress() {
-            const state = {
-                balance, energy, maxEnergy, clickPower, clickUpgradePrice,
-                miners, minerPrice, vexTokens, vexPrice, lastDailyReward
-            };
-            localStorage.setItem('vexus_game_state', JSON.stringify(state));
-        }
-
-        function loadProgress() {
-            const saved = localStorage.getItem('vexus_game_state');
-            if (saved) {
+        // Загрузка / сохранение localStorage
+        function loadGame() {
+            const saved = localStorage.getItem('vexnet_angler_save');
+            if(saved) {
                 try {
-                    const data = JSON.parse(saved);
-                    if (data.balance !== undefined) balance = data.balance;
-                    if (data.energy !== undefined) energy = data.energy;
-                    if (data.maxEnergy !== undefined) maxEnergy = data.maxEnergy;
-                    if (data.clickPower !== undefined) clickPower = data.clickPower;
-                    if (data.clickUpgradePrice !== undefined) clickUpgradePrice = data.clickUpgradePrice;
-                    if (data.miners !== undefined) miners = data.miners;
-                    if (data.minerPrice !== undefined) minerPrice = data.minerPrice;
-                    if (data.vexTokens !== undefined) vexTokens = data.vexTokens;
-                    if (data.vexPrice !== undefined) vexPrice = data.vexPrice;
-                    if (data.lastDailyReward !== undefined) lastDailyReward = data.lastDailyReward;
-                } catch (e) {
-                    console.error('Ошибка сохранения:', e);
-                }
+                    const d = JSON.parse(saved);
+                    storageTB = d.storageTB ?? 1.40;
+                    energy = d.energy ?? 1000;
+                    powerGB = d.powerGB ?? 100;
+                    powerPriceTB = d.powerPriceTB ?? 5.0;
+                    demons = d.demons ?? 0;
+                    demonPriceTB = d.demonPriceTB ?? 10.0;
+                } catch(e){}
             }
         }
+        function saveGame() {
+            localStorage.setItem('vexnet_angler_save', JSON.stringify({
+                storageTB, energy, powerGB, powerPriceTB, demons, demonPriceTB
+            }));
+        }
 
-        // ВЫЛЕТАЮЩИЙ ТЕКСТ ПРИ ТАПЕ / ПОКУПКЕ
-        function spawnFloatingText(x, y, text, color = '#00ff88') {
+        loadGame();
+
+        function spawnText(x, y, text, color='#00ff88') {
             const el = document.createElement('div');
             el.className = 'floating-text';
             el.innerText = text;
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
             el.style.color = color;
-            el.style.textShadow = `0 0 12px ${color}`;
+            el.style.textShadow = `0 0 10px ${color}`;
             document.body.appendChild(el);
-
-            setTimeout(() => {
-                el.remove();
-            }, 700);
+            setTimeout(() => el.remove(), 700);
         }
 
-        // ЭФФЕКТ ТРЯСКИ ПРИ ОШИБКЕ
-        function triggerShake(elementId) {
-            const el = document.getElementById(elementId);
-            if (el) {
-                el.classList.add('shake');
-                setTimeout(() => el.classList.remove('shake'), 300);
-            }
-        }
-
-        // ИНИЦИАЛИЗАЦИЯ
         document.addEventListener('DOMContentLoaded', () => {
-            loadProgress();
-            updateUI();
-
-            const chartContainer = document.getElementById('chart-container');
-            const chart = LightweightCharts.createChart(chartContainer, {
+            const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
                 autoSize: true,
-                layout: { background: { type: 'solid', color: '#161a25' }, textColor: '#787e87' },
-                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.05)' }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
-                timeScale: { timeVisible: true, secondsVisible: true, borderColor: 'rgba(255, 255, 255, 0.1)' },
-                rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.1)' },
-                crosshair: { mode: 0 }
+                layout: { background: { type: 'solid', color: '#0d1322' }, textColor: '#787e87' },
+                grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.03)' } },
+                timeScale: { visible: false }, rightPriceScale: { visible: false }
+            });
+            candleSeries = chart.addAreaSeries({
+                topColor: 'rgba(0, 242, 254, 0.35)', bottomColor: 'rgba(0, 242, 254, 0.0)',
+                lineColor: '#00f2fe', lineWidth: 2
             });
 
-            candleSeries = chart.addCandlestickSeries({
-                upColor: '#00ff88', downColor: '#ff3366', borderVisible: false, wickUpColor: '#00ff88', wickDownColor: '#ff3366'
-            });
-
-            currentChartTime = Math.floor(Date.now() / 1000) - 60;
-            let chartData = [];
-            for(let i = 0; i < 60; i++) {
-                let open = btcPrice;
-                let close = open + (Math.random() - 0.5) * 30;
-                chartData.push({ 
-                    time: currentChartTime + i, open: open, 
-                    high: Math.max(open, close) + Math.random() * 5, 
-                    low: Math.min(open, close) - Math.random() * 5, close: close 
-                });
-                btcPrice = close;
+            currentChartTime = Math.floor(Date.now() / 1000) - 40;
+            let data = [];
+            for(let i=0; i<40; i++) {
+                signalVal += (Math.random() - 0.5) * 15;
+                data.push({ time: currentChartTime + i, value: Math.max(10, Math.min(90, signalVal)) });
             }
-            candleSeries.setData(chartData);
-            currentChartTime = currentChartTime + 59;
+            candleSeries.setData(data);
 
-            // Смена тренда каждые 15 секунд
             setInterval(() => {
-                const rand = Math.random();
-                if (rand < 0.4) {
-                    currentTrend = 1;
-                    document.getElementById('trend-indicator').innerText = '📈 Бычий тренд';
-                    document.getElementById('trend-indicator').style.color = '#00ff88';
-                } else if (rand < 0.8) {
-                    currentTrend = -1;
-                    document.getElementById('trend-indicator').innerText = '📉 Медвежий тренд';
-                    document.getElementById('trend-indicator').style.color = '#ff3366';
-                } else {
-                    currentTrend = 0;
-                    document.getElementById('trend-indicator').innerText = '↔️ Флэт / Боковик';
-                    document.getElementById('trend-indicator').style.color = '#ffcc00';
-                }
-            }, 15000);
-
-            // Обновление свечи и проверка профита каждую секунду
-            setInterval(() => {
-                let open = btcPrice;
-                let trendBias = currentTrend * 12;
-                let close = open + (Math.random() - 0.48) * 35 + trendBias;
                 currentChartTime = Math.floor(Date.now() / 1000);
-                
-                candleSeries.update({
-                    time: currentChartTime, open: open,
-                    high: Math.max(open, close) + Math.random() * 6,
-                    low: Math.min(open, close) - Math.random() * 6, close: close
-                });
-                
-                btcPrice = close;
-                document.getElementById('current-price').innerText = '$' + Math.round(btcPrice).toLocaleString();
-
-                // ДИНАМИЧЕСКАЯ ПРОВЕРКА ЦВЕТА ЛИНИИ (ЗЕЛЕНАЯ/СЕРАЯ БЕЗ НАДПИСЕЙ)
-                if (isTrading && activeTradeDetails && activeTradePriceLine) {
-                    let isWinning = false;
-                    if (activeTradeDetails.direction === 'UP' && btcPrice > activeTradeDetails.entryPrice) {
-                        isWinning = true;
-                    } else if (activeTradeDetails.direction === 'DOWN' && btcPrice < activeTradeDetails.entryPrice) {
-                        isWinning = true;
-                    }
-
-                    const currentColor = isWinning ? '#00ff88' : '#888888';
-
-                    activeTradePriceLine.applyOptions({
-                        color: currentColor,
-                        title: '' // Без текста
-                    });
-                }
-
-                // Курс VEX
-                let vexDelta = (Math.random() - 0.49) * 0.3 + (currentTrend * 0.1);
-                vexPrice = Math.max(2, Math.min(100, vexPrice + vexDelta));
-                document.getElementById('vex-price').innerText = vexPrice.toFixed(2) + ' ₽';
-            }, 1000);
+                signalVal += (Math.random() - 0.48) * 18 * multMultiplier;
+                signalVal = Math.max(10, Math.min(90, signalVal));
+                candleSeries.update({ time: currentChartTime, value: signalVal });
+            }, 800);
         });
 
-        // РЕГЕНЕРАЦИЯ И ПАССИВНЫЙ ДОХОД
+        // Таймер тиков регенерации, пассива и ивентов
         setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + 3);
+            if(energy < maxEnergy) energy = Math.min(maxEnergy, energy + 6);
+            if(demons > 0) {
+                storageTB += (demons * 0.02) * multMultiplier;
             }
-            if (miners > 0) {
-                balance += miners;
+
+            // Рандомный ивент раз в ~30 сек по вероятности
+            if(!eventActive && Math.random() < 0.08) {
+                triggerEvent('⚡ Корп-дамп в Sector-04! Клик и пассив x2 (15 сек)', 15);
             }
+
+            if(eventActive) {
+                const left = Math.max(0, Math.floor((eventEndTimestamp - Date.now())/1000));
+                document.getElementById('event-timer').innerText = `00:${left < 10 ? '0'+left : left}`;
+                if(left <= 0) {
+                    eventActive = false;
+                    multMultiplier = 1;
+                    document.getElementById('event-bar').innerHTML = `<span>⚡ Сектор чист. Сигнал стабилен.</span><span style="font-family:monospace;">--:--</span>`;
+                }
+            }
+
             updateUI();
+            saveGame();
         }, 1000);
 
-        // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+        function triggerEvent(text, durationSec) {
+            eventActive = true;
+            multMultiplier = 2;
+            eventEndTimestamp = Date.now() + durationSec * 1000;
+            document.getElementById('event-bar').innerHTML = `<span style="color:var(--accent-orange);">${text}</span><span id="event-timer" style="font-family:monospace; color:var(--accent-orange);">00:${durationSec}</span>`;
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+        }
+
         function updateUI() {
-            document.getElementById('balance').innerText = balance + ' ₽';
-            document.getElementById('miner-count').innerText = miners;
-            document.getElementById('vex-count').innerText = vexTokens;
-            document.getElementById('income-rate').innerText = '+' + miners + ' ₽ / сек';
-            
-            document.getElementById('energy-text').innerText = `${energy} / ${maxEnergy}`;
-            document.getElementById('energy-fill').style.width = `${(energy / maxEnergy) * 100}%`;
-            document.getElementById('click-power-text').innerText = `+${clickPower} ₽`;
+            document.getElementById('balance').innerText = storageTB.toFixed(2) + ' TB';
+            document.getElementById('demons').innerText = demons;
+            document.getElementById('power').innerText = powerGB + ' GB/тап';
+            document.getElementById('passive-rate', true)?.setAttribute('innerText', '');
+            const passVal = (demons * 0.02 * multMultiplier * 60).toFixed(1);
+            document.getElementById('passive-rate').innerText = `+${passVal} TB/мин`;
 
-            document.getElementById('click-desc').innerText = `Клик: +${clickPower} ₽ (след: +${clickPower + 1} ₽)`;
-            document.getElementById('click-upgrade-price').innerText = `Цена: ${clickUpgradePrice} ₽`;
-            
-            document.getElementById('miner-desc').innerText = `Пассив доход +${miners} ₽/сек`;
-            document.getElementById('miner-upgrade-price').innerText = `Цена: ${minerPrice} ₽`;
+            document.getElementById('energy-text').innerText = `${Math.floor(energy)} / ${maxEnergy}`;
+            document.getElementById('energy-fill').style.width = `${(energy/maxEnergy)*100}`;
+            document.getElementById('price-power').innerText = `Цена: ${powerPriceTB.toFixed(2)} TB`;
+            document.getElementById('price-demon').innerText = `Цена: ${demonPriceTB.toFixed(2)} TB`;
 
-            saveProgress();
+            let rank = 'NOVICE-0';
+            if(storageTB > 10) rank = 'SUB-HACKER';
+            if(storageTB > 50) rank = 'CYBER-ANGLER';
+            if(storageTB > 200) rank = 'OVERRIDE-LORD';
+            document.getElementById('rank-badge').innerText = rank;
         }
 
-        function showStatus(text) {
-            document.getElementById('status').innerText = text;
-        }
-
-        // КЛИКЕР С ЭФФЕКТАМИ
-        function tapEarn(e) {
-            if (energy < 1) {
-                showStatus('⚡ Закончилась энергия!');
-                triggerShake('main-card');
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+        function castProbe(e) {
+            if(energy < 150) {
+                triggerShake('main-panel');
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
                 return;
             }
+            energy -= 150;
+            const caughtGB = (powerGB + Math.floor(Math.random() * (powerGB * 0.5))) * multMultiplier;
+            storageTB += caughtGB / 1024;
 
-            energy -= 1;
-            balance += clickPower;
-
-            const x = e.clientX || e.touches?.[0]?.clientX || window.innerWidth / 2;
-            const y = e.clientY || e.touches?.[0]?.clientY || window.innerHeight / 2;
-
-            spawnFloatingText(x, y, `+${clickPower} ₽`, '#00ff88');
+            const x = e.clientX || window.innerWidth/2;
+            const y = e.clientY || window.innerHeight/2;
+            spawnText(x, y, `+${caughtGB} GB`, '#00ff88');
 
             updateUI();
-
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            saveGame();
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         }
 
-        // ПРОКАЧКА КЛИКА
-        function upgradeClick(e) {
-            if (balance >= clickUpgradePrice) {
-                balance -= clickUpgradePrice;
-                clickPower += 1;
-                clickUpgradePrice = Math.floor(clickUpgradePrice * 1.8);
-
-                const x = e.clientX || window.innerWidth / 2;
-                const y = e.clientY || window.innerHeight / 2;
-                spawnFloatingText(x, y, `+1 Клик!`, '#00f2fe');
-
+        function upgradePower(e) {
+            if(storageTB >= powerPriceTB) {
+                storageTB -= powerPriceTB;
+                powerGB = Math.floor(powerGB * 1.5);
+                powerPriceTB *= 1.75;
                 updateUI();
-                showStatus('✅ Сила клика увеличена!');
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                saveGame();
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             } else {
-                triggerShake('card-click');
-                showStatus(`❌ Не хватает ₽ (${clickUpgradePrice} ₽)`);
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                triggerShake('card-power');
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
-        // ПОКУПКА МАЙНЕРА
-        function buyMiner(e) {
-            if (balance >= minerPrice) {
-                balance -= minerPrice;
-                miners++;
-                minerPrice = Math.floor(minerPrice * 1.5);
-
-                const x = e.clientX || window.innerWidth / 2;
-                const y = e.clientY || window.innerHeight / 2;
-                spawnFloatingText(x, y, `+1 Ферма!`, '#00f2fe');
-
+        function buyDemon(e) {
+            if(storageTB >= demonPriceTB) {
+                storageTB -= demonPriceTB;
+                demons++;
+                demonPriceTB *= 1.6;
                 updateUI();
-                showStatus('✅ Майнинг ферма куплена!');
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                saveGame();
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             } else {
-                triggerShake('card-miner');
-                showStatus(`❌ Не хватает ₽ (${minerPrice} ₽)`);
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                triggerShake('card-demon');
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
-        // КУПИТЬ / ПРОДАТЬ VEX
-        function buyVex(e) {
-            let cost = Math.round(vexPrice);
-            if (balance >= cost) {
-                balance -= cost;
-                vexTokens += 1;
-
-                const x = e.clientX || window.innerWidth / 2;
-                const y = e.clientY || window.innerHeight / 2;
-                spawnFloatingText(x, y, `+1 VEX`, '#00f2fe');
-
-                updateUI();
-                showStatus(`✅ Куплен 1 VEX за ${cost} ₽`);
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                showStatus(`❌ Нужно ${cost} ₽`);
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            }
-        }
-
-        function sellVex(e) {
-            if (vexTokens >= 1) {
-                let payout = Math.round(vexPrice);
-                vexTokens -= 1;
-                balance += payout;
-
-                const x = e.clientX || window.innerWidth / 2;
-                const y = e.clientY || window.innerHeight / 2;
-                spawnFloatingText(x, y, `+${payout} ₽`, '#00ff88');
-
-                updateUI();
-                showStatus(`💰 Продан 1 VEX за ${payout} ₽`);
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                showStatus('❌ Нет токенов VEX');
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            }
-        }
-
-        // ЕЖЕДНЕВНЫЙ БОНУС
-        function claimDailyReward(e) {
-            const now = Date.now();
-            const oneDay = 24 * 60 * 60 * 1000;
-            if (now - lastDailyReward >= oneDay) {
-                balance += 500;
-                lastDailyReward = now;
-
-                const x = e.clientX || window.innerWidth / 2;
-                const y = e.clientY || window.innerHeight / 2;
-                spawnFloatingText(x, y, `+500 ₽!`, '#ffcc00');
-
-                updateUI();
-                showStatus('🎁 Ежедневный бонус +500 ₽ получен!');
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                const hoursLeft = Math.ceil((oneDay - (now - lastDailyReward)) / (1000 * 60 * 60));
-                showStatus(`⏳ Приходи через ${hoursLeft} ч.`);
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
-            }
-        }
-
-        // РЕФЕРАЛЬНАЯ ССЫЛКА
-        function copyRefLink() {
-            const userId = tg.initDataUnsafe?.user?.id || 'demo';
-            const link = `https://t.me/VEXUS_VPN_bot?start=ref_${userId}`;
-            
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(link);
-                showStatus('📋 Ссылка скопирована!');
-            } else {
-                showStatus('📋 Ссылка: ' + link);
-            }
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }
-
-        // ТРЕЙДИНГ ВВЕРХ/ВНИЗ
-        function makeTrade(direction, e) {
-            if(isTrading) return;
-            if(balance < 20) {
-                showStatus('❌ Недостаточно средств для ставки (20 ₽)');
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                return;
-            }
-
-            isTrading = true;
-            balance -= 20;
+        function raidFriendNode(e) {
+            const loot = parseFloat((Math.random() * 0.3 + 0.05).toFixed(2));
+            storageTB += loot;
+            const x = e.clientX || window.innerWidth/2;
+            const y = e.clientY || window.innerHeight/2;
+            spawnText(x, y, `⚡ Спёр +${loot} TB`, '#ff00ff');
             updateUI();
-
-            let entryPrice = btcPrice;
-            let timer = 5;
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-            activeTradeDetails = { direction, entryPrice };
-
-            // 1. ТОЛЬКО СТРЕЛКА-МЕТКА НА СВЕЧЕ ВХОДА (без текста)
-            const isUp = direction === 'UP';
-            const tradeMarker = {
-                time: currentChartTime,
-                position: isUp ? 'belowBar' : 'aboveBar',
-                color: isUp ? '#00ff88' : '#ff3366',
-                shape: isUp ? 'arrowUp' : 'arrowDown',
-                text: '' // Текст «ВХОД» убран
-            };
-            activeTradeMarkers.push(tradeMarker);
-            candleSeries.setMarkers(activeTradeMarkers);
-
-            // 2. ДИНАМИЧЕСКАЯ ЛИНИЯ УРОВНЯ ВХОДА (без надписей)
-            activeTradePriceLine = candleSeries.createPriceLine({
-                price: entryPrice,
-                color: '#888888',
-                lineWidth: 2,
-                lineStyle: 2, // Пунктирная линия
-                axisLabelVisible: true,
-                title: '' // Текст с линии убран
-            });
-
-            // Таймер сделки
-            let countdown = setInterval(() => {
-                timer--;
-                if(timer > 0) {
-                    showStatus(`⏳ Сделка открыта (${direction}). Ждём: ${timer} сек`);
-                } else {
-                    clearInterval(countdown);
-                    let exitPrice = btcPrice;
-                    let win = false;
-
-                    if(direction === 'UP' && exitPrice > entryPrice) win = true;
-                    if(direction === 'DOWN' && exitPrice < entryPrice) win = true;
-
-                    // Удаляем горизонтальную линию по окончании 5 секунд
-                    if (activeTradePriceLine) {
-                        try {
-                            candleSeries.removePriceLine(activeTradePriceLine);
-                        } catch(err) {}
-                        activeTradePriceLine = null;
-                    }
-
-                    if(win) {
-                        balance += 40;
-                        const x = window.innerWidth / 2;
-                        const y = window.innerHeight / 2;
-                        spawnFloatingText(x, y, `+40 ₽!`, '#00ff88');
-
-                        showStatus(`✅ Прогноз верен! Выиграно +40 ₽`);
-                        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                    } else {
-                        triggerShake('main-card');
-                        showStatus(`❌ Рынок пошёл против вас (-20 ₽)`);
-                        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                    }
-                    
-                    updateUI();
-                    isTrading = false;
-                    activeTradeDetails = null;
-                }
-            }, 1000);
+            saveGame();
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
         }
     </script>
 </body>
