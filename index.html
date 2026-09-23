@@ -343,12 +343,12 @@
     <div class="grid-2">
         <div class="action-card" onclick="upgradeClick()">
             <h4>💪 Сила клика</h4>
-            <p>Добавляет +1 ₽ к тапу</p>
+            <p id="click-desc">Клик: +1 ₽ (след: +2 ₽)</p>
             <div class="price-tag" id="click-upgrade-price">Цена: 50 ₽</div>
         </div>
         <div class="action-card" onclick="buyMiner()">
             <h4>⛏ Майнинг ферма</h4>
-            <p>Пассив доход +1 ₽/сек</p>
+            <p id="miner-desc">Пассив доход +0 ₽/сек</p>
             <div class="price-tag" id="miner-upgrade-price">Цена: 100 ₽</div>
         </div>
     </div>
@@ -372,7 +372,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // СОСТОЯНИЕ ИГРЫ
+        // СОСТОЯНИЕ ИГРЫ ПО УМОЛЧАНИЮ
         let balance = 100;
         let energy = 1000;
         let maxEnergy = 1000;
@@ -389,10 +389,51 @@
         let isTrading = false;
         let currentTrend = 0; // -1 (медвежий), 0 (флэт), 1 (бычий)
 
-        let lastDailyReward = parseInt(localStorage.getItem('vexus_last_daily') || '0');
+        let lastDailyReward = 0;
 
-        // ИНИЦИАЛИЗАЦИЯ СВЕЧНОГО ГРАФИКА
+        // СОХРАНЕНИЕ И ЗАГРУЗКА
+        function saveProgress() {
+            const state = {
+                balance,
+                energy,
+                maxEnergy,
+                clickPower,
+                clickUpgradePrice,
+                miners,
+                minerPrice,
+                vexTokens,
+                vexPrice,
+                lastDailyReward
+            };
+            localStorage.setItem('vexus_game_state', JSON.stringify(state));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('vexus_game_state');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if (data.balance !== undefined) balance = data.balance;
+                    if (data.energy !== undefined) energy = data.energy;
+                    if (data.maxEnergy !== undefined) maxEnergy = data.maxEnergy;
+                    if (data.clickPower !== undefined) clickPower = data.clickPower;
+                    if (data.clickUpgradePrice !== undefined) clickUpgradePrice = data.clickUpgradePrice;
+                    if (data.miners !== undefined) miners = data.miners;
+                    if (data.minerPrice !== undefined) minerPrice = data.minerPrice;
+                    if (data.vexTokens !== undefined) vexTokens = data.vexTokens;
+                    if (data.vexPrice !== undefined) vexPrice = data.vexPrice;
+                    if (data.lastDailyReward !== undefined) lastDailyReward = data.lastDailyReward;
+                } catch (e) {
+                    console.error('Ошибка загрузки сохранения:', e);
+                }
+            }
+        }
+
+        // ИНИЦИАЛИЗАЦИЯ
         document.addEventListener('DOMContentLoaded', () => {
+            loadProgress();
+            updateUI();
+
             const chartContainer = document.getElementById('chart-container');
             
             const chart = LightweightCharts.createChart(chartContainer, {
@@ -443,7 +484,7 @@
             // Обновление свечи и курса VEX каждую секунду
             setInterval(() => {
                 let open = btcPrice;
-                let trendBias = currentTrend * 12; // Влияние тренда
+                let trendBias = currentTrend * 12;
                 let close = open + (Math.random() - 0.48) * 35 + trendBias;
                 currentTime = Math.floor(Date.now() / 1000);
                 
@@ -465,11 +506,9 @@
 
         // ВОССТАНОВЛЕНИЕ ЭНЕРГИИ И ПАССИВНЫЙ ДОХОД
         setInterval(() => {
-            // Регенерация энергии (+3 в сек)
             if (energy < maxEnergy) {
                 energy = Math.min(maxEnergy, energy + 3);
             }
-            // Пассивный доход от майнеров
             if (miners > 0) {
                 balance += miners;
             }
@@ -488,9 +527,14 @@
             document.getElementById('energy-fill').style.width = `${(energy / maxEnergy) * 100}%`;
             document.getElementById('click-power-text').innerText = `+${clickPower} ₽`;
 
-            // Цены улучшений
+            // Динамические описания и цены улучшений
+            document.getElementById('click-desc').innerText = `Клик: +${clickPower} ₽ (след: +${clickPower + 1} ₽)`;
             document.getElementById('click-upgrade-price').innerText = `Цена: ${clickUpgradePrice} ₽`;
+            
+            document.getElementById('miner-desc').innerText = `Пассив доход +${miners} ₽/сек`;
             document.getElementById('miner-upgrade-price').innerText = `Цена: ${minerPrice} ₽`;
+
+            saveProgress();
         }
 
         function showStatus(text) {
@@ -572,7 +616,6 @@
             if (now - lastDailyReward >= oneDay) {
                 balance += 500;
                 lastDailyReward = now;
-                localStorage.setItem('vexus_last_daily', now.toString());
                 updateUI();
                 showStatus('🎁 Ежедневный бонус +500 ₽ получен!');
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
