@@ -3,212 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>VEXNET // Deep Angler Pro</title>
+    <title>VEX TAP // Casino Upgrade Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         :root {
             --bg-color: #050811;
             --card-bg: #0d1322;
             --accent-cyan: #00f2fe;
-            --accent-purple: #ff00ff;
+            --accent-purple: #7000ff;
             --accent-green: #00ff88;
-            --accent-orange: #ff9900;
+            --accent-red: #ff0055;
+            --accent-gold: #ffd700;
             --text-main: #ffffff;
             --text-sub: #787e87;
         }
+
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 14px; padding-bottom: 50px; overflow-x: hidden; }
-        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; padding: 14px; padding-bottom: 40px; 
+        }
+
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .title { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
-        .badge { font-size: 11px; background: rgba(0, 242, 254, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 242, 254, 0.3); padding: 4px 8px; border-radius: 20px; font-weight: 600; }
-
-        .event-banner {
-            background: linear-gradient(90deg, rgba(255,153,0,0.15), rgba(255,0,255,0.15));
-            border: 1px dashed var(--accent-orange);
-            border-radius: 12px;
-            padding: 8px 12px;
-            font-size: 11px;
-            color: var(--accent-orange);
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .title { 
+            font-size: 20px; font-weight: 800; 
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; 
+        }
+        .badge { 
+            font-size: 11px; background: rgba(0, 242, 254, 0.1); 
+            color: var(--accent-cyan); border: 1px solid rgba(0, 242, 254, 0.3); 
+            padding: 4px 8px; border-radius: 20px; font-weight: 600; 
         }
 
-        .glass-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 14px; transition: transform 0.1s; }
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .balance-value { font-size: 24px; font-weight: 800; color: var(--accent-green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
-        .stats-block { font-size: 12px; color: var(--text-sub); text-align: right; }
-        .stats-block span { color: #fff; font-weight: 600; }
-        
-        .energy-container { margin-top: 10px; }
-        .energy-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-top: 4px; }
-        .energy-bar-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green)); transition: width 0.2s; }
-
-        .action-main-btn { 
+        .glass-card { 
+            background: var(--card-bg); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; padding: 14px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            margin-bottom: 14px; 
             position: relative;
-            background: linear-gradient(135deg, rgba(0,242,254,0.2), rgba(255,0,255,0.2)); 
-            border: 1px solid var(--accent-cyan); 
-            color: #fff; border-radius: 14px; padding: 18px; font-weight: 800; font-size: 17px; cursor: pointer; width: 100%; margin-top: 14px; 
-            text-shadow: 0 0 10px rgba(0,242,254,0.6);
-            transition: transform 0.08s, box-shadow 0.15s;
-            box-shadow: 0 0 15px rgba(0,242,254,0.15);
         }
-        .action-main-btn:active { transform: scale(0.96); background: rgba(0,242,254,0.35); box-shadow: 0 0 25px rgba(0,242,254,0.4); }
 
-        #chart-container { width: 100%; height: 150px; }
-        .section-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
+        .balance-value { font-size: 26px; font-weight: 900; color: var(--accent-green); }
+        .boost-badge { font-size: 11px; color: var(--accent-gold); font-weight: 700; }
+
+        /* Кнопка ТАПа */
+        .tap-zone {
+            background: linear-gradient(135deg, rgba(0,242,254,0.1), rgba(112,0,255,0.1));
+            border: 1px solid var(--accent-cyan); border-radius: 14px;
+            padding: 16px; text-align: center; font-weight: 800; font-size: 18px;
+            cursor: pointer; margin-bottom: 14px;
+            box-shadow: 0 0 15px rgba(0,242,254,0.2);
+            transition: transform 0.05s ease;
+        }
+        .tap-zone:active { transform: scale(0.97); background: rgba(0,242,254,0.2); }
+
+        /* Зона Апгрейда */
+        .upgrade-zone {
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            background: radial-gradient(circle at center, rgba(112,0,255,0.15), var(--card-bg));
+            text-align: center;
+        }
+        .zone-title {
+            font-size: 13px; font-weight: 800; color: var(--accent-gold);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+        }
+
+        .item-slot {
+            background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15);
+            border-radius: 14px; padding: 16px; margin-bottom: 12px; min-height: 110px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .item-emoji { font-size: 42px; margin-bottom: 6px; }
+        .item-name { font-size: 16px; font-weight: 800; color: #fff; }
+        .item-lvl { font-size: 12px; color: var(--accent-cyan); font-weight: 700; }
+
+        /* Рулетка / Анимация */
+        .roulette-anim {
+            font-size: 16px; font-weight: 800; color: var(--accent-gold);
+            animation: pulse 0.3s infinite alternate;
+        }
+        @keyframes pulse { from { opacity: 0.3; transform: scale(0.95); } to { opacity: 1; transform: scale(1.05); } }
+
+        .btn-upgrade {
+            width: 100%; background: linear-gradient(135deg, var(--accent-gold), #ff8c00);
+            color: #000; border: none; border-radius: 12px; padding: 14px;
+            font-weight: 900; font-size: 15px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); margin-bottom: 6px;
+        }
+        .btn-upgrade:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+        .btn-buy {
+            width: 100%; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #fff; border: none; border-radius: 12px; padding: 12px;
+            font-weight: 800; font-size: 14px; cursor: pointer;
+        }
+
+        .chance-info { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+
+        /* Уведомления */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 12px 20px; border-radius: 20px; font-weight: 800; font-size: 13px;
+            z-index: 999; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .toast-success { background: var(--accent-green); color: #000; }
+        .toast-fail { background: var(--accent-red); color: #fff; }
+
+        /* Нижнее меню / Табы */
+        .section-title { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-        .action-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; cursor: pointer; transition: transform 0.1s, background 0.15s; }
-        .action-card:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
+        .action-card {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 12px; cursor: pointer;
+        }
+        .action-card:active { transform: scale(0.96); background: rgba(255,255,255,0.08); }
         .action-card h4 { margin: 0 0 4px 0; font-size: 13px; color: #fff; }
         .action-card p { margin: 0; font-size: 10px; color: var(--text-sub); }
         .price-tag { color: var(--accent-cyan); font-weight: bold; font-size: 11px; margin-top: 6px; }
 
-        .floating-text { position: fixed; font-weight: 800; font-size: 20px; pointer-events: none; z-index: 9999; animation: floatUp 0.7s forwards; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -120px) scale(1.15); } }
-
-        .pvp-card {
-            background: linear-gradient(135deg, rgba(255,0,255,0.08), rgba(0,242,254,0.08));
-            border: 1px solid rgba(255,0,255,0.2);
-            border-radius: 14px;
-            padding: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Эффект вылетающих цифр */
+        .floating-text {
+            position: fixed; font-weight: 900; font-size: 20px; pointer-events: none; z-index: 999;
+            animation: floatUp 0.6s forwards;
         }
-        .btn-pvp {
-            background: rgba(255,0,255,0.15);
-            border: 1px solid var(--accent-purple);
-            color: #fff;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .btn-pvp:active { transform: scale(0.95); background: rgba(255,0,255,0.3); }
-
-        .shake { animation: shakeAnim 0.3s ease-in-out; }
-        @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -100px) scale(1.2); } }
     </style>
 </head>
 <body>
+
+    <!-- Уведомления -->
+    <div id="toast" class="toast"></div>
+
     <div class="header">
-        <h1 class="title">VEXNET // ANGLER</h1>
-        <span class="badge" id="rank-badge">NOVICE-0</span>
+        <h1 class="title">VEX TAP</h1>
+        <span class="badge">CASINO UPGRADE</span>
     </div>
 
-    <!-- Ивент-полоса (динамический кипиш) -->
-    <div class="event-banner" id="event-bar">
-        <span>⚡ Сектор чист. Сигнал стабилен.</span>
-        <span id="event-timer" style="font-family:monospace;">--:--</span>
+    <!-- Баланс и доход -->
+    <div class="glass-card">
+        <div style="font-size:11px; color:var(--text-sub);">БАЛАНС</div>
+        <div class="balance-value" id="balance">0 VEX</div>
+        <div style="display:flex; justify-content:space-between; margin-top:6px;">
+            <span style="font-size:11px; color:var(--text-sub);">Пассив доход: <b id="passive-income" style="color:#fff;">0/сек</b></span>
+            <span class="boost-badge" id="item-boost">Буст: +0%</span>
+        </div>
     </div>
 
-    <!-- Главная плашка статуса -->
-    <div class="glass-card" id="main-panel">
-        <div class="dashboard">
-            <div>
-                <div style="font-size:11px; color:var(--text-sub);">УЛОВ ПОДСЕТИ</div>
-                <div class="balance-value" id="balance">1.40 TB</div>
-            </div>
-            <div class="stats-block">
-                <div>🤖 ИИ-Трассеры: <span id="demons">0</span></div>
-                <div>⚡ Буер: <span id="power">100 GB/тап</span></div>
-                <div style="color:var(--accent-green); font-size:10px;" id="passive-rate">+0 GB/сек</div>
-            </div>
-        </div>
-        <div class="energy-container">
-            <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-sub);">
-                <span>❄️ Крио-охлаждение ядра</span>
-                <span id="energy-text">1000 / 1000</span>
-            </div>
-            <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-fill"></div></div>
-        </div>
-        <button class="action-main-btn" onclick="castProbe(event)">🎣 ЗАЛЕТЕТЬ В СТРИМ (PULL)</button>
+    <!-- Клик кнопка -->
+    <div class="tap-zone" onclick="handleTap(event)">
+        ⚡ ТАПАТЬ (+<span id="click-power-val">1</span> VEX)
     </div>
 
-    <!-- Осциллограф подсети -->
-    <div class="glass-card" style="padding: 10px;">
-        <div style="font-size:11px; color:var(--accent-cyan); margin-bottom:6px; font-weight:600; text-transform:uppercase;">📡 Осциллограф стрима (Subnet-9)</div>
-        <div id="chart-container"></div>
+    <!-- ЗОНА АПГРЕЙДА (Вместо графика) -->
+    <div class="glass-card upgrade-zone">
+        <div class="zone-title">🎰 Зона Апгрейда Предметов</div>
+
+        <div class="item-slot" id="item-display">
+            <!-- Заполняется через JS -->
+        </div>
+
+        <div id="upgrade-controls">
+            <!-- Кнопки управления заполняются JS -->
+        </div>
     </div>
 
-    <!-- PvP / Рейд по рефералам (Ноль вложений, симуляция воровства из сети друга) -->
-    <section>
-        <div class="section-title">🏴‍☠️ Охота на ноды (PvP шпионаж)</div>
-        <div class="pvp-card mb-3" style="margin-bottom:14px;">
-            <div>
-                <h4 style="margin:0; font-size:13px; color:#fff;">Скан node_link_friend</h4>
-                <p style="margin:2px 0 0 0; font-size:10px; color:var://text-sub; color:var(--text-sub);">Утащить пассив у неактивной ноды</p>
-            </div>
-            <button class="btn-pvp" onclick="raidFriendNode(event)">ПРОСКАНИТЬ</button>
+    <!-- НИЖНЯЯ ПАНЕЛЬ СИСТЕМЫ (Сохранена из оригинальной версии) -->
+    <div class="section-title">🛠️ Прокачка и Бусты</div>
+    <div class="grid-2">
+        <div class="action-card" onclick="buyClickPower()">
+            <h4>⚡ Сила клика</h4>
+            <p>Увеличивает VEX за тап</p>
+            <div class="price-tag" id="price-click">100 VEX</div>
         </div>
-    </section>
-
-    <!-- Апгрейды -->
-    <section>
-        <div class="section-title">⚡ Апгрейды снаряжения</div>
-        <div class="grid-2">
-            <div class="action-card" id="card-power" onclick="upgradePower(event)">
-                <h4>⚡ Квант-буер</h4>
-                <p>Мощность заброса</p>
-                <div class="price-tag" id="price-power">Цена: 5.0 TB</div>
-            </div>
-            <div class="action-card" id="card-demon" onclick="buyDemon(event)">
-                <h4>🤖 ИИ-Трассер</h4>
-                <p>Пассивный фарм</p>
-                <div class="price-tag" id="price-demon">Цена: 10.0 TB</div>
-            </div>
+        <div class="action-card" onclick="buyMiningFarm()">
+            <h4>⛏️ Майнинг ферма</h4>
+            <p>Пассивный доход в сек</p>
+            <div class="price-tag" id="price-mining">250 VEX</div>
         </div>
-    </section>
+        <div class="action-card" onclick="claimDailyBonus()">
+            <h4>🎁 Ежедневный бонус</h4>
+            <p>Забрать халяву</p>
+            <div class="price-tag" id="status-daily">ГОТОВО</div>
+        </div>
+        <div class="action-card" onclick="openReferrals()">
+            <h4>👥 Рефералы</h4>
+            <p>Призови друзей</p>
+            <div class="price-tag">+1,000 VEX</div>
+        </div>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
+        if (tg.expand) tg.expand();
 
-        // Стейт
-        let storageTB = 1.40;
-        let energy = 1000, maxEnergy = 1000;
-        let powerGB = 100;
-        let powerPriceTB = 5.0;
-        let demons = 0;
-        let demonPriceTB = 10.0;
-        let signalVal = 50;
-        let multMultiplier = 1; // от ивента
+        // Основное состояние
+        let balance = 1000;
+        let clickPower = 1;
+        let clickPowerPrice = 100;
+        let passiveIncome = 0;
+        let miningPrice = 250;
+        let lastDailyClaim = 0;
+        let isUpgrading = false;
 
-        // Ивент стейт
-        let eventActive = false;
-        let eventEndTimestamp = 0;
+        // Предметы для казино-апгрейда
+        const ITEMS = [
+            { level: 1, name: "Старый самокат", price: 100, emoji: "🛴", chance: 75 },
+            { level: 2, name: "iPhone 11", price: 500, emoji: "📱", chance: 65 },
+            { level: 3, name: "Игровой ПК", price: 2500, emoji: "🖥️", chance: 50 },
+            { level: 4, name: "Подержанная Приора", price: 10000, emoji: "🏎️", chance: 40 },
+            { level: 5, name: "Новая Tesla Model S", price: 50000, emoji: "⚡", chance: 30 },
+            { level: 6, name: "Вилла в Дубае", price: 250000, emoji: "🏰", chance: 20 },
+            { level: 7, name: "Личный Бизнес-Джет", price: 1000000, emoji: "🛩️", chance: 15 }
+        ];
 
-        let candleSeries, currentChartTime;
+        let currentItemIndex = -1; // -1 значит предмета нет
 
-        // Загрузка / сохранение localStorage
-        function loadGame() {
-            const saved = localStorage.getItem('vexnet_angler_save');
-            if(saved) {
-                try {
-                    const d = JSON.parse(saved);
-                    storageTB = d.storageTB ?? 1.40;
-                    energy = d.energy ?? 1000;
-                    powerGB = d.powerGB ?? 100;
-                    powerPriceTB = d.powerPriceTB ?? 5.0;
-                    demons = d.demons ?? 0;
-                    demonPriceTB = d.demonPriceTB ?? 10.0;
-                } catch(e){}
-            }
-        }
-        function saveGame() {
-            localStorage.setItem('vexnet_angler_save', JSON.stringify({
-                storageTB, energy, powerGB, powerPriceTB, demons, demonPriceTB
-            }));
-        }
-
-        loadGame();
-
+        // Спавн текста вылета
         function spawnText(x, y, text, color='#00ff88') {
             const el = document.createElement('div');
             el.className = 'floating-text';
@@ -218,148 +232,204 @@
             el.style.color = color;
             el.style.textShadow = `0 0 10px ${color}`;
             document.body.appendChild(el);
-            setTimeout(() => el.remove(), 700);
+            setTimeout(() => el.remove(), 600);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
-                autoSize: true,
-                layout: { background: { type: 'solid', color: '#0d1322' }, textColor: '#787e87' },
-                grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.03)' } },
-                timeScale: { visible: false }, rightPriceScale: { visible: false }
-            });
-            candleSeries = chart.addAreaSeries({
-                topColor: 'rgba(0, 242, 254, 0.35)', bottomColor: 'rgba(0, 242, 254, 0.0)',
-                lineColor: '#00f2fe', lineWidth: 2
-            });
-
-            currentChartTime = Math.floor(Date.now() / 1000) - 40;
-            let data = [];
-            for(let i=0; i<40; i++) {
-                signalVal += (Math.random() - 0.5) * 15;
-                data.push({ time: currentChartTime + i, value: Math.max(10, Math.min(90, signalVal)) });
-            }
-            candleSeries.setData(data);
-
-            setInterval(() => {
-                currentChartTime = Math.floor(Date.now() / 1000);
-                signalVal += (Math.random() - 0.48) * 18 * multMultiplier;
-                signalVal = Math.max(10, Math.min(90, signalVal));
-                candleSeries.update({ time: currentChartTime, value: signalVal });
-            }, 800);
-        });
-
-        // Таймер тиков регенерации, пассива и ивентов
-        setInterval(() => {
-            if(energy < maxEnergy) energy = Math.min(maxEnergy, energy + 6);
-            if(demons > 0) {
-                storageTB += (demons * 0.02) * multMultiplier;
-            }
-
-            // Рандомный ивент раз в ~30 сек по вероятности
-            if(!eventActive && Math.random() < 0.08) {
-                triggerEvent('⚡ Корп-дамп в Sector-04! Клик и пассив x2 (15 сек)', 15);
-            }
-
-            if(eventActive) {
-                const left = Math.max(0, Math.floor((eventEndTimestamp - Date.now())/1000));
-                document.getElementById('event-timer').innerText = `00:${left < 10 ? '0'+left : left}`;
-                if(left <= 0) {
-                    eventActive = false;
-                    multMultiplier = 1;
-                    document.getElementById('event-bar').innerHTML = `<span>⚡ Сектор чист. Сигнал стабилен.</span><span style="font-family:monospace;">--:--</span>`;
-                }
-            }
-
-            updateUI();
-            saveGame();
-        }, 1000);
-
-        function triggerEvent(text, durationSec) {
-            eventActive = true;
-            multMultiplier = 2;
-            eventEndTimestamp = Date.now() + durationSec * 1000;
-            document.getElementById('event-bar').innerHTML = `<span style="color:var(--accent-orange);">${text}</span><span id="event-timer" style="font-family:monospace; color:var(--accent-orange);">00:${durationSec}</span>`;
-            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+        // Показ уведомлений
+        function showToast(msg, type='success') {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-fail'}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
         }
 
+        // Обновление интерфейса
         function updateUI() {
-            document.getElementById('balance').innerText = storageTB.toFixed(2) + ' TB';
-            document.getElementById('demons').innerText = demons;
-            document.getElementById('power').innerText = powerGB + ' GB/тап';
-            document.getElementById('passive-rate', true)?.setAttribute('innerText', '');
-            const passVal = (demons * 0.02 * multMultiplier * 60).toFixed(1);
-            document.getElementById('passive-rate').innerText = `+${passVal} TB/мин`;
+            // Рассчитываем буст предмета (+10% пассивного дохода за каждый ЛВЛ предмета)
+            const itemBoostPercent = currentItemIndex >= 0 ? (currentItemIndex + 1) * 10 : 0;
+            const effectivePassive = Math.floor(passiveIncome * (1 + itemBoostPercent / 100));
 
-            document.getElementById('energy-text').innerText = `${Math.floor(energy)} / ${maxEnergy}`;
-            document.getElementById('energy-fill').style.width = `${(energy/maxEnergy)*100}`;
-            document.getElementById('price-power').innerText = `Цена: ${powerPriceTB.toFixed(2)} TB`;
-            document.getElementById('price-demon').innerText = `Цена: ${demonPriceTB.toFixed(2)} TB`;
+            document.getElementById('balance').innerText = Math.floor(balance).toLocaleString() + ' VEX';
+            document.getElementById('click-power-val').innerText = clickPower;
+            document.getElementById('price-click').innerText = clickPowerPrice.toLocaleString() + ' VEX';
+            document.getElementById('passive-income').innerText = effectivePassive.toLocaleString() + '/сек';
+            document.getElementById('price-mining').innerText = miningPrice.toLocaleString() + ' VEX';
+            document.getElementById('item-boost').innerText = `Буст: +${itemBoostPercent}%`;
 
-            let rank = 'NOVICE-0';
-            if(storageTB > 10) rank = 'SUB-HACKER';
-            if(storageTB > 50) rank = 'CYBER-ANGLER';
-            if(storageTB > 200) rank = 'OVERRIDE-LORD';
-            document.getElementById('rank-badge').innerText = rank;
+            renderUpgradeZone();
         }
 
-        function castProbe(e) {
-            if(energy < 150) {
-                triggerShake('main-panel');
-                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+        // Отрисовка Зоны Апгрейда
+        function renderUpgradeZone() {
+            const display = document.getElementById('item-display');
+            const controls = document.getElementById('upgrade-controls');
+
+            if (isUpgrading) {
+                display.innerHTML = `<div class="roulette-anim">🎰 КРУТИМ РУЛЕТКУ...</div>`;
+                controls.innerHTML = `<button class="btn-upgrade" disabled>ОЖИДАНИЕ...</button>`;
                 return;
             }
-            energy -= 150;
-            const caughtGB = (powerGB + Math.floor(Math.random() * (powerGB * 0.5))) * multMultiplier;
-            storageTB += caughtGB / 1024;
 
-            const x = e.clientX || window.innerWidth/2;
-            const y = e.clientY || window.innerHeight/2;
-            spawnText(x, y, `+${caughtGB} GB`, '#00ff88');
-
-            updateUI();
-            saveGame();
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        }
-
-        function upgradePower(e) {
-            if(storageTB >= powerPriceTB) {
-                storageTB -= powerPriceTB;
-                powerGB = Math.floor(powerGB * 1.5);
-                powerPriceTB *= 1.75;
-                updateUI();
-                saveGame();
-                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            if (currentItemIndex === -1) {
+                // Если предмета нет
+                display.innerHTML = `
+                    <div class="item-emoji">❓</div>
+                    <div class="item-name">Нет предмета</div>
+                    <div class="item-lvl">Купите ЛВЛ 1 за 100 VEX</div>
+                `;
+                controls.innerHTML = `
+                    <button class="btn-buy" onclick="buyBaseItem()">🛒 КУПИТЬ БАЗОВЫЙ ПРЕДМЕТ (100 VEX)</button>
+                `;
             } else {
-                triggerShake('card-power');
-                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                // Если предмет есть
+                const currentItem = ITEMS[currentItemIndex];
+                const isMax = currentItemIndex >= ITEMS.length - 1;
+
+                display.innerHTML = `
+                    <div class="item-emoji">${currentItem.emoji}</div>
+                    <div class="item-name">${currentItem.name}</div>
+                    <div class="item-lvl">УРОВЕНЬ ${currentItem.level} // Стоимость: ${currentItem.price.toLocaleString()} VEX</div>
+                `;
+
+                if (isMax) {
+                    controls.innerHTML = `
+                        <button class="btn-upgrade" style="background:#00ff88; color:#000;" disabled>👑 МАКСИМАЛЬНЫЙ УРОВЕНЬ!</button>
+                    `;
+                } else {
+                    const nextItem = ITEMS[currentItemIndex + 1];
+                    const upgradeCost = Math.floor(nextItem.price * 0.30); // 30% от цены следующего
+
+                    controls.innerHTML = `
+                        <button class="btn-upgrade" onclick="startUpgrade()">
+                            🚀 АПГРЕЙД ДО [${nextItem.name}]
+                        </button>
+                        <div class="chance-info">
+                            Цена: <b>${upgradeCost.toLocaleString()} VEX</b> | Шанс успеха: <b style="color:var(--accent-gold);">${currentItem.chance}%</b>
+                        </div>
+                    `;
+                }
             }
         }
 
-        function buyDemon(e) {
-            if(storageTB >= demonPriceTB) {
-                storageTB -= demonPriceTB;
-                demons++;
-                demonPriceTB *= 1.6;
+        // Покупка ЛВЛ 1 предмета
+        function buyBaseItem() {
+            if (balance < 100) {
+                showToast("Недостаточно VEX!", "fail");
+                return;
+            }
+            balance -= 100;
+            currentItemIndex = 0;
+            updateUI();
+            showToast("Куплен Старый самокат!", "success");
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }
+
+        // Запуск Апгрейда
+        function startUpgrade() {
+            if (currentItemIndex === -1 || currentItemIndex >= ITEMS.length - 1) return;
+
+            const nextItem = ITEMS[currentItemIndex + 1];
+            const upgradeCost = Math.floor(nextItem.price * 0.30);
+
+            if (balance < upgradeCost) {
+                showToast("Не хватает VEX на запуск апгрейда!", "fail");
+                return;
+            }
+
+            balance -= upgradeCost;
+            isUpgrading = true;
+            updateUI();
+
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+            // Анимация 1.5 секунды
+            setTimeout(() => {
+                const currentItem = ITEMS[currentItemIndex];
+                const rand = Math.random() * 100;
+
+                if (rand <= currentItem.chance) {
+                    // УСПЕХ
+                    currentItemIndex++;
+                    const newItem = ITEMS[currentItemIndex];
+                    showToast(`УСПЕХ! Предмет улучшен до [${newItem.name}]!`, "success");
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                } else {
+                    // НЕУДАЧА (Предмет сгорает)
+                    currentItemIndex = -1;
+                    showToast("НЕУДАЧА! Предмет сгорел!", "fail");
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                }
+
+                isUpgrading = false;
                 updateUI();
-                saveGame();
-                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            }, 1500);
+        }
+
+        // Логика тапа
+        function handleTap(e) {
+            balance += clickPower;
+            const x = e.clientX || window.innerWidth / 2;
+            const y = e.clientY || window.innerHeight / 2;
+            spawnText(x, y, `+${clickPower}`, '#00f2fe');
+            updateUI();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // Прокачка клика
+        function buyClickPower() {
+            if (balance >= clickPowerPrice) {
+                balance -= clickPowerPrice;
+                clickPower += 1;
+                clickPowerPrice = Math.floor(clickPowerPrice * 1.6);
+                updateUI();
+                showToast("Сила клика увеличена!", "success");
             } else {
-                triggerShake('card-demon');
-                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                showToast("Мало VEX!", "fail");
             }
         }
 
-        function raidFriendNode(e) {
-            const loot = parseFloat((Math.random() * 0.3 + 0.05).toFixed(2));
-            storageTB += loot;
-            const x = e.clientX || window.innerWidth/2;
-            const y = e.clientY || window.innerHeight/2;
-            spawnText(x, y, `⚡ Спёр +${loot} TB`, '#ff00ff');
-            updateUI();
-            saveGame();
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+        // Прокачка майнинга
+        function buyMiningFarm() {
+            if (balance >= miningPrice) {
+                balance -= miningPrice;
+                passiveIncome += 5;
+                miningPrice = Math.floor(miningPrice * 1.7);
+                updateUI();
+                showToast("Майнинг ферма улучшена!", "success");
+            } else {
+                showToast("Майнинг требует больше VEX!", "fail");
+            }
         }
+
+        // Бонус
+        function claimDailyBonus() {
+            const now = Date.now();
+            if (now - lastDailyClaim > 86400000 || lastDailyClaim === 0) {
+                balance += 500;
+                lastDailyClaim = now;
+                updateUI();
+                showToast("+500 VEX получено!", "success");
+            } else {
+                showToast("Заходи завтра!", "fail");
+            }
+        }
+
+        function openReferrals() {
+            alert("Ссылка скопирована! Отправь её другу и получи +1,000 VEX после его регистрации.");
+        }
+
+        // Пассивный доход раз в секунду
+        setInterval(() => {
+            if (passiveIncome > 0) {
+                const itemBoostPercent = currentItemIndex >= 0 ? (currentItemIndex + 1) * 10 : 0;
+                const effectivePassive = passiveIncome * (1 + itemBoostPercent / 100);
+                balance += effectivePassive;
+                updateUI();
+            }
+        }, 1000);
+
+        updateUI();
     </script>
 </body>
 </html>
