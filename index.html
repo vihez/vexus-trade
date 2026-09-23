@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>VEXUS Trade</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #0b0e14;
-            --card-bg: rgba(22, 26, 37, 0.75);
+            --card-bg: #161a25;
             --accent-green: #00ff88;
-            --accent-green-glow: rgba(0, 255, 136, 0.35);
+            --accent-red: #ff3366;
             --brand-blue: #00f2fe;
-            --text-color: #ffffff;
+            --text-main: #ffffff;
+            --text-sub: #787e87;
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 16px;
@@ -27,87 +29,275 @@
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
 
         .title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 800;
             background: linear-gradient(135deg, var(--accent-green), var(--brand-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 0 0 8px 0;
+            margin: 0;
+            letter-spacing: 1px;
         }
 
         .balance-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, #131722, #1a1f2c);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            backdrop-filter: blur(8px);
-            margin-bottom: 20px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            margin-bottom: 16px;
         }
 
-        .balance-label {
-            font-size: 14px;
-            color: #8a8d93;
-            margin-bottom: 6px;
+        .balance-title {
+            font-size: 12px;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
-        .balance-amount {
-            font-size: 32px;
-            font-weight: 700;
+        .balance-value {
+            font-size: 26px;
+            font-weight: 800;
             color: var(--accent-green);
-            text-shadow: 0 0 12px var(--accent-green-glow);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
         }
 
-        .action-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #00ff88, #00b8ff);
+        .clicker-btn {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clicker-btn:active {
+            transform: scale(0.95);
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .asset-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .trade-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .btn-trade {
+            flex: 1;
             border: none;
             border-radius: 12px;
             padding: 16px;
-            color: #000;
             font-size: 16px;
             font-weight: 700;
+            color: #fff;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.1s, box-shadow 0.2s;
         }
 
-        .action-btn:active {
-            transform: scale(0.98);
-            opacity: 0.9;
+        .btn-up {
+            background: linear-gradient(135deg, #00e676, #00b0ff);
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+
+        .btn-down {
+            background: linear-gradient(135deg, #ff1744, #ff5252);
+            box-shadow: 0 4px 15px rgba(255, 23, 68, 0.3);
+        }
+
+        .btn-trade:active {
+            transform: scale(0.96);
+        }
+
+        .status-msg {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-sub);
+            min-height: 20px;
         }
     </style>
 </head>
 <body>
+
     <div class="header">
         <h1 class="title">VEXUS TRADE</h1>
-        <div style="font-size: 13px; color: #6c757d;">Финансовый симулятор</div>
+        <span style="font-size: 12px; color: var(--text-sub);">PRO SIMULATOR</span>
     </div>
 
     <div class="balance-card">
-        <div class="balance-label">Ваш баланс</div>
-        <div class="balance-amount" id="balance">$0</div>
+        <div>
+            <div class="balance-title">Баланс счета</div>
+            <div class="balance-value" id="balance">$100</div>
+        </div>
+        <button class="clicker-btn" onclick="tapEarn()">+ $10 💰</button>
     </div>
 
-    <button class="action-btn" onclick="addMoney()">💰 Заработать $10</button>
+    <div class="chart-container">
+        <div class="asset-info">
+            <span>📈 BTC / USD</span>
+            <span id="current-price" style="color: var(--accent-green);">$65,000</span>
+        </div>
+        <canvas id="tradeChart" height="180"></canvas>
+    </div>
+
+    <div class="trade-actions">
+        <button class="btn-trade btn-up" onclick="makeTrade('UP')">
+            <span>▲ ВВЕРХ</span>
+            <span style="font-size: 11px; opacity: 0.8;">Ставка $20</span>
+        </button>
+        <button class="btn-trade btn-down" onclick="makeTrade('DOWN')">
+            <span>▼ ВНИЗ</span>
+            <span style="font-size: 11px; opacity: 0.8;">Ставка $20</span>
+        </button>
+    </div>
+
+    <div class="status-msg" id="status">Выберите направление сделки (5 сек)</div>
 
     <script>
-        let balance = 0;
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        function addMoney() {
-            balance += 10;
-            document.getElementById('balance').innerText = '$' + balance;
-            
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
+        let balance = 100;
+        let btcPrice = 65000;
+        let priceHistory = [64800, 64850, 64900, 64950, 65000];
+        let isTrading = false;
+
+        // Инициализация графика Chart.js
+        const ctx = document.getElementById('tradeChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['', '', '', '', ''],
+                datasets: [{
+                    data: priceHistory,
+                    borderColor: '#00ff88',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.3,
+                    fill: true,
+                    backgroundColor: 'rgba(0, 255, 136, 0.05)'
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: { duration: 300 },
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#787e87', font: { size: 10 } } }
+                }
             }
+        });
+
+        // Живая симуляция цены
+        setInterval(() => {
+            let change = (Math.random() - 0.49) * 40;
+            btcPrice = Math.round(btcPrice + change);
+            document.getElementById('current-price').innerText = '$' + btcPrice.toLocaleString();
+            
+            priceHistory.push(btcPrice);
+            if(priceHistory.length > 15) priceHistory.shift();
+
+            chart.data.datasets[0].data = priceHistory;
+            chart.data.labels = priceHistory.map(() => '');
+            
+            // Смена цвета линии
+            let isUp = priceHistory[priceHistory.length - 1] >= priceHistory[priceHistory.length - 2];
+            chart.data.datasets[0].borderColor = isUp ? '#00ff88' : '#ff3366';
+            
+            chart.update();
+        }, 1000);
+
+        // Тап-клик
+        function tapEarn() {
+            balance += 10;
+            updateBalance();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function updateBalance() {
+            document.getElementById('balance').innerText = '$' + balance;
+        }
+
+        // Торговля
+        function makeTrade(direction) {
+            if(isTrading) return;
+            if(balance < 20) {
+                document.getElementById('status').innerText = '❌ Недостаточно средств! Нажми +$10';
+                return;
+            }
+
+            isTrading = true;
+            balance -= 20;
+            updateBalance();
+
+            let entryPrice = btcPrice;
+            let timer = 5;
+            document.getElementById('status').innerText = `⏳ Сделка открыта (${direction}). Ожидание: ${timer}s`;
+
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+            let countdown = setInterval(() => {
+                timer--;
+                if(timer > 0) {
+                    document.getElementById('status').innerText = `⏳ Сделка открыта (${direction}). Ожидание: ${timer}s`;
+                } else {
+                    clearInterval(countdown);
+                    let exitPrice = btcPrice;
+                    let win = false;
+
+                    if(direction === 'UP' && exitPrice > entryPrice) win = true;
+                    if(direction === 'DOWN' && exitPrice < entryPrice) win = true;
+
+                    if(win) {
+                        balance += 40;
+                        document.getElementById('status').innerText = `✅ Прогноз оправдался! Выиграно +$40`;
+                        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    } else {
+                        document.getElementById('status').innerText = `❌ Прогноз не оправдался (-$20)`;
+                        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                    }
+                    
+                    updateBalance();
+                    isTrading = false;
+                }
+            }, 1000);
         }
     </script>
 </body>
