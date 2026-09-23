@@ -6,8 +6,8 @@
     <title>VEXUS Trade</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- TradingView Lightweight Charts для японских свечей -->
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- Фиксированная версия Lightweight Charts с поддержкой autoSize -->
+    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         :root {
             --bg-color: #0b0e14;
@@ -58,13 +58,12 @@
         }
 
         .glass-card {
-            background: linear-gradient(145deg, rgba(22, 26, 37, 0.9), rgba(16, 20, 29, 0.9));
+            background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             padding: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             margin-bottom: 16px;
-            backdrop-filter: blur(10px);
         }
 
         .dashboard {
@@ -138,10 +137,11 @@
             font-size: 16px;
         }
 
-        /* Контейнер для свечного графика */
+        /* Контейнер графика обязательно должен иметь высоту */
         #chart-container {
             width: 100%;
-            height: 200px;
+            height: 220px;
+            position: relative;
         }
 
         .trade-actions {
@@ -213,14 +213,13 @@
         .income-card h4 { margin: 0; font-size: 13px; color: #fff; }
         .income-card p { margin: 0; font-size: 11px; color: var(--text-sub); }
         .price-tag { color: var(--accent-green); font-weight: bold; font-size: 12px; margin-top: 4px; }
-
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1 class="title">VEXUS TRADE</h1>
-        <span class="badge">GAME FULL</span>
+        <span class="badge">PRO TRADER</span>
     </div>
 
     <!-- Дашборд Игрока -->
@@ -261,7 +260,7 @@
     </div>
     <div class="status-msg" id="status">Прогноз рынка (5 секунд)</div>
 
-    <!-- Экономика игры: Покупки -->
+    <!-- Магазин -->
     <div class="section-title">Магазин и Развитие</div>
     <div class="passive-income-grid">
         <div class="income-card" onclick="buyMiner()">
@@ -277,71 +276,88 @@
     </div>
 
     <script>
+        // Инициализация Telegram
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Игровые переменные
         let balance = 100;
         let btcPrice = 65000;
         let isTrading = false;
         let miners = 0;
         let vexTokens = 0;
 
-        // --- ИНИЦИАЛИЗАЦИЯ СВЕЧНОГО ГРАФИКА TRADINGVIEW ---
-        const chartProperties = {
-            layout: { 
-                background: { type: 'solid', color: 'transparent' }, 
-                textColor: '#787e87' 
-            },
-            grid: { 
-                vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, 
-                horzLines: { color: 'rgba(255, 255, 255, 0.03)' } 
-            },
-            timeScale: { timeVisible: true, secondsVisible: true },
-            crosshair: { mode: 0 }
-        };
-        
-        const chart = LightweightCharts.createChart(document.getElementById('chart-container'), chartProperties);
-        const candleSeries = chart.addCandlestickSeries({
-            upColor: '#00ff88', downColor: '#ff3366', 
-            borderVisible: false, 
-            wickUpColor: '#00ff88', wickDownColor: '#ff3366'
+        // --- ГАРАНТИРОВАННЫЙ ЗАПУСК ГРАФИКА ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartContainer = document.getElementById('chart-container');
+            
+            // Настройки графика с autoSize для мобилок
+            const chart = LightweightCharts.createChart(chartContainer, {
+                autoSize: true, // Решает проблему сплющивания графика
+                layout: { 
+                    background: { type: 'solid', color: '#161a25' }, // Явный цвет вместо transparent
+                    textColor: '#787e87' 
+                },
+                grid: { 
+                    vertLines: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                    horzLines: { color: 'rgba(255, 255, 255, 0.05)' } 
+                },
+                timeScale: { 
+                    timeVisible: true, 
+                    secondsVisible: true,
+                    borderColor: 'rgba(255, 255, 255, 0.1)'
+                },
+                rightPriceScale: {
+                    borderColor: 'rgba(255, 255, 255, 0.1)'
+                },
+                crosshair: { mode: 0 }
+            });
+
+            // Настройки японских свечей (зеленый/красный)
+            const candleSeries = chart.addCandlestickSeries({
+                upColor: '#00ff88', 
+                downColor: '#ff3366', 
+                borderVisible: false, 
+                wickUpColor: '#00ff88', 
+                wickDownColor: '#ff3366'
+            });
+
+            // Генерация истории для свечей (последние 60 секунд)
+            let currentTime = Math.floor(Date.now() / 1000) - 60;
+            let chartData = [];
+            for(let i = 0; i < 60; i++) {
+                let open = btcPrice;
+                let close = open + (Math.random() - 0.5) * 40;
+                chartData.push({ 
+                    time: currentTime + i, 
+                    open: open, 
+                    high: Math.max(open, close) + Math.random() * 5, 
+                    low: Math.min(open, close) - Math.random() * 5, 
+                    close: close 
+                });
+                btcPrice = close;
+            }
+            candleSeries.setData(chartData);
+
+            // Живое обновление графика (1 раз в секунду)
+            setInterval(() => {
+                let open = btcPrice;
+                let close = open + (Math.random() - 0.5) * 50;
+                currentTime = Math.floor(Date.now() / 1000);
+                
+                candleSeries.update({
+                    time: currentTime,
+                    open: open,
+                    high: Math.max(open, close) + Math.random() * 10,
+                    low: Math.min(open, close) - Math.random() * 10,
+                    close: close
+                });
+                
+                btcPrice = close;
+                document.getElementById('current-price').innerText = '$' + Math.round(btcPrice).toLocaleString();
+            }, 1000);
         });
 
-        // Генерация начальных данных для свечей
-        let currentTime = Math.floor(Date.now() / 1000) - 60;
-        let chartData = [];
-        for(let i = 0; i < 60; i++) {
-            let open = btcPrice;
-            let close = open + (Math.random() - 0.5) * 40;
-            chartData.push({ 
-                time: currentTime + i, 
-                open: open, 
-                high: Math.max(open, close) + 5, 
-                low: Math.min(open, close) - 5, 
-                close: close 
-            });
-            btcPrice = close;
-        }
-        candleSeries.setData(chartData);
-
-        // Обновление живой свечи каждую секунду
-        setInterval(() => {
-            let open = btcPrice;
-            let close = open + (Math.random() - 0.5) * 50;
-            currentTime++;
-            candleSeries.update({
-                time: currentTime,
-                open: open,
-                high: Math.max(open, close) + Math.random() * 10,
-                low: Math.min(open, close) - Math.random() * 10,
-                close: close
-            });
-            btcPrice = close;
-            document.getElementById('current-price').innerText = '$' + Math.round(btcPrice).toLocaleString();
-        }, 1000);
-
-        // --- ЛОГИКА ИГРЫ ---
+        // --- ИГРОВАЯ МЕХАНИКА ---
         function updateUI() {
             document.getElementById('balance').innerText = '$' + balance;
             document.getElementById('miner-count').innerText = miners;
@@ -355,7 +371,6 @@
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
-        // Покупка майнера
         function buyMiner() {
             if (balance >= 50) {
                 balance -= 50;
@@ -369,7 +384,6 @@
             }
         }
 
-        // Покупка токена VEX
         function buyVex() {
             if (balance >= 100) {
                 balance -= 100;
@@ -383,15 +397,13 @@
             }
         }
 
-        // Пассивный доход каждую секунду
         setInterval(() => {
             if (miners > 0) {
-                balance += miners; // 1 доллар за каждого майнера
+                balance += miners;
                 updateUI();
             }
         }, 1000);
 
-        // Система трейдинга
         function makeTrade(direction) {
             if(isTrading) return;
             if(balance < 20) {
@@ -436,3 +448,5 @@
     </script>
 </body>
 </html>
+                    
+       
