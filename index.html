@@ -1,1462 +1,2399 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>CYBERPUNK UPGRADE // ULTIMATE PERSISTENT EDITION</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #030509;
-            --card-bg: rgba(13, 18, 30, 0.88);
-            --neon-cyan: #00f3ff;
-            --neon-pink: #ff0055;
-            --neon-yellow: #ffe600;
-            --neon-purple: #9d00ff;
-            --neon-green: #00ff66;
-            --text-main: #f0f5ff;
-            --text-sub: #5c6b8a;
-
-            --rarity-common: #7d8b9e;
-            --rarity-uncommon: #00aaff;
-            --rarity-rare: #a000ff;
-            --rarity-epic: #ff00aa;
-            --rarity-legendary: #ffaa00;
-            --rarity-godlike: #00ffaa;
-        }
-
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.15), transparent 70%),
-                radial-gradient(circle at 100% 100%, rgba(255, 0, 85, 0.1), transparent 60%),
-                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
-            color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
-            margin: 0; padding: 0; padding-bottom: 75px;
-            min-height: 100vh; overflow-x: hidden;
-        }
-
-        body::before {
-            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px; z-index: 900; pointer-events: none; opacity: 0.5;
-        }
-
-        #particle-canvas {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 999;
-        }
-
-        .live-feed-wrapper {
-            background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 243, 255, 0.2);
-            padding: 6px 0; overflow: hidden; white-space: nowrap; display: flex; align-items: center;
-        }
-        .live-feed-label {
-            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 900; color: var(--neon-pink);
-            background: rgba(255,0,85,0.15); padding: 3px 8px; border-radius: 4px; margin: 0 10px;
-            border: 1px solid var(--neon-pink); letter-spacing: 1px; flex-shrink: 0;
-        }
-        .live-feed-track { display: flex; gap: 10px; animation: feedScroll 25s linear infinite; }
-        .feed-item {
-            display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700;
-            background: rgba(255,255,255,0.03); padding: 2px 8px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
-        }
-        .feed-item .user { color: var(--neon-cyan); }
-        .feed-item .chance { color: var(--neon-yellow); font-weight: 800; }
-
-        @keyframes feedScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        .app-header {
-            padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(10, 15, 26, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-        }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .level-badge {
-            width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-            display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif;
-            font-weight: 900; font-size: 13px; color: #000; box-shadow: 0 0 10px var(--neon-cyan);
-        }
-        .user-meta { display: flex; flex-direction: column; }
-        .user-name { font-size: 13px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
-        .streak-badge { font-size: 10px; color: var(--neon-pink); font-weight: 800; background: rgba(255,0,85,0.15); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--neon-pink); }
-        .xp-bar-bg { width: 80px; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 3px; overflow: hidden; }
-        .xp-bar-fill { height: 100%; width: 45%; background: var(--neon-cyan); }
-
-        .balance-group { display: flex; align-items: center; gap: 8px; }
-        .balance-box {
-            font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900;
-            color: var(--neon-yellow); text-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
-            background: rgba(255, 230, 0, 0.1); padding: 6px 10px; border-radius: 20px;
-            border: 1px solid rgba(255, 230, 0, 0.3);
-        }
-        .btn-sound {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50%; width: 32px; height: 32px; color: #fff; display: flex;
-            align-items: center; justify-content: center; cursor: pointer; font-size: 14px;
-        }
-
-        .bankrupt-banner {
-            display: none; background: linear-gradient(135deg, rgba(255,0,85,0.2), rgba(255,230,0,0.2));
-            border: 1px solid var(--neon-pink); border-radius: 12px; padding: 10px; margin-bottom: 10px;
-            text-align: center; animation: pulseGlow 1.5s infinite alternate;
-        }
-        .bankrupt-banner.show { display: block; }
-        @keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(255,0,85,0.4); } 100% { box-shadow: 0 0 15px rgba(255,0,85,0.8); } }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
-            background: rgba(8, 12, 20, 0.95); border-top: 1px solid rgba(0, 243, 255, 0.2);
-            display: grid; grid-template-columns: repeat(7, 1fr); z-index: 800;
-            backdrop-filter: blur(15px);
-        }
-        .nav-tab {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-sub); font-size: 8px; font-weight: 800; cursor: pointer; gap: 2px;
-            transition: all 0.2s ease;
-        }
-        .nav-tab .icon { font-size: 15px; }
-        .nav-tab.active { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
-
-        .view-section { display: none; padding: 12px; }
-        .view-section.active { display: block; }
-
-        .cyber-tap-btn {
-            background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(157,0,255,0.1));
-            border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 12px;
-            text-align: center; cursor: pointer; margin-bottom: 10px;
-            box-shadow: 0 0 12px rgba(0,243,255,0.15); display: flex; flex-direction: column; align-items: center;
-        }
-        .cyber-tap-btn:active { transform: scale(0.98); background: rgba(0,243,255,0.2); }
-        .tap-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-cyan); }
-        .tap-energy { font-size: 10px; color: var(--neon-yellow); margin-top: 4px; font-weight: 800; }
-        .energy-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 6px; overflow: hidden; }
-        .energy-bar-fill { height: 100%; background: var(--neon-yellow); transition: width 0.2s ease; }
-
-        .arena-card {
-            background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            margin-bottom: 12px; position: relative; backdrop-filter: blur(10px);
-        }
-        .arena-grid { display: grid; grid-template-columns: 1fr 110px 1fr; gap: 6px; align-items: center; margin-bottom: 12px; }
-
-        .slot-box {
-            background: rgba(0, 0, 0, 0.5); border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 14px; padding: 8px 4px; text-align: center; min-height: 125px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative; transition: all 0.3s ease;
-        }
-        .slot-box.has-item { border-style: solid; box-shadow: 0 0 15px rgba(0,0,0,0.6); }
-        .slot-tag { position: absolute; top: 6px; font-size: 8px; font-weight: 800; text-transform: uppercase; color: var(--text-sub); }
-        .slot-emoji { font-size: 32px; margin: 6px 0 2px 0; }
-        .slot-title { font-size: 10px; font-weight: 700; line-height: 1.2; height: 24px; overflow: hidden; color: #fff; }
-        .slot-val { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); margin-top: 2px; }
-
-        .btn-quick-90 {
-            width: 100%; background: rgba(0, 255, 102, 0.12); border: 1px solid var(--neon-green);
-            color: var(--neon-green); border-radius: 8px; padding: 6px; font-family: 'Orbitron', sans-serif;
-            font-size: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px; text-align: center;
-        }
-
-        .wheel-wrap { position: relative; width: 105px; height: 105px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-        .wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-        .wheel-bg-circle { fill: none; stroke: rgba(255, 0, 85, 0.2); stroke-width: 8; }
-        .wheel-active-arc {
-            fill: none; stroke: var(--neon-cyan); stroke-width: 8; stroke-dasharray: 283; stroke-dashoffset: 141;
-            stroke-linecap: round; transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
-        }
-        .wheel-needle {
-            position: absolute; top: 0px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent;
-            border-top: 12px solid #fff; z-index: 10; filter: drop-shadow(0 0 8px var(--neon-cyan));
-            transform-origin: 50% 52px;
-        }
-        .wheel-info { position: absolute; text-align: center; }
-        .chance-num { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: #fff; }
-        .chance-lbl { font-size: 8px; font-weight: 800; color: var(--text-sub); }
-
-        .insurance-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 6px 12px; margin-bottom: 10px; font-size: 10px; font-weight: 700;
-        }
-        .toggle-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #222; transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
-        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--neon-green); }
-        input:checked + .slider:before { transform: translateX(16px); }
-
-        .btn-upgrade-main {
-            width: 100%; background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-            color: #fff; border: none; border-radius: 12px; padding: 12px;
-            font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900;
-            letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: all 0.15s ease;
-        }
-        .btn-upgrade-main:active { transform: scale(0.97); }
-        .btn-upgrade-main:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; filter: grayscale(1); }
-
-        .catalog-filter { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
-        .filter-chip {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; padding: 4px 10px; font-size: 10px; font-weight: 800;
-            color: var(--text-sub); cursor: pointer; white-space: nowrap;
-        }
-        .filter-chip.active { background: rgba(0,243,255,0.15); border-color: var(--neon-cyan); color: #fff; }
-
-        .items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 240px; overflow-y: auto; }
-        .grid-card {
-            background: rgba(10, 14, 23, 0.7); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 6px; text-align: center; cursor: pointer; position: relative;
-        }
-        .grid-card.selected-target { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3); background: rgba(0,243,255,0.1); }
-        .grid-card .rarity-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
-        .grid-card .emoji { font-size: 24px; margin: 4px 0; }
-        .grid-card .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
-        .grid-card .price { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; color: var(--neon-yellow); }
-
-        .crash-card {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px;
-        }
-        .crash-canvas-container {
-            position: relative; width: 100%; height: 160px; background: rgba(0,0,0,0.7);
-            border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; overflow: hidden; margin-bottom: 12px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .crash-mult-display {
-            position: relative; z-index: 5; font-family: 'Orbitron', sans-serif;
-            font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 0 15px var(--neon-cyan);
-        }
-        .crash-mult-display.crashed { color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); }
-
-        .crash-history { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
-        .history-pill {
-            background: rgba(255,255,255,0.05); border-radius: 6px; padding: 2px 8px;
-            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; flex-shrink: 0;
-        }
-        .history-pill.high { color: var(--neon-green); border: 1px solid var(--neon-green); }
-        .history-pill.low { color: var(--neon-pink); border: 1px solid var(--neon-pink); }
-
-        .crash-inputs { display: flex; gap: 8px; margin-bottom: 10px; }
-        .cyber-input {
-            flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px; padding: 8px 12px; color: #fff; font-family: 'Orbitron', sans-serif;
-            font-size: 12px; outline: none;
-        }
-        .btn-crash-action {
-            width: 100%; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-            color: #000; border: none; border-radius: 10px; padding: 12px;
-            font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer;
-        }
-        .btn-crash-action.cashout { background: linear-gradient(135deg, var(--neon-green), #00b341); color: #000; }
-
-        .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .market-item-card {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 8px;
-        }
-        .market-item-info { display: flex; align-items: center; gap: 10px; }
-        .market-item-info .emoji { font-size: 28px; }
-        .market-seller { font-size: 9px; color: var(--text-sub); }
-
-        .promo-box {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 14px; padding: 12px; margin-bottom: 12px;
-        }
-        .promo-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-yellow); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-
-        .fortune-wheel-wrapper {
-            position: relative; width: 220px; height: 220px; margin: 15px auto;
-        }
-        .fortune-pointer {
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent;
-            border-top: 18px solid #ffffff; z-index: 30; filter: drop-shadow(0 0 10px var(--neon-pink));
-        }
-        #fortune-canvas {
-            width: 220px; height: 220px; border-radius: 50%;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); border: 4px solid rgba(255,255,255,0.2);
-            transition: transform 3.8s cubic-bezier(0.15, 0.85, 0.1, 1);
-        }
-
-        .cases-selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
-        .case-select-card {
-            background: rgba(10, 14, 23, 0.8); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s ease;
-        }
-        .case-select-card.active { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3); background: rgba(0, 243, 255, 0.1); }
-        .case-select-card .c-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 900; color: #fff; margin-bottom: 2px; }
-        .case-select-card .c-price { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); }
-
-        .case-card {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 14px;
-        }
-        .case-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: var(--neon-cyan); margin-bottom: 6px; }
-        .case-reel-container {
-            position: relative; width: 100%; height: 80px; background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(0,243,255,0.3); border-radius: 12px; overflow: hidden; margin: 10px 0;
-        }
-        .case-reel-pointer {
-            position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 3px; background: var(--neon-yellow); z-index: 10; box-shadow: 0 0 10px var(--neon-yellow);
-        }
-        .case-reel-track { display: flex; gap: 8px; position: absolute; left: 0; top: 5px; transition: transform 3.5s cubic-bezier(0.1, 0.85, 0.1, 1); }
-        .reel-item {
-            width: 65px; height: 65px; background: rgba(255,255,255,0.05); border-radius: 8px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .reel-item .emoji { font-size: 26px; }
-        .btn-open-case {
-            width: 100%; background: linear-gradient(135deg, var(--neon-yellow), #ff8c00);
-            color: #000; border: none; border-radius: 10px; padding: 12px;
-            font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; cursor: pointer;
-        }
-
-        .duel-card { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px; }
-        .duel-match-arena { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; background: rgba(0,0,0,0.6); border-radius: 12px; padding: 10px; margin: 10px 0; }
-        .duel-avatar { font-size: 36px; margin-bottom: 4px; }
-        .duel-versus { font-family: 'Orbitron'; font-size: 16px; font-weight: 900; color: var(--neon-pink); }
-        .duel-progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 8px; }
-        .duel-progress-fill { height: 100%; width: 0%; background: var(--neon-cyan); transition: width 0.1s linear; }
-
-        .achievement-row {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 8px 10px; margin-bottom: 6px;
-        }
-        .achievement-info { display: flex; align-items: center; gap: 8px; text-align: left; }
-        .achievement-icon { font-size: 20px; }
-        .achievement-title { font-size: 11px; font-weight: 800; color: #fff; }
-        .achievement-desc { font-size: 9px; color: var(--text-sub); }
-
-        .float-text {
-            position: fixed; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 18px;
-            pointer-events: none; z-index: 9999; animation: floatUp 0.6s forwards;
-        }
-        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -90px) scale(1.2); } }
-
-        .shake { animation: shakeAnim 0.4s ease-in-out; }
-        @keyframes shakeAnim {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-8px); }
-            40% { transform: translateX(8px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>CYBERPUNK UPGRADE // ULTIMATE EDITION</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-color: #030509;
+  --card-bg: rgba(13, 18, 30, 0.88);
+  --neon-cyan: #00f3ff;
+  --neon-pink: #ff0055;
+  --neon-yellow: #ffe600;
+  --neon-purple: #9d00ff;
+  --neon-green: #00ff66;
+  --text-main: #f0f5ff;
+  --text-sub: #5c6b8a;
+  --rarity-common: #7d8b9e;
+  --rarity-uncommon: #00aaff;
+  --rarity-rare: #a000ff;
+  --rarity-epic: #ff00aa;
+  --rarity-legendary: #ffaa00;
+  --rarity-godlike: #00ffaa;
+}
+* { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+body {
+  background-color: var(--bg-color);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.15), transparent 70%),
+    radial-gradient(circle at 100% 100%, rgba(255, 0, 85, 0.1), transparent 60%),
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+  color: var(--text-main);
+  font-family: 'Rajdhani', sans-serif;
+  margin: 0; padding: 0; padding-bottom: 75px;
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px; z-index: 900; pointer-events: none; opacity: 0.5;
+}
+#particle-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 999; }
+.live-feed-wrapper { background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 243, 255, 0.2); padding: 6px 0; overflow: hidden; white-space: nowrap; display: flex; align-items: center; }
+.live-feed-label { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 900; color: var(--neon-pink); background: rgba(255,0,85,0.15); padding: 3px 8px; border-radius: 4px; margin: 0 10px; border: 1px solid var(--neon-pink); letter-spacing: 1px; flex-shrink: 0; }
+.live-feed-track { display: flex; gap: 10px; animation: feedScroll 25s linear infinite; }
+.feed-item { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.03); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.feed-item .user { color: var(--neon-cyan); }
+.feed-item .chance { color: var(--neon-yellow); font-weight: 800; }
+@keyframes feedScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.app-header { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; background: rgba(10, 15, 26, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); }
+.user-profile { display: flex; align-items: center; gap: 10px; }
+.level-badge { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 13px; color: #000; box-shadow: 0 0 10px var(--neon-cyan); }
+.user-meta { display: flex; flex-direction: column; }
+.user-name { font-size: 13px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
+.streak-badge { font-size: 10px; color: var(--neon-pink); font-weight: 800; background: rgba(255,0,85,0.15); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--neon-pink); }
+.xp-bar-bg { width: 80px; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 3px; overflow: hidden; }
+.xp-bar-fill { height: 100%; width: 45%; background: var(--neon-cyan); }
+.balance-group { display: flex; align-items: center; gap: 8px; }
+.balance-box { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900; color: var(--neon-yellow); text-shadow: 0 0 8px rgba(255, 230, 0, 0.4); background: rgba(255, 230, 0, 0.1); padding: 6px 10px; border-radius: 20px; border: 1px solid rgba(255, 230, 0, 0.3); }
+.btn-sound { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 32px; height: 32px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; }
+.bankrupt-banner { display: none; background: linear-gradient(135deg, rgba(255,0,85,0.2), rgba(255,230,0,0.2)); border: 1px solid var(--neon-pink); border-radius: 12px; padding: 10px; margin-bottom: 10px; text-align: center; animation: pulseGlow 1.5s infinite alternate; }
+.bankrupt-banner.show { display: block; }
+@keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(255,0,85,0.4); } 100% { box-shadow: 0 0 15px rgba(255,0,85,0.8); } }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: rgba(8, 12, 20, 0.95); border-top: 1px solid rgba(0, 243, 255, 0.2); display: flex; overflow-x: auto; z-index: 800; backdrop-filter: blur(15px); scrollbar-width: none; }
+.bottom-nav::-webkit-scrollbar { display: none; }
+.nav-tab { flex: 0 0 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-sub); font-size: 8px; font-weight: 800; cursor: pointer; gap: 2px; transition: all 0.2s ease; }
+.nav-tab .icon { font-size: 15px; }
+.nav-tab.active { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
+.view-section { display: none; padding: 12px; }
+.view-section.active { display: block; }
+.cyber-tap-btn { background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(157,0,255,0.1)); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 8px; text-align: center; cursor: pointer; margin-bottom: 10px; box-shadow: 0 0 12px rgba(0,243,255,0.15); }
+.cyber-tap-btn:active { transform: scale(0.98); background: rgba(0,243,255,0.2); }
+.tap-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 800; color: var(--neon-cyan); }
+.arena-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin-bottom: 12px; position: relative; backdrop-filter: blur(10px); }
+.arena-grid { display: grid; grid-template-columns: 1fr 110px 1fr; gap: 6px; align-items: center; margin-bottom: 12px; }
+.slot-box { background: rgba(0, 0, 0, 0.5); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 8px 4px; text-align: center; min-height: 125px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: all 0.3s ease; }
+.slot-box.has-item { border-style: solid; box-shadow: 0 0 15px rgba(0,0,0,0.6); }
+.slot-tag { position: absolute; top: 6px; font-size: 8px; font-weight: 800; text-transform: uppercase; color: var(--text-sub); }
+.slot-emoji { font-size: 32px; margin: 6px 0 2px 0; }
+.slot-title { font-size: 10px; font-weight: 700; line-height: 1.2; height: 24px; overflow: hidden; color: #fff; }
+.slot-val { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); margin-top: 2px; }
+.btn-quick-90 { width: 100%; background: rgba(0, 255, 102, 0.12); border: 1px solid var(--neon-green); color: var(--neon-green); border-radius: 8px; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px; text-align: center; }
+.btn-quick-90:active { background: rgba(0, 255, 102, 0.25); }
+.wheel-wrap { position: relative; width: 105px; height: 105px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+.wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.wheel-bg-circle { fill: none; stroke: rgba(255, 0, 85, 0.2); stroke-width: 8; }
+.wheel-active-arc { fill: none; stroke: var(--neon-cyan); stroke-width: 8; stroke-dasharray: 283; stroke-dashoffset: 141; stroke-linecap: round; transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease; }
+.wheel-needle { position: absolute; top: 0px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 12px solid #fff; z-index: 10; filter: drop-shadow(0 0 8px var(--neon-cyan)); transition: transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1); transform-origin: 50% 52px; }
+.wheel-info { position: absolute; text-align: center; }
+.chance-num { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: #fff; }
+.chance-lbl { font-size: 8px; font-weight: 800; color: var(--text-sub); }
+.insurance-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px 12px; margin-bottom: 10px; font-size: 10px; font-weight: 700; }
+.toggle-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #222; transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
+.slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--neon-green); }
+input:checked + .slider:before { transform: translateX(16px); }
+.btn-upgrade-main { width: 100%; background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)); color: #fff; border: none; border-radius: 12px; padding: 12px; font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: all 0.15s ease; }
+.btn-upgrade-main:active { transform: scale(0.97); }
+.btn-upgrade-main:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; filter: grayscale(1); }
+.catalog-filter { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
+.filter-chip { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 10px; font-size: 10px; font-weight: 800; color: var(--text-sub); cursor: pointer; white-space: nowrap; }
+.filter-chip.active { background: rgba(0,243,255,0.15); border-color: var(--neon-cyan); color: #fff; }
+.items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 240px; overflow-y: auto; }
+.grid-card { background: rgba(10, 14, 23, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px; text-align: center; cursor: pointer; position: relative; }
+.grid-card.selected-target { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3); background: rgba(0,243,255,0.1); }
+.grid-card .rarity-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
+.grid-card .emoji { font-size: 24px; margin: 4px 0; }
+.grid-card .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+.grid-card .price { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; color: var(--neon-yellow); }
+.crash-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px; }
+.crash-canvas-container { position: relative; width: 100%; height: 160px; background: rgba(0,0,0,0.7); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; overflow: hidden; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; }
+.crash-mult-display { position: relative; z-index: 5; font-family: 'Orbitron', sans-serif; font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 0 15px var(--neon-cyan); }
+.crash-mult-display.crashed { color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); }
+.crash-history { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
+.history-pill { background: rgba(255,255,255,0.05); border-radius: 6px; padding: 2px 8px; font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; flex-shrink: 0; }
+.history-pill.high { color: var(--neon-green); border: 1px solid var(--neon-green); }
+.history-pill.low { color: var(--neon-pink); border: 1px solid var(--neon-pink); }
+.crash-inputs { display: flex; gap: 8px; margin-bottom: 10px; }
+.cyber-input { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 12px; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 12px; outline: none; }
+.btn-crash-action { width: 100%; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); color: #000; border: none; border-radius: 10px; padding: 12px; font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
+.btn-crash-action.cashout { background: linear-gradient(135deg, var(--neon-green), #00b341); color: #000; }
+.market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.market-item-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.market-item-info { display: flex; align-items: center; gap: 10px; }
+.market-item-info .emoji { font-size: 28px; }
+.market-seller { font-size: 9px; color: var(--text-sub); }
+.promo-box { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+.promo-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-yellow); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.fortune-wheel-wrapper { position: relative; width: 220px; height: 220px; margin: 15px auto; }
+.fortune-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid #ffffff; z-index: 30; filter: drop-shadow(0 0 10px var(--neon-pink)); }
+#fortune-canvas { width: 220px; height: 220px; border-radius: 50%; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); border: 4px solid rgba(255,255,255,0.2); transition: transform 3.8s cubic-bezier(0.15, 0.85, 0.1, 1); }
+.cases-selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+.case-select-card { background: rgba(10, 14, 23, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; }
+.case-select-card.active { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3); background: rgba(0, 243, 255, 0.1); }
+.case-select-card .c-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 900; color: #fff; margin-bottom: 2px; }
+.case-select-card .c-price { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); }
+.case-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 14px; }
+.case-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: var(--neon-cyan); margin-bottom: 6px; }
+.case-reel-container { position: relative; width: 100%; height: 80px; background: rgba(0,0,0,0.6); border: 1px solid rgba(0,243,255,0.3); border-radius: 12px; overflow: hidden; margin: 10px 0; }
+.case-reel-pointer { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 3px; background: var(--neon-yellow); z-index: 10; box-shadow: 0 0 10px var(--neon-yellow); }
+.case-reel-track { display: flex; gap: 8px; position: absolute; left: 0; top: 5px; transition: transform 3.5s cubic-bezier(0.1, 0.85, 0.1, 1); }
+.reel-item { width: 65px; height: 65px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
+.reel-item .emoji { font-size: 26px; }
+.btn-open-case { width: 100%; background: linear-gradient(135deg, var(--neon-yellow), #ff8c00); color: #000; border: none; border-radius: 10px; padding: 12px; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; cursor: pointer; }
+.duel-card { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px; }
+.duel-match-arena { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; background: rgba(0,0,0,0.6); border-radius: 12px; padding: 10px; margin: 10px 0; }
+.duel-avatar { font-size: 36px; margin-bottom: 4px; }
+.duel-versus { font-family: 'Orbitron'; font-size: 16px; font-weight: 900; color: var(--neon-pink); }
+.duel-progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.duel-progress-fill { height: 100%; width: 0%; background: var(--neon-cyan); transition: width 0.1s linear; }
+.achievement-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; }
+.achievement-info { display: flex; align-items: center; gap: 8px; text-align: left; }
+.achievement-icon { font-size: 20px; }
+.achievement-title { font-size: 11px; font-weight: 800; color: #fff; }
+.achievement-desc { font-size: 9px; color: var(--text-sub); }
+.float-text { position: fixed; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 18px; pointer-events: none; z-index: 9999; animation: floatUp 0.6s forwards; }
+@keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -90px) scale(1.2); } }
+.shake { animation: shakeAnim 0.4s ease-in-out; }
+@keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+</style>
 </head>
 <body>
-
-    <canvas id="particle-canvas"></canvas>
-
-    <div class="live-feed-wrapper">
-        <div class="live-feed-label">LIVE DROPS</div>
-        <div class="live-feed-track" id="feed-track"></div>
+<canvas id="particle-canvas"></canvas>
+<div id="event-banner" style="display:none; background:linear-gradient(135deg, rgba(255,230,0,0.2), rgba(255,0,85,0.2)); border-bottom:1px solid var(--neon-yellow); padding:6px 12px; text-align:center;"></div>
+<div class="live-feed-wrapper">
+  <div class="live-feed-label">LIVE DROPS</div>
+  <div class="live-feed-track" id="feed-track"></div>
+</div>
+<div class="app-header">
+  <div class="user-profile">
+    <div class="level-badge" id="user-lvl">1</div>
+    <div class="user-meta">
+      <span class="user-name">CyberPawn <span class="streak-badge" id="streak-tag">🔥 <span id="streak-days">0</span> дн.</span></span>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-fill"></div></div>
     </div>
-
-    <div class="app-header">
-        <div class="user-profile">
-            <div class="level-badge" id="user-lvl">1</div>
-            <div class="user-meta">
-                <span class="user-name">
-                    CyberPawn
-                    <span class="streak-badge" id="streak-tag">🔥 <span id="streak-days">2</span> дн.</span>
-                </span>
-                <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-fill"></div></div>
-            </div>
+  </div>
+  <div class="balance-group">
+    <div class="balance-box" id="balance-val">4,500 VEX</div>
+    <div class="btn-sound" onclick="toggleSound()" id="sound-btn">🔊</div>
+  </div>
+</div><div class="view-section active" id="sec-upgrade">
+  <div class="bankrupt-banner" id="bankrupt-banner">
+    <div style="font-family:'Orbitron'; font-size:12px; font-weight:900; color:var(--neon-pink);">🚨 ВСЕ ПРЕДМЕТЫ СГОРЕЛИ!</div>
+    <div style="font-size:10px; color:#fff; margin:4px 0;">Заберите стартовый комплект:</div>
+    <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900; padding:6px 14px;" onclick="claimBankruptcyKit()">🎁 ПОЛУЧИТЬ ЧИП + 250 VEX</button>
+  </div>
+  <div class="cyber-tap-btn" onclick="handleTap(event)"><div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+1 VEX)</div></div>
+  <div class="arena-card" id="arena-card">
+    <button class="btn-quick-90" onclick="selectHighChanceTarget()">🎯 ПОДОБРАТЬ ЦЕЛЬ НА ~90% ШАНС</button>
+    <button class="btn-quick-90" style="background:rgba(255,230,0,0.12); border-color:var(--neon-yellow); color:var(--neon-yellow);" onclick="runMultiUpgrade(3)">⚡ МУЛЬТИ-АПГРЕЙД x3</button>
+    <div class="arena-grid">
+      <div class="slot-box" id="slot-my" onclick="switchTab('sec-inventory')">
+        <span class="slot-tag">Твой Скин</span>
+        <div class="slot-emoji" id="my-emoji">❓</div>
+        <div class="slot-title" id="my-title">Выбрать</div>
+        <div class="slot-val" id="my-val">0 VEX</div>
+      </div>
+      <div class="wheel-wrap">
+        <svg class="wheel-svg" viewBox="0 0 100 100">
+          <circle class="wheel-bg-circle" cx="50" cy="50" r="45"></circle>
+          <circle class="wheel-active-arc" id="wheel-arc" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="wheel-needle" id="needle"></div>
+        <div class="wheel-info">
+          <span class="chance-num" id="chance-val">0.0%</span>
+          <span class="chance-lbl">ШАНС</span>
         </div>
-        <div class="balance-group">
-            <div class="balance-box" id="balance-val">4,500 VEX</div>
-            <div class="btn-sound" onclick="toggleSound()" id="sound-btn">🔊</div>
-        </div>
+      </div>
+      <div class="slot-box" id="slot-target">
+        <span class="slot-tag">Цель</span>
+        <div class="slot-emoji" id="target-emoji">❓</div>
+        <div class="slot-title" id="target-title">Выберите ниже</div>
+        <div class="slot-val" id="target-val">0 VEX</div>
+      </div>
     </div>
-
-    <!-- АПГРЕЙДЕР -->
-    <div class="view-section active" id="sec-upgrade">
-        
-        <div class="bankrupt-banner" id="bankrupt-banner">
-            <div style="font-family:'Orbitron'; font-size:12px; font-weight:900; color:var(--neon-pink);">🚨 ВСЕ ПРЕДМЕТЫ СГОРЕЛИ!</div>
-            <div style="font-size:10px; color:#fff; margin:4px 0;">Заберите стартовый комплект для восстановления:</div>
-            <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900; padding:6px 14px;" onclick="claimBankruptcyKit()">🎁 ПОЛУЧИТЬ ЧИП + 250 VEX</button>
-        </div>
-
-        <div class="cyber-tap-btn" onclick="handleTap(event)">
-            <div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+1 VEX)</div>
-            <div class="tap-energy">ЭНЕРГИЯ: <span id="energy-val">50</span>/50</div>
-            <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-fill" style="width: 100%;"></div></div>
-        </div>
-
-        <div class="arena-card" id="arena-card">
-            <button class="btn-quick-90" onclick="selectHighChanceTarget()">🎯 ПОДОБРАТЬ ЦЕЛЬ (МАКС ШАНС)</button>
-
-            <div class="arena-grid">
-                <div class="slot-box" id="slot-my" onclick="switchTab('sec-inventory')">
-                    <span class="slot-tag">Твой Скин</span>
-                    <div class="slot-emoji" id="my-emoji">❓</div>
-                    <div class="slot-title" id="my-title">Выбрать из инвентаря</div>
-                    <div class="slot-val" id="my-val">0 VEX</div>
-                </div>
-
-                <div class="wheel-wrap">
-                    <svg class="wheel-svg" viewBox="0 0 100 100">
-                        <circle class="wheel-bg-circle" cx="50" cy="50" r="45"></circle>
-                        <circle class="wheel-active-arc" id="wheel-arc" cx="50" cy="50" r="45"></circle>
-                    </svg>
-                    <div class="wheel-needle" id="needle"></div>
-                    <div class="wheel-info">
-                        <span class="chance-num" id="chance-val">0.0%</span>
-                        <span class="chance-lbl">ШАНС</span>
-                    </div>
-                </div>
-
-                <div class="slot-box" id="slot-target">
-                    <span class="slot-tag">Цель</span>
-                    <div class="slot-emoji" id="target-emoji">❓</div>
-                    <div class="slot-title" id="target-title">Выберите ниже</div>
-                    <div class="slot-val" id="target-val">0 VEX</div>
-                </div>
-            </div>
-
-            <div class="insurance-bar">
-                <span>🛡️ Страховка предмета (+20% VEX)</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="insurance-check" onchange="updateUI()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div style="font-size:9px; text-align:center; color:var(--neon-pink); margin-bottom:8px;">Комиссия сети: 5% от стоимости предмета</div>
-            <button class="btn-upgrade-main" id="btn-upgrade" onclick="runUpgrade()">🚀 ПРОКАЧАТЬ</button>
-        </div>
-
-        <div class="catalog-filter">
-            <div class="filter-chip active" onclick="filterCatalog('all', this)">ВСЕ (48)</div>
-            <div class="filter-chip" onclick="filterCatalog('common', this)">БЮДЖЕТ</div>
-            <div class="filter-chip" onclick="filterCatalog('rare', this)">СРЕДНИЕ</div>
-            <div class="filter-chip" onclick="filterCatalog('legendary', this)">ТОП И GODLIKE</div>
-        </div>
-
-        <div class="items-grid" id="catalog-grid"></div>
+    <div class="insurance-bar">
+      <span>🛡️ Страховка (+20% VEX)</span>
+      <label class="toggle-switch"><input type="checkbox" id="insurance-check" onchange="updateUI()"><span class="slider"></span></label>
     </div>
+    <button class="btn-upgrade-main" id="btn-upgrade" onclick="runUpgrade()">🚀 ПРОКАЧАТЬ</button>
+  </div>
+  <div class="catalog-filter">
+    <div class="filter-chip active" onclick="filterCatalog('all', this)">ВСЕ (120)</div>
+    <div class="filter-chip" onclick="filterCatalog('common', this)">БЮДЖЕТ</div>
+    <div class="filter-chip" onclick="filterCatalog('rare', this)">СРЕДНИЕ</div>
+    <div class="filter-chip" onclick="filterCatalog('legendary', this)">ТОП</div>
+  </div>
+  <div class="items-grid" id="catalog-grid"></div>
+</div>
 
-    <!-- CYBER-CRASH -->
-    <div class="view-section" id="sec-crash">
-        <div class="crash-card">
-            <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-cyan); margin-bottom:8px;">📈 CYBER-CRASH // MULTIPLIER</div>
-            
-            <div class="crash-history" id="crash-history">
-                <div class="history-pill high">x2.45</div>
-                <div class="history-pill low">x1.12</div>
-                <div class="history-pill high">x5.80</div>
-            </div>
-
-            <div class="crash-canvas-container">
-                <div class="crash-mult-display" id="crash-mult">x1.00</div>
-            </div>
-
-            <div style="font-size:9px; color:var(--text-sub); margin-bottom:8px;">Комиссия входа: 3% от ставки | Лимит: x50</div>
-
-            <div class="crash-inputs">
-                <input type="number" class="cyber-input" id="crash-bet-input" placeholder="Ставка VEX" value="200">
-                <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = Math.floor(balance/2)">1/2</button>
-                <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = balance">MAX</button>
-            </div>
-
-            <button class="btn-crash-action" id="btn-crash-toggle" onclick="handleCrashBtn()">ПОСТАВИТЬ И СТАРТ</button>
-        </div>
+<div class="view-section" id="sec-crash">
+  <div class="crash-card">
+    <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-cyan); margin-bottom:8px;">📈 CYBER-CRASH</div>
+    <div class="crash-history" id="crash-history"></div>
+    <div class="crash-canvas-container"><div class="crash-mult-display" id="crash-mult">x1.00</div></div>
+    <div class="crash-inputs">
+      <input type="number" class="cyber-input" id="crash-bet-input" placeholder="Ставка VEX" value="200">
+      <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = Math.floor(balance/2)">1/2</button>
+      <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = balance">MAX</button>
     </div>
+    <button class="btn-crash-action" id="btn-crash-toggle" onclick="handleCrashBtn()">ПОСТАВИТЬ И СТАРТ</button>
+  </div>
+</div>
 
-    <!-- КИБЕР-ДУЭЛИ -->
-    <div class="view-section" id="sec-duels">
-        <div class="duel-card">
-            <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-pink);">⚔️ КИБЕР-ДУЭЛЬ (PVP P2P)</div>
-            <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">Сразитесь с случайным хакером на перехват кредитов!</div>
-
-            <div class="duel-match-arena">
-                <div>
-                    <div class="duel-avatar">👤</div>
-                    <div style="font-size:10px; font-weight:800; color:var(--neon-cyan);">ВЫ</div>
-                </div>
-                <div class="duel-versus">VS</div>
-                <div>
-                    <div class="duel-avatar" id="duel-opp-avatar">🤖</div>
-                    <div style="font-size:10px; font-weight:800; color:var(--neon-pink);" id="duel-opp-name">NetRunner_99</div>
-                </div>
-            </div>
-
-            <div style="font-family:'Orbitron'; font-size:11px; font-weight:800; color:var(--neon-yellow); margin-bottom:6px;">СТАВКА ДУЭЛИ: 500 VEX</div>
-
-            <div class="duel-progress-bar">
-                <div class="duel-progress-fill" id="duel-bar"></div>
-            </div>
-
-            <button class="btn-upgrade-main" style="margin-top:12px; background:linear-gradient(135deg, var(--neon-pink), var(--neon-yellow)); color:#000;" id="btn-start-duel" onclick="startCyberDuel()">⚔️ ВЗЛОМАТЬ И НАЧАТЬ ДУЭЛЬ</button>
-        </div>
+<div class="view-section" id="sec-duels">
+  <div class="duel-card">
+    <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-pink);">⚔️ КИБЕР-ДУЭЛЬ (PVP)</div>
+    <div class="duel-match-arena">
+      <div><div class="duel-avatar">👤</div><div style="font-size:10px; font-weight:800; color:var(--neon-cyan);">ВЫ</div></div>
+      <div class="duel-versus">VS</div>
+      <div><div class="duel-avatar" id="duel-opp-avatar">🤖</div><div style="font-size:10px; font-weight:800; color:var(--neon-pink);" id="duel-opp-name">NetRunner_99</div></div>
     </div>
+    <div style="font-family:'Orbitron'; font-size:11px; font-weight:800; color:var(--neon-yellow); margin-bottom:6px;">СТАВКА: 500 VEX</div>
+    <div class="duel-progress-bar"><div class="duel-progress-fill" id="duel-bar"></div></div>
+    <button class="btn-upgrade-main" style="margin-top:12px; background:linear-gradient(135deg, var(--neon-pink), var(--neon-yellow)); color:#000;" id="btn-start-duel" onclick="startCyberDuel()">⚔️ НАЧАТЬ ДУЭЛЬ</button>
+  </div>
+</div>
 
-    <!-- P2P МАРКЕТ -->
-    <div class="view-section" id="sec-market">
-        <div class="market-header">
-            <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">P2P МАРКЕТ</span>
-        </div>
-        <div id="market-listings-list"></div>
+<div class="view-section" id="sec-market">
+  <div class="market-header">
+    <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">P2P МАРКЕТ</span>
+    <button class="filter-chip" onclick="openSellModal()">+ ВЫСТАВИТЬ</button>
+  </div>
+  <div id="market-listings-list"></div>
+</div>
+
+<div class="view-section" id="sec-inventory">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">МОИ ПРЕДМЕТЫ (<span id="inv-count">0</span>)</span>
+    <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink);" onclick="sellAllCommon()">ПРОДАТЬ ОБЫЧНЫЕ</button>
+  </div>
+  <div class="items-grid" id="inventory-grid" style="max-height:none;"></div>
+</div>
+
+<div class="view-section" id="sec-bonuses">
+  <div class="promo-box">
+    <div class="promo-title"><span>🎁 ЕЖЕДНЕВНЫЙ БОНУС</span><span style="font-size:10px; color:var(--neon-green);">СТРИК: <b id="streak-card-val">0</b> ДН.</span></div>
+    <button class="btn-upgrade-main" style="font-size:11px; padding:10px; margin-top:6px;" id="btn-claim-daily" onclick="claimDailyReward()">ЗАБРАТЬ +100 VEX</button>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">🏆 ДОСТИЖЕНИЯ</div>
+    <div id="achievements-list"></div>
+  </div>
+  <div class="promo-box" style="text-align:center;">
+    <div class="promo-title">🎰 КОЛЕСО УДАЧИ</div>
+    <div class="fortune-wheel-wrapper">
+      <div class="fortune-pointer"></div>
+      <canvas id="fortune-canvas" width="220" height="220"></canvas>
     </div>
-
-    <!-- ИНВЕНТАРЬ -->
-    <div class="view-section" id="sec-inventory">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">МОИ ПРЕДМЕТЫ (<span id="inv-count">0</span>)</span>
-            <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink);" onclick="sellAllCommon()">ПРОДАТЬ БЮДЖЕТ (≤ 500)</button>
-        </div>
-        <div class="items-grid" id="inventory-grid" style="max-height: none;"></div>
+    <button class="btn-upgrade-main" id="btn-spin-fortune" style="background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;" onclick="spinFortuneWheel()">🎰 ВРАЩАТЬ (БЕСПЛАТНО)</button>
+    <div id="fortune-timer" style="font-size:10px; color:var(--text-sub); margin-top:6px;">Бесплатный спин доступен!</div>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">🔑 ПРОМОКОД</div>
+    <div style="display:flex; gap:6px;">
+      <input type="text" class="cyber-input" id="promo-input" placeholder="Код" style="text-transform:uppercase;">
+      <button class="filter-chip" style="background:var(--neon-cyan); color:#000; font-weight:900;" onclick="applyPromo()">АКТИВИРОВАТЬ</button>
     </div>
+  </div>
+  <div class="promo-box" style="text-align:center;">
+    <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink); font-weight:900;" onclick="resetProgress()">🗑️ СБРОСИТЬ ПРОГРЕСС</button>
+  </div>
+</div>
 
-    <!-- БОНУСЫ, КВЕСТЫ И ЛИДЕРБОРД -->
-    <div class="view-section" id="sec-bonuses">
-        
-        <!-- TELEGRAM STARS (МОНЕТИЗАЦИЯ) -->
-        <div class="promo-box" style="background: linear-gradient(135deg, rgba(13, 18, 30, 0.88), rgba(0, 170, 255, 0.15)); border-color: var(--neon-cyan);">
-            <div class="promo-title">⭐️ TELEGRAM STARS MARKET</div>
-            <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Ускорьте свой прогресс, купив кредиты за Stars!</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                <button class="btn-quick-90" style="margin-bottom:0;" onclick="buyStars(100, 1000)">100 ⭐️ = 1,000 VEX</button>
-                <button class="btn-quick-90" style="margin-bottom:0; background:rgba(255,230,0,0.1); border-color:var(--neon-yellow); color:var(--neon-yellow);" onclick="buyStars(500, 7500)">500 ⭐️ = 7,500 VEX</button>
-            </div>
-        </div>
-
-        <!-- ЕЖЕДНЕВНЫЕ КВЕСТЫ -->
-        <div class="promo-box">
-            <div class="promo-title">📋 ЕЖЕДНЕВНЫЕ КВЕСТЫ</div>
-            <div id="quests-list"></div>
-        </div>
-
-        <!-- ЛИДЕРБОРД -->
-        <div class="promo-box">
-            <div class="promo-title">🏆 ТОП-100 ХАКЕРОВ</div>
-            <div class="achievement-row">
-                <div class="achievement-info"><div class="achievement-icon">1️⃣</div><div><div class="achievement-title">@matrix_god</div></div></div>
-                <div style="font-size:10px; color:var(--neon-yellow); font-weight:800;">5,400,000 VEX</div>
-            </div>
-            <div class="achievement-row">
-                <div class="achievement-info"><div class="achievement-icon">2️⃣</div><div><div class="achievement-title">@cyber_ninja</div></div></div>
-                <div style="font-size:10px; color:var(--neon-yellow); font-weight:800;">2,150,000 VEX</div>
-            </div>
-            <div class="achievement-row" style="background:rgba(0,243,255,0.1); border-color:var(--neon-cyan);">
-                <div class="achievement-info"><div class="achievement-icon">98</div><div><div class="achievement-title">ВЫ</div></div></div>
-                <div style="font-size:10px; color:var(--neon-yellow); font-weight:800;" id="lb-my-balance">4,500 VEX</div>
-            </div>
-        </div>
-        
-        <!-- Ежедневный заход -->
-        <div class="promo-box">
-            <div class="promo-title">
-                <span>🎁 ЕЖЕДНЕВНЫЙ БОНУС</span>
-                <span style="font-size:10px; color:var(--neon-green);">СТРИК: <b id="streak-card-val">2</b> ДН.</span>
-            </div>
-            <button class="btn-upgrade-main" style="font-size:11px; padding:10px; margin-top:6px;" id="btn-claim-daily" onclick="claimDailyReward()">ЗАБРАТЬ +500 VEX</button>
-        </div>
-
-        <!-- Достижения -->
-        <div class="promo-box">
-            <div class="promo-title">🏆 ДОСТИЖЕНИЯ (АЧИВКИ)</div>
-            <div id="achievements-list"></div>
-        </div>
-
-        <!-- Колесо Фортуны -->
-        <div class="promo-box" style="text-align:center;">
-            <div class="promo-title">🎰 КОЛЕСО УДАЧИ</div>
-            <div class="fortune-wheel-wrapper"><div class="fortune-pointer"></div><canvas id="fortune-canvas" width="220" height="220"></canvas></div>
-            <button class="btn-upgrade-main" id="btn-spin-fortune" style="background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;" onclick="spinFortuneWheel()">🎰 ВРАЩАТЬ (БЕСПЛАТНО)</button>
-            <div id="fortune-timer" style="font-size:10px; color:var(--text-sub); margin-top:6px;">Бесплатный спин доступен!</div>
-        </div>
-
-        <!-- Сброс сохранения -->
-        <div class="promo-box" style="text-align:center;">
-            <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink); font-weight:900;" onclick="resetProgress()">🗑️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС</button>
-        </div>
+<div class="view-section" id="sec-cases">
+  <div style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan); margin-bottom:8px;">ВЫБЕРИТЕ КЕЙС:</div>
+  <div class="cases-selector-grid" id="cases-grid"></div>
+  <div class="case-card" id="active-case-card">
+    <div class="case-title" id="active-case-title">📦 CASE</div>
+    <div style="font-size:11px; color:var(--text-sub); margin-bottom:6px;" id="active-case-desc">Загрузка...</div>
+    <div class="case-reel-container">
+      <div class="case-reel-pointer"></div>
+      <div class="case-reel-track" id="case-track"></div>
     </div>
-
-    <!-- МНОГО КЕЙСОВ -->
-    <div class="view-section" id="sec-cases">
-        <div style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan); margin-bottom:8px;">ВЫБЕРИТЕ КЕЙС:</div>
-        <div class="cases-selector-grid" id="cases-grid"></div>
-
-        <div class="case-card" id="active-case-card">
-            <div class="case-title" id="active-case-title">📦 CYBER-CASE</div>
-            <div style="font-size:11px; color:var(--text-sub); margin-bottom:6px;" id="active-case-desc">Загрузка...</div>
-
-            <div class="case-reel-container">
-                <div class="case-reel-pointer"></div>
-                <div class="case-reel-track" id="case-track"></div>
-            </div>
-
-            <button class="btn-open-case" id="btn-open-case" onclick="openSelectedCase()">ОТКРЫТЬ</button>
-
-            <div style="margin-top:14px; text-align:left;">
-                <div style="font-family:'Orbitron'; font-size:10px; font-weight:800; color:var(--text-sub); margin-bottom:6px;">ВОЗМОЖНЫЙ ДРОП:</div>
-                <div class="items-grid" id="case-preview-grid" style="max-height: 140px;"></div>
-            </div>
-        </div>
+    <button class="btn-open-case" id="btn-open-case" onclick="openSelectedCase()">ОТКРЫТЬ</button>
+    <div style="margin-top:14px; text-align:left;">
+      <div style="font-family:'Orbitron'; font-size:10px; font-weight:800; color:var(--text-sub); margin-bottom:6px;">ВОЗМОЖНЫЙ ДРОП:</div>
+      <div class="items-grid" id="case-preview-grid" style="max-height:140px;"></div>
     </div>
+  </div>
+</div>
 
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-    <div class="bottom-nav">
-        <div class="nav-tab active" onclick="switchTab('sec-upgrade', this)">
-            <span class="icon">🎰</span>Апгрейд
-        </div>
-        <div class="nav-tab" onclick="switchTab('sec-crash', this)">
-            <span class="icon">📈</span>Краш
-        </div>
-        <div class="nav-tab" onclick="switchTab('sec-duels', this)">
-            <span class="icon">⚔️</span>Дуэли
-        </div>
-        <div class="nav-tab" onclick="switchTab('sec-market', this)">
-            <span class="icon">🛒</span>Маркет
-        </div>
-        <div class="nav-tab" onclick="switchTab('sec-inventory', this)">
-            <span class="icon">🎒</span>Склад
-        </div>
-        <div class="nav-tab" onclick="switchTab('sec-bonuses', this)">
-            <span class="icon">🎁</span>Бонусы
-        </div>
-        <div class="nav-tab" onclick="switchTab('sec-cases', this)">
-            <span class="icon">📦</span>Кейсы
-        </div>
+<div class="view-section" id="sec-quests">
+  <div class="promo-box">
+    <div class="promo-title">🎯 ЕЖЕДНЕВНЫЕ КВЕСТЫ</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Обновляются каждый день</div>
+    <div id="quests-list"></div>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">📅 СТРИК ЗАХОДОВ</div>
+    <div style="font-size:24px; font-weight:900; color:var(--neon-yellow); text-align:center;" id="quest-streak">🔥 0 дн.</div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-skills">
+  <div class="promo-box">
+    <div class="promo-title">🌳 ДЕРЕВО ПРОКАЧКИ</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Очки навыков: <b id="skill-points" style="color:var(--neon-yellow);">0</b></div>
+    <div id="skills-list"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-craft">
+  <div class="promo-box">
+    <div class="promo-title">⚗️ КРАФТ</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">3 common → 1 uncommon | 5 uncommon → 1 rare | 10 rare → 1 epic</div>
+    <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+      <button class="filter-chip" onclick="craftItems('common')">3 COMMON</button>
+      <button class="filter-chip" onclick="craftItems('uncommon')">5 UNCOMMON</button>
+      <button class="filter-chip" onclick="craftItems('rare')">10 RARE</button>
     </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        if (tg.expand) tg.expand();
-
-        const SAVE_KEY = 'cyberpunk_upgrade_save_v4';
-
-        let balance = 4500;
-        let level = 1;
-        let xp = 0;
-        let streak = 2;
-        let soundEnabled = true;
-        let isRolling = false;
-        let dailyClaimed = false;
-        
-        let energy = 50;
-        const MAX_ENERGY = 50;
-
-        let dailyQuests = [
-            { id: 'tap_q', text: 'Сделать 50 тапов', target: 50, progress: 0, reward: 200, done: false },
-            { id: 'upg_q', text: 'Сделать 3 апгрейда', target: 3, progress: 0, reward: 500, done: false },
-            { id: 'case_q', text: 'Открыть 1 кейс', target: 1, progress: 0, reward: 300, done: false }
-        ];
-
-        setInterval(() => {
-            if (energy < MAX_ENERGY) { energy++; updateUI(); }
-        }, 60000); // 1 энергия в минуту
-
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        let audioCtx = null;
-
-        function initAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
-
-        function playSound(type) {
-            if (!soundEnabled) return;
-            initAudio();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            const now = audioCtx.currentTime;
-
-            if (type === 'tap') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
-                gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
-                osc.start(now); osc.stop(now + 0.05);
-            } else if (type === 'tick') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(800, now);
-                gain.gain.setValueAtTime(0.04, now); gain.gain.linearRampToValueAtTime(0.001, now + 0.02);
-                osc.start(now); osc.stop(now + 0.02);
-            } else if (type === 'win') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(440, now);
-                osc.frequency.setValueAtTime(659, now + 0.15);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now); osc.stop(now + 0.4);
-            } else if (type === 'fail') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(250, now);
-                osc.frequency.linearRampToValueAtTime(80, now + 0.3);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
-            }
-        }
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
-        }
-
-        // БАЗА ПРЕДМЕТОВ (48 ПРЕДМЕТОВ)
-        const ITEMS = [
-            { id: 1, name: "Чип 64KB", price: 100, emoji: "💾", rarity: "common", color: "var(--rarity-common)" },
-            { id: 2, name: "Чип 128KB", price: 110, emoji: "📼", rarity: "common", color: "var(--rarity-common)" },
-            { id: 3, name: "Кабель Сверхпроводник", price: 125, emoji: "🔌", rarity: "common", color: "var(--rarity-common)" },
-            { id: 4, name: "Старый Дисплей", price: 140, emoji: "📺", rarity: "common", color: "var(--rarity-common)" },
-            { id: 5, name: "Флешка Нейро", price: 150, emoji: "📟", rarity: "common", color: "var(--rarity-common)" },
-            { id: 6, name: "Кибер-Батарея", price: 180, emoji: "🔋", rarity: "common", color: "var(--rarity-common)" },
-            { id: 7, name: "Модем NetRunner", price: 200, emoji: "📻", rarity: "common", color: "var(--rarity-common)" },
-            { id: 8, name: "Портативный Терминал", price: 230, emoji: "💻", rarity: "common", color: "var(--rarity-common)" },
-            { id: 9, name: "Паяльник Хакера", price: 250, emoji: "🛠️", rarity: "common", color: "var(--rarity-common)" },
-            { id: 10, name: "Очки AR Light", price: 300, emoji: "🕶️", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 11, name: "Очки AR CyberPro", price: 350, emoji: "🥽", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 12, name: "Сканер Сетки", price: 400, emoji: "🔍", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 13, name: "Нейро-Интерфейс v1", price: 450, emoji: "⚡", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 14, name: "ИИ-Процессор V1", price: 500, emoji: "🧠", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 15, name: "ИИ-Процессор V2", price: 600, emoji: "🧬", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 16, name: "Взломщик Протоколов", price: 700, emoji: "🔓", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 17, name: "Перчатка Сигнала", price: 800, emoji: "🧤", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 18, name: "Кибер-Дека Mk.1", price: 900, emoji: "📟", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 19, name: "Дрон-Разведчик", price: 1000, emoji: "🛸", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 20, name: "Боевой Дрон 'Кобра'", price: 1200, emoji: "🤖", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 21, name: "Кибер-Пистолет Smart-G", price: 1500, emoji: "🔫", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 22, name: "Тяжелая Броня Trauma", price: 1800, emoji: "🛡️", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 23, name: "Импульсная Винтовка", price: 2200, emoji: "💥", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 24, name: "Неоновый Клинок", price: 2500, emoji: "⚔️", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 25, name: "Плазменная Катана", price: 3000, emoji: "🗡️", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 26, name: "Тяжелый Лазер Mk.2", price: 3800, emoji: "🔦", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 27, name: "Модуль Скорости", price: 4500, emoji: "💨", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 28, name: "Кибер-Снайперка Рейл", price: 6000, emoji: "🎯", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 29, name: "Моноструна Arasaka", price: 7500, emoji: "🕸️", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 30, name: "Нано-Броня Титан", price: 10000, emoji: "🦺", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 31, name: "Кибер-Сердце Apex", price: 12500, emoji: "🫀", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 32, name: "Имплант Sandevistan", price: 15000, emoji: "⚡", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 33, name: "Sandevistan Overclock", price: 18000, emoji: "🔥", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 34, name: "Оптический Камуфляж", price: 22000, emoji: "👻", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 35, name: "Хакерская Дека Militech", price: 28000, emoji: "💻", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 36, name: "Кибер-Глаз Kiroshi", price: 40000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 37, name: "Плазменный Дрон Mk.X", price: 60000, emoji: "🛸", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 38, name: "Моно-Клинок Орочи", price: 80000, emoji: "🗡️", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 39, name: "Рука Mantis Blade", price: 100000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 40, name: "Yaiba Kusanagi", price: 125000, emoji: "🏍️", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 41, name: "Кибер-Экзоскелет", price: 150000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 42, name: "Quadra Turbo-R", price: 250000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
-            { id: 43, name: "Rayfield Aerondight", price: 500000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
-            { id: 44, name: "Аэродрокер AV-4", price: 1000000, emoji: "🚁", rarity: "godlike", color: "var(--rarity-godlike)" },
-            { id: 45, name: "Шаттл Orbital", price: 1500000, emoji: "🚀", rarity: "godlike", color: "var(--rarity-godlike)" },
-            { id: 46, name: "Орбитальная Станция Net", price: 2000000, emoji: "🛰️", rarity: "godlike", color: "var(--rarity-godlike)" },
-            { id: 47, name: "Ядро ИИ Нейромант", price: 3000000, emoji: "🔮", rarity: "godlike", color: "var(--rarity-godlike)" },
-            { id: 48, name: "Ключ От Города", price: 5000000, emoji: "👑", rarity: "godlike", color: "var(--rarity-godlike)" }
-        ];
-
-        // БАЗА КЕЙСОВ (ОБНОВЛЕННЫЕ ЦЕНЫ Х10 ДЛЯ БАЛАНСА)
-        const CASES = [
-            { id: 'starter', name: '📦 STARTER CASE', desc: 'Бюджетный кейс для начинающих ($100 - $500 VEX)', price: 2500, color: 'var(--rarity-common)', pool: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] },
-            { id: 'cyberware', name: '⚙️ CYBERWARE CASE', desc: 'Импланты, чипы и нейро-интерфейсы ($300 - $18,000 VEX)', price: 12000, color: 'var(--rarity-uncommon)', pool: [10, 11, 13, 14, 15, 17, 18, 31, 32, 33, 36, 39] },
-            { id: 'arsenal', name: '⚔️ CYBER ARSENAL', desc: 'Оружие, клинки, смарт-винтовки ($1,200 - $80,000 VEX)', price: 45000, color: 'var(--rarity-rare)', pool: [20, 21, 23, 24, 25, 26, 28, 29, 34, 38, 39] },
-            { id: 'militech', name: '🛡️ MILITECH DROP', desc: 'Элитное военное снаряжение и камуфляж ($6,000 - $150,000 VEX)', price: 150000, color: 'var(--rarity-epic)', pool: [28, 29, 30, 31, 32, 33, 34, 35, 37, 41] },
-            { id: 'garage', name: '🏎️ CYBER GARAGE', desc: 'Мотоциклы, спорткары и гиперкары ($125,000 - $1,000,000 VEX)', price: 800000, color: 'var(--rarity-legendary)', pool: [40, 42, 43, 44] },
-            { id: 'godlike', name: '👑 GODLIKE CASE', desc: 'Легендарные орбитальные станции и Ядра ИИ (до $5,000,000 VEX)', price: 3500000, color: 'var(--rarity-godlike)', pool: [36, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48] }
-        ];
-
-        let achievements = [
-            { id: 'tap_10', icon: '⚡', title: 'Первый фарм', desc: 'Нафармить кредиты кликом', reward: 100, done: false },
-            { id: 'upgrade_win', icon: '🚀', title: 'Успешный хак', desc: 'Успешно прокачать скин', reward: 300, done: false },
-            { id: 'crash_play', icon: '📈', title: 'Трейдер', desc: 'Сделать ставку в Краше', reward: 250, done: false },
-            { id: 'inventory_5', icon: '🎒', title: 'Коллекционер', desc: 'Собрать 5 предметов', reward: 500, done: false }
-        ];
-
-        let myInventory = [ITEMS[0], ITEMS[2], ITEMS[4], ITEMS[6]];
-        let myItem = myInventory[0];
-        let targetItem = ITEMS[1];
-        let selectedCaseIndex = 0;
-        let isCaseOpening = false;
-        let isDuelRunning = false;
-
-        let marketListings = [
-            { id: 101, seller: "@cyber_jack", item: ITEMS[5], price: 270 },
-            { id: 102, seller: "@matrix_ninja", item: ITEMS[11], price: 1100 },
-            { id: 103, seller: "@araka_boss", item: ITEMS[24], price: 3000 }
-        ];
-
-        function saveData() {
-            const data = {
-                balance, level, xp, streak, dailyClaimed, hasFreeSpin, myInventory,
-                achievements, energy, dailyQuests
-            };
-            localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem(SAVE_KEY);
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    balance = data.balance ?? 4500;
-                    level = data.level ?? 1;
-                    xp = data.xp ?? 0;
-                    streak = data.streak ?? 2;
-                    dailyClaimed = data.dailyClaimed ?? false;
-                    hasFreeSpin = data.hasFreeSpin ?? true;
-                    energy = data.energy ?? 50;
-                    if (data.myInventory) myInventory = data.myInventory;
-                    if (data.achievements) achievements = data.achievements;
-                    if (data.dailyQuests) dailyQuests = data.dailyQuests;
-                } catch (e) { console.error("Save load error", e); }
-            }
-        }
-
-        function resetProgress() {
-            if (confirm("Вы уверены, что хотите сбросить весь прогресс и инвентарь?")) {
-                localStorage.removeItem(SAVE_KEY); location.reload();
-            }
-        }
-
-        function triggerAchievement(id) {
-            const ach = achievements.find(a => a.id === id);
-            if (ach && !ach.done) {
-                ach.done = true; balance += ach.reward; addXP(50);
-                playSound('win'); triggerParticles();
-                alert(`🏆 ДОСТИЖЕНИЕ ПОЛУЧЕНО: ${ach.title} (+${ach.reward} VEX)!`);
-                saveData();
-            }
-        }
-
-        function trackQuest(id, amount = 1) {
-            const q = dailyQuests.find(q => q.id === id);
-            if (q && !q.done) {
-                q.progress += amount;
-                updateUI();
-            }
-        }
-
-        function claimQuest(id) {
-            const q = dailyQuests.find(q => q.id === id);
-            if (q && !q.done && q.progress >= q.target) {
-                q.done = true;
-                balance += q.reward;
-                playSound('win');
-                alert(`📋 Выполнено: ${q.text} (+${q.reward} VEX)`);
-                updateUI();
-            }
-        }
-
-        function renderQuests() {
-            const container = document.getElementById('quests-list');
-            if (!container) return;
-            container.innerHTML = '';
-            dailyQuests.forEach(q => {
-                const canClaim = !q.done && q.progress >= q.target;
-                const div = document.createElement('div');
-                div.className = 'achievement-row';
-                div.style.borderColor = canClaim ? 'var(--neon-green)' : 'rgba(255,255,255,0.08)';
-                div.innerHTML = `
-                    <div class="achievement-info" style="flex:1;">
-                        <div>
-                            <div class="achievement-title">${q.text}</div>
-                            <div class="achievement-desc">Прогресс: ${Math.min(q.progress, q.target)} / ${q.target}</div>
-                        </div>
-                    </div>
-                    <div>
-                        ${q.done ? `<span style="font-size:10px; color:var(--neon-green); font-weight:900;">ВЫПОЛНЕНО</span>` :
-                          canClaim ? `<button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="claimQuest('${q.id}')">ЗАБРАТЬ +${q.reward}</button>` :
-                          `<span style="font-size:10px; color:var(--neon-yellow); font-weight:800;">+${q.reward} VEX</span>`
-                        }
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function renderAchievements() {
-            const container = document.getElementById('achievements-list');
-            if (!container) return;
-            container.innerHTML = '';
-            achievements.forEach(ach => {
-                const div = document.createElement('div');
-                div.className = 'achievement-row';
-                div.innerHTML = `
-                    <div class="achievement-info">
-                        <div class="achievement-icon">${ach.icon}</div>
-                        <div>
-                            <div class="achievement-title">${ach.title}</div>
-                            <div class="achievement-desc">${ach.desc}</div>
-                        </div>
-                    </div>
-                    <div>
-                        ${ach.done ? `<span style="font-size:10px; color:var(--neon-green); font-weight:900;">ВЫПОЛНЕНО</span>`
-                            : `<span style="font-size:10px; color:var(--neon-yellow); font-weight:800;">+${ach.reward} VEX</span>`}
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function updateUI() {
-            document.getElementById('balance-val').innerText = balance.toLocaleString() + ' VEX';
-            if (document.getElementById('lb-my-balance')) document.getElementById('lb-my-balance').innerText = balance.toLocaleString() + ' VEX';
-            document.getElementById('user-lvl').innerText = level;
-            document.getElementById('xp-fill').style.width = (xp % 100) + '%';
-            document.getElementById('streak-days').innerText = streak;
-            document.getElementById('streak-card-val').innerText = streak;
-
-            document.getElementById('energy-val').innerText = energy;
-            document.getElementById('energy-fill').style.width = (energy / MAX_ENERGY * 100) + '%';
-
-            const bankruptBanner = document.getElementById('bankrupt-banner');
-            if (myInventory.length === 0 && balance < 100) bankruptBanner.classList.add('show');
-            else bankruptBanner.classList.remove('show');
-
-            if (!myItem && myInventory.length > 0) myItem = myInventory[0];
-
-            const slotMy = document.getElementById('slot-my');
-            if (myItem) {
-                slotMy.classList.add('has-item');
-                slotMy.style.borderColor = myItem.color;
-                document.getElementById('my-emoji').innerText = myItem.emoji;
-                document.getElementById('my-title').innerText = myItem.name;
-                document.getElementById('my-val').innerText = myItem.price.toLocaleString() + ' VEX';
-            } else {
-                slotMy.classList.remove('has-item');
-                slotMy.style.borderColor = 'rgba(255,255,255,0.15)';
-                document.getElementById('my-emoji').innerText = '❓';
-                document.getElementById('my-title').innerText = 'Нет предметов';
-                document.getElementById('my-val').innerText = '0 VEX';
-            }
-
-            const slotTarget = document.getElementById('slot-target');
-            if (targetItem) {
-                slotTarget.classList.add('has-item');
-                slotTarget.style.borderColor = targetItem.color;
-                document.getElementById('target-emoji').innerText = targetItem.emoji;
-                document.getElementById('target-title').innerText = targetItem.name;
-                document.getElementById('target-val').innerText = targetItem.price.toLocaleString() + ' VEX';
-            }
-
-            let chance = 0;
-            if (myItem && targetItem) {
-                chance = (myItem.price / targetItem.price) * 70; 
-                if (chance > 85) chance = 85; 
-            }
-            document.getElementById('chance-val').innerText = chance.toFixed(1) + '%';
-
-            const circleArc = document.getElementById('wheel-arc');
-            const strokeOffset = 283 - (283 * (chance / 100));
-            circleArc.style.strokeDashoffset = strokeOffset;
-            if (chance >= 70) circleArc.style.stroke = 'var(--neon-green)';
-            else if (chance >= 35) circleArc.style.stroke = 'var(--neon-cyan)';
-            else circleArc.style.stroke = 'var(--neon-pink)';
-
-            const btn = document.getElementById('btn-upgrade');
-            if (isRolling) { btn.disabled = true; btn.innerText = "ПРОКАЧКА..."; }
-            else if (!myItem) { btn.disabled = true; btn.innerText = "ИНВЕНТАРЬ ПУСТ"; }
-            else if (!targetItem || myItem.price >= targetItem.price) { btn.disabled = true; btn.innerText = "ЦЕЛЬ ДЕШЕВЛЕ ТЕКУЩЕГО"; }
-            else { btn.disabled = false; btn.innerText = "🚀 ПРОКАЧАТЬ"; }
-
-            if (myInventory.length >= 5) triggerAchievement('inventory_5');
-
-            renderCatalog(); renderInventory(); renderMarket(); renderAchievements(); renderQuests(); renderCasesList(); saveData();
-        }
-
-        function buyStars(starsCost, vexReward) {
-            alert(`Интеграция Telegram Stars.\nПокупка ${starsCost} ⭐️ за реальные деньги даст вам ${vexReward.toLocaleString()} VEX.`);
-            balance += vexReward;
-            updateUI();
-        }
-
-        function claimBankruptcyKit() {
-            myInventory.push(ITEMS[0]); balance += 250; myItem = ITEMS[0];
-            playSound('win'); triggerParticles();
-            alert("🎁 ВЫ ПОЛУЧИЛИ: Чип 64KB и +250 VEX!"); updateUI();
-        }
-
-        /* КОЛЕСО УДАЧИ */
-        const FORTUNE_SECTORS = [
-            { label: "250 VEX", type: "vex", val: 250, color: "#00f3ff" },
-            { label: "500 VEX", type: "vex", val: 500, color: "#9d00ff" },
-            { label: "1,000 VEX", type: "vex", val: 1000, color: "#ffe600" },
-            { label: "2,500 VEX", type: "vex", val: 2500, color: "#00ff66" },
-            { label: "5,000 VEX", type: "vex", val: 5000, color: "#ff0055" },
-            { label: "📼 Скин", type: "item", item: ITEMS[10], color: "#ff8c00" }
-        ];
-
-        let hasFreeSpin = true;
-        let isFortuneSpinning = false;
-        let currentFortuneAngle = 0;
-
-        function drawFortuneWheel() {
-            const canvas = document.getElementById('fortune-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const numSectors = FORTUNE_SECTORS.length;
-            const arcSize = (2 * Math.PI) / numSectors;
-
-            ctx.clearRect(0, 0, 220, 220);
-            FORTUNE_SECTORS.forEach((sec, i) => {
-                const angle = i * arcSize;
-                ctx.beginPath(); ctx.fillStyle = sec.color; ctx.moveTo(110, 110);
-                ctx.arc(110, 110, 105, angle, angle + arcSize); ctx.lineTo(110, 110); ctx.fill();
-
-                ctx.save(); ctx.translate(110, 110); ctx.rotate(angle + arcSize / 2);
-                ctx.textAlign = "right"; ctx.fillStyle = "#000000"; ctx.font = "900 11px Orbitron, sans-serif";
-                ctx.fillText(sec.label, 95, 4); ctx.restore();
-            });
-            ctx.beginPath(); ctx.arc(110, 110, 22, 0, 2 * Math.PI); ctx.fillStyle = "#0a0f1a"; ctx.fill();
-            ctx.strokeStyle = "#00f3ff"; ctx.lineWidth = 2; ctx.stroke();
-        }
-
-        function spinFortuneWheel() {
-            if (isFortuneSpinning) return;
-            if (!hasFreeSpin) { if (balance < 500) { alert("Вращение стоит 500 VEX!"); return; } balance -= 500; }
-
-            isFortuneSpinning = true;
-            const btn = document.getElementById('btn-spin-fortune');
-            btn.disabled = true; btn.innerText = "ВРАЩЕНИЕ...";
-
-            const winIndex = Math.floor(Math.random() * FORTUNE_SECTORS.length);
-            const sectorDegree = 360 / FORTUNE_SECTORS.length;
-            const targetSectorAngle = 360 - (winIndex * sectorDegree) - (sectorDegree / 2) - 90;
-            const totalRotation = currentFortuneAngle + 1800 + (targetSectorAngle - (currentFortuneAngle % 360));
-            currentFortuneAngle = totalRotation;
-
-            const canvas = document.getElementById('fortune-canvas');
-            canvas.style.transform = `rotate(${totalRotation}deg)`;
-
-            let ticks = 0;
-            const tickInterval = setInterval(() => { playSound('tick'); if (++ticks > 15) clearInterval(tickInterval); }, 200);
-
-            setTimeout(() => {
-                isFortuneSpinning = false; hasFreeSpin = false;
-                const won = FORTUNE_SECTORS[winIndex];
-                if (won.type === "vex") { balance += won.val; alert(`🎰 ВЫ ВЫИГРАЛИ: ${won.val.toLocaleString()} VEX!`); }
-                else if (won.type === "item") { myInventory.push(won.item); alert(`🎰 ВЫ ВЫИГРАЛИ СКИН: ${won.item.name}!`); }
-                playSound('win'); triggerParticles();
-                btn.disabled = false; btn.innerText = "🎰 КРУТИТЬ ЗА 500 VEX";
-                document.getElementById('fortune-timer').innerText = "Следующий бесплатный спин завтра!";
-                updateUI();
-            }, 3900);
-        }
-
-        function startCyberDuel() {
-            if (isDuelRunning) return;
-            if (balance < 500) { alert("Недостаточно 500 VEX для дуэли!"); return; }
-
-            balance -= 500; isDuelRunning = true;
-            const btn = document.getElementById('btn-start-duel');
-            btn.disabled = true; btn.innerText = "ИДЕТ ВЗЛОМ СЕТИ...";
-
-            const bar = document.getElementById('duel-bar');
-            let progress = 0;
-            const oppNames = ['@hacker_x', '@phantom_99', '@v_cyber', '@neo_tokyo'];
-            document.getElementById('duel-opp-name').innerText = oppNames[Math.floor(Math.random() * oppNames.length)];
-
-            const interval = setInterval(() => {
-                progress += 5; bar.style.width = progress + '%'; playSound('tick');
-                if (progress >= 100) {
-                    clearInterval(interval); isDuelRunning = false;
-                    btn.disabled = false; btn.innerText = "⚔️ ВЗЛОМАТЬ И НАЧАТЬ ДУЭЛЬ"; bar.style.width = '0%';
-                    if (Math.random() > 0.5) { balance += 1000; playSound('win'); triggerParticles(); alert("🎉 ВЫ ПОБЕДИЛИ В ДУЭЛИ! +1,000 VEX"); }
-                    else { playSound('fail'); alert("💀 ВАС ВЗЛОМАЛИ! Ставка 500 VEX потеряна."); }
-                    updateUI();
-                }
-            }, 100);
-        }
-
-        function selectHighChanceTarget() {
-            if (!myItem) { alert("Инвентарь пуст!"); return; }
-            let bestTarget = null; let closestRatio = 0;
-            ITEMS.forEach(item => {
-                if (item.price > myItem.price) {
-                    let ratio = myItem.price / item.price;
-                    if (ratio <= 0.95 && ratio > closestRatio) { closestRatio = ratio; bestTarget = item; }
-                }
-            });
-            if (bestTarget) { targetItem = bestTarget; updateUI(); playSound('tap'); }
-            else { alert("Это самый топовый предмет!"); }
-        }
-
-        let activeCatalogFilter = 'all';
-        function renderCatalog() {
-            const grid = document.getElementById('catalog-grid');
-            grid.innerHTML = '';
-            ITEMS.forEach(item => {
-                if (activeCatalogFilter === 'common' && item.price > 500) return;
-                if (activeCatalogFilter === 'rare' && (item.price <= 500 || item.price > 15000)) return;
-                if (activeCatalogFilter === 'legendary' && item.price <= 15000) return;
-
-                const isTarget = targetItem && targetItem.id === item.id;
-                const card = document.createElement('div');
-                card.className = `grid-card ${isTarget ? 'selected-target' : ''}`;
-                card.onclick = () => { if (!isRolling) { targetItem = item; updateUI(); } };
-                card.innerHTML = `
-                    <div class="rarity-line" style="background:${item.color}"></div>
-                    <div class="emoji">${item.emoji}</div>
-                    <div class="name">${item.name}</div>
-                    <div class="price">${item.price.toLocaleString()} VEX</div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function filterCatalog(type, el) {
-            activeCatalogFilter = type;
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            el.classList.add('active'); renderCatalog();
-        }
-
-        function renderInventory() {
-            document.getElementById('inv-count').innerText = myInventory.length;
-            const grid = document.getElementById('inventory-grid');
-            grid.innerHTML = '';
-            myInventory.forEach((item, idx) => {
-                const card = document.createElement('div');
-                card.className = 'grid-card';
-                card.innerHTML = `
-                    <div class="rarity-line" style="background:${item.color}"></div>
-                    <div class="emoji">${item.emoji}</div>
-                    <div class="name">${item.name}</div>
-                    <div class="price">${item.price.toLocaleString()} VEX</div>
-                    <div style="display:flex; gap:4px; margin-top:4px;">
-                        <button style="flex:1; font-size:8px; background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:4px;" onclick="sellItem(${idx}, event)">ПРОДАТЬ</button>
-                        <button style="flex:1; font-size:8px; background:rgba(0,243,255,0.15); border:none; color:var(--neon-cyan); border-radius:4px;" onclick="openSellModal(${idx}, event)">НА МАРКЕТ</button>
-                    </div>
-                `;
-                card.onclick = (e) => {
-                    if (e.target.tagName === 'BUTTON') return;
-                    myItem = item; selectHighChanceTarget(); switchTab('sec-upgrade'); updateUI();
-                };
-                grid.appendChild(card);
-            });
-        }
-
-        function sellItem(idx, e) {
-            if(e) e.stopPropagation();
-            balance += Math.floor(myInventory[idx].price * 0.8);
-            if (myItem === myInventory[idx]) myItem = null;
-            myInventory.splice(idx, 1);
-            updateUI(); playSound('tap');
-        }
-
-        function sellAllCommon() {
-            myInventory = myInventory.filter(item => {
-                if (item.price <= 500) {
-                    balance += Math.floor(item.price * 0.8);
-                    if (myItem === item) myItem = null;
-                    return false;
-                }
-                return true;
-            });
-            updateUI();
-        }
-
-        function runUpgrade() {
-            if (isRolling || !myItem || !targetItem) return;
-
-            const isInsured = document.getElementById('insurance-check').checked;
-            const insuranceCost = Math.floor(myItem.price * 0.2);
-            const fee = Math.floor(myItem.price * 0.05);
-
-            if (balance < (isInsured ? insuranceCost + fee : fee)) {
-                alert("Нехватка VEX на комиссию или страховку!"); return;
-            }
-
-            balance -= fee;
-            if (isInsured) balance -= insuranceCost;
-
-            const chance = Math.min(85, (myItem.price / targetItem.price) * 70);
-            isRolling = true;
-            updateUI();
-
-            const needle = document.getElementById('needle');
-            needle.style.transition = 'none';
-            needle.style.transform = 'translateX(-50%) rotate(0deg)';
-            
-            setTimeout(() => {
-                needle.style.transition = 'transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1)';
-                const winAngle = (chance / 100) * 360;
-                const isSuccess = (Math.random() * 100) <= chance;
-
-                let finalDegrees = isSuccess ? Math.random() * (winAngle - 6) + 3 : Math.random() * (350 - winAngle) + winAngle + 3;
-                const totalRotation = 2160 + finalDegrees;
-
-                needle.style.transform = `translateX(-50%) rotate(${totalRotation}deg)`;
-
-                let tickCount = 0;
-                const tickInterval = setInterval(() => { playSound('tick'); tickCount++; if (tickCount > 12) clearInterval(tickInterval); }, 150);
-
-                setTimeout(() => {
-                    const arena = document.getElementById('arena-card');
-                    if (isSuccess) {
-                        playSound('win'); triggerParticles();
-                        const idx = myInventory.indexOf(myItem);
-                        if (idx !== -1) myInventory[idx] = targetItem;
-                        myItem = targetItem;
-                        addXP(25); triggerAchievement('upgrade_win'); trackQuest('upg_q');
-                    } else {
-                        playSound('fail'); arena.classList.add('shake');
-                        setTimeout(() => arena.classList.remove('shake'), 500);
-                        if (!isInsured) {
-                            const idx = myInventory.indexOf(myItem);
-                            if (idx !== -1) myInventory.splice(idx, 1);
-                            myItem = null;
-                        }
-                    }
-                    isRolling = false; updateUI();
-                }, 2200);
-            }, 50);
-        }
-
-        // РЕЖИМ CYBER-CRASH
-        let isCrashRunning = false;
-        let crashMultiplier = 1.00;
-        let crashCrashPoint = 0;
-        let crashInterval = null;
-        let crashBet = 0;
-        let hasCashedOut = false;
-
-        function handleCrashBtn() {
-            const btn = document.getElementById('btn-crash-toggle');
-            if (!isCrashRunning) {
-                const betVal = parseInt(document.getElementById('crash-bet-input').value);
-                if (isNaN(betVal) || betVal <= 0 || betVal > balance) { alert("Некорректная ставка!"); return; }
-                
-                const fee = Math.floor(betVal * 0.03);
-                if (balance < betVal + fee) { alert("Недостаточно VEX для ставки и 3% комиссии сети!"); return; }
-
-                crashBet = betVal;
-                balance -= (crashBet + fee);
-                
-                if (crashInterval) clearInterval(crashInterval);
-                hasCashedOut = false; isCrashRunning = true; crashMultiplier = 1.00;
-
-                crashCrashPoint = Math.max(1.05, (100 / (Math.random() * 95 + 1)).toFixed(2));
-
-                btn.innerText = "ЗАБРАТЬ (CASHOUT)"; btn.className = "btn-crash-action cashout";
-                document.getElementById('crash-mult').classList.remove('crashed');
-
-                triggerAchievement('crash_play'); updateUI();
-
-                crashInterval = setInterval(() => {
-                    crashMultiplier += 0.03 + (crashMultiplier * 0.015);
-                    document.getElementById('crash-mult').innerText = 'x' + crashMultiplier.toFixed(2);
-                    playSound('tick');
-
-                    if (crashMultiplier >= crashCrashPoint || crashMultiplier >= 50) {
-                        clearInterval(crashInterval); isCrashRunning = false;
-                        const finalCrash = crashMultiplier >= 50 ? 50 : crashCrashPoint;
-                        document.getElementById('crash-mult').innerText = 'x' + finalCrash + ' CRASHED!';
-                        document.getElementById('crash-mult').classList.add('crashed');
-                        playSound('fail');
-
-                        btn.innerText = "ПОСТАВИТЬ И СТАРТ"; btn.className = "btn-crash-action";
-                        const hist = document.getElementById('crash-history');
-                        const pill = document.createElement('div');
-                        pill.className = `history-pill ${finalCrash >= 2 ? 'high' : 'low'}`;
-                        pill.innerText = 'x' + finalCrash; hist.prepend(pill);
-                        updateUI();
-                    }
-                }, 100);
-
-            } else {
-                if (!hasCashedOut) {
-                    hasCashedOut = true; clearInterval(crashInterval); isCrashRunning = false;
-                    const winAmt = Math.floor(crashBet * crashMultiplier);
-                    balance += winAmt; playSound('win'); triggerParticles();
-                    btn.innerText = "ПОСТАВИТЬ И СТАРТ"; btn.className = "btn-crash-action";
-                    document.getElementById('crash-mult').innerText = 'ВЫИГРЫШ ' + winAmt + ' VEX!';
-                    updateUI();
-                }
-            }
-        }
-
-        // P2P МАРКЕТ
-        function renderMarket() {
-            const list = document.getElementById('market-listings-list');
-            list.innerHTML = '';
-            marketListings.forEach(listObj => {
-                const card = document.createElement('div');
-                card.className = 'market-item-card';
-                card.innerHTML = `
-                    <div class="market-item-info">
-                        <div class="emoji">${listObj.item.emoji}</div>
-                        <div><div style="font-size:11px; font-weight:800; color:#fff;">${listObj.item.name}</div><div class="market-seller">Продавец: ${listObj.seller}</div></div>
-                    </div>
-                    <div><button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="buyMarketItem(${listObj.id})">${listObj.price.toLocaleString()} VEX</button></div>
-                `;
-                list.appendChild(card);
-            });
-        }
-
-        function buyMarketItem(id) {
-            const idx = marketListings.findIndex(l => l.id === id);
-            if (idx !== -1) {
-                const itemObj = marketListings[idx];
-                if (balance >= itemObj.price) {
-                    balance -= itemObj.price; myInventory.push(itemObj.item); marketListings.splice(idx, 1);
-                    playSound('win'); alert(`✅ Вы успешно купили ${itemObj.item.name}!`); updateUI();
-                } else { alert("Недостаточно VEX!"); }
-            }
-        }
-
-        function openSellModal(idx, e) {
-            if(e) e.stopPropagation();
-            if (idx >= myInventory.length) return;
-            const sellItemObj = myInventory[idx];
-            const price = prompt(`Выставить на маркет ${sellItemObj.name}. Укажите цену VEX:`, sellItemObj.price);
-            if (price && !isNaN(price) && price > 0) {
-                marketListings.unshift({ id: Date.now(), seller: "@you", item: sellItemObj, price: parseInt(price) });
-                if(myItem === myInventory[idx]) myItem = null;
-                myInventory.splice(idx, 1); updateUI(); alert("✅ Предмет выставлен на маркет!");
-            }
-        }
-
-        function claimDailyReward() {
-            if (dailyClaimed) { alert("Вы уже забирали бонус!"); return; }
-            dailyClaimed = true; balance += 500; streak += 1;
-            document.getElementById('btn-claim-daily').disabled = true; document.getElementById('btn-claim-daily').innerText = "ПОЛУЧЕНО";
-            playSound('win'); triggerParticles(); updateUI(); alert("🎁 Ежедневный бонус забран! +500 VEX");
-        }
-
-        function renderCasesList() {
-            const grid = document.getElementById('cases-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-            CASES.forEach((c, idx) => {
-                const card = document.createElement('div');
-                card.className = `case-select-card ${idx === selectedCaseIndex ? 'active' : ''}`;
-                card.style.borderColor = idx === selectedCaseIndex ? 'var(--neon-cyan)' : c.color;
-                card.onclick = () => { if(!isCaseOpening) { selectedCaseIndex = idx; renderCasesList(); } };
-                card.innerHTML = `<div class="c-title">${c.name}</div><div class="c-price">${c.price.toLocaleString()} VEX</div>`;
-                grid.appendChild(card);
-            });
-            renderActiveCase();
-        }
-
-        function renderActiveCase() {
-            const c = CASES[selectedCaseIndex];
-            if (!c) return;
-            document.getElementById('active-case-title').innerText = c.name;
-            document.getElementById('active-case-desc').innerText = c.desc;
-            document.getElementById('btn-open-case').innerText = `ОТКРЫТЬ ЗА ${c.price.toLocaleString()} VEX`;
-
-            const previewGrid = document.getElementById('case-preview-grid');
-            previewGrid.innerHTML = '';
-            const poolItems = ITEMS.filter(item => c.pool.includes(item.id));
-            poolItems.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'grid-card';
-                card.innerHTML = `<div class="rarity-line" style="background:${item.color}"></div><div class="emoji">${item.emoji}</div><div class="name">${item.name}</div><div class="price">${item.price.toLocaleString()} VEX</div>`;
-                previewGrid.appendChild(card);
-            });
-        }
-
-        function openSelectedCase() {
-            if (isCaseOpening) return;
-            const c = CASES[selectedCaseIndex];
-            if (!c) return;
-            if (balance < c.price) { alert("Недостаточно VEX для открытия этого кейса!"); return; }
-
-            balance -= c.price; isCaseOpening = true;
-
-            const track = document.getElementById('case-track');
-            track.style.transition = 'none'; track.style.transform = 'translateX(0px)'; track.innerHTML = '';
-
-            const poolItems = ITEMS.filter(item => c.pool.includes(item.id));
-            if (poolItems.length === 0) poolItems.push(ITEMS[0]);
-
-            const reelItems = [];
-            for (let i = 0; i < 30; i++) {
-                const randItem = poolItems[Math.floor(Math.random() * poolItems.length)];
-                reelItems.push(randItem);
-                const el = document.createElement('div');
-                el.className = 'reel-item'; el.style.borderColor = randItem.color;
-                el.innerHTML = `<div class="emoji">${randItem.emoji}</div>`;
-                track.appendChild(el);
-            }
-
-            const winItem = reelItems[22];
-
-            setTimeout(() => {
-                track.style.transition = 'transform 3.5s cubic-bezier(0.1, 0.85, 0.1, 1)';
-                track.style.transform = 'translateX(-1550px)';
-            }, 50);
-
-            let tickCount = 0;
-            const tickInterval = setInterval(() => { playSound('tick'); tickCount++; if (tickCount > 18) clearInterval(tickInterval); }, 180);
-
-            setTimeout(() => {
-                playSound('win'); myInventory.push(winItem); isCaseOpening = false; triggerParticles();
-                alert(`🎉 ВЫ ВЫБИЛИ ИЗ ${c.name}: ${winItem.name} (${winItem.price.toLocaleString()} VEX)!`);
-                trackQuest('case_q'); updateUI();
-            }, 3600);
-        }
-
-        function handleTap(e) {
-            if (energy <= 0) { alert("Энергия исчерпана! Восстанавливается со временем."); return; }
-            energy--; balance += 1; playSound('tap');
-            
-            let x = window.innerWidth / 2; let y = window.innerHeight / 2;
-            if (e.clientX || e.clientY) { x = e.clientX; y = e.clientY; }
-            else if (e.touches && e.touches.length > 0) { x = e.touches[0].clientX; y = e.touches[0].clientY; }
-            
-            spawnFloatText('+1 VEX', '#ffe600', x, y);
-            triggerAchievement('tap_10'); trackQuest('tap_q'); updateUI();
-        }
-
-        function addXP(amount) { xp += amount; if (xp >= 100) { level++; xp = 0; alert("🎖️ НОВЫЙ УРОВЕНЬ: " + level); } }
-
-        function switchTab(secId, tabEl) {
-            if (isRolling || isCrashRunning || isCaseOpening || isDuelRunning) return; 
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(secId).classList.add('active');
-            if (tabEl) {
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                tabEl.classList.add('active');
-            }
-        }
-
-        function spawnFloatText(text, color, x, y) {
-            const el = document.createElement('div');
-            el.className = 'float-text'; el.innerText = text; el.style.color = color;
-            el.style.left = x + 'px'; el.style.top = (y - 20) + 'px';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 600);
-        }
-
-        function triggerParticles() {
-            const cvs = document.getElementById('particle-canvas');
-            const ctx = cvs.getContext('2d');
-            cvs.width = window.innerWidth; cvs.height = window.innerHeight;
-            let particles = [];
-            for(let i=0; i<40; i++) {
-                particles.push({
-                    x: cvs.width/2, y: cvs.height/2,
-                    vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
-                    size: Math.random()*4+2,
-                    color: ['#00f3ff','#ff0055','#ffe600'][Math.floor(Math.random()*3)]
-                });
-            }
-            function animate() {
-                ctx.clearRect(0,0,cvs.width,cvs.height);
-                let alive = false;
-                particles.forEach(p => {
-                    p.x += p.vx; p.y += p.vy; p.size *= 0.95;
-                    if(p.size > 0.5) {
-                        alive = true; ctx.fillStyle = p.color;
-                        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
-                    }
-                });
-                if(alive) requestAnimationFrame(animate); else ctx.clearRect(0,0,cvs.width,cvs.height);
-            }
-            animate();
-        }
-
-        window.onload = () => { loadData(); updateUI(); drawFortuneWheel(); };
-    </script>
+    <div class="items-grid" id="craft-preview" style="max-height:140px;"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-pet">
+  <div class="promo-box" style="text-align:center;">
+    <div class="promo-title">🐾 КИБЕР-ПИТОМЕЦ</div>
+    <div style="font-size:64px; margin:10px 0;" id="pet-emoji">🥚</div>
+    <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:#fff;" id="pet-name">Яйцо</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;" id="pet-level">Уровень 1</div>
+    <div style="font-size:11px; color:var(--neon-green); margin-bottom:10px;" id="pet-income">+0 VEX/мин</div>
+    <button class="btn-upgrade-main" id="btn-feed-pet" onclick="feedPet()" style="font-size:11px; padding:10px;">ПОКОРМИТЬ (500 VEX)</button>
+    <button class="btn-upgrade-main" id="btn-upgrade-pet" onclick="upgradePet()" style="font-size:11px; padding:10px; margin-top:6px; background:linear-gradient(135deg, var(--neon-purple), var(--neon-pink));">УЛУЧШИТЬ (2000 VEX)</button>
+  </div>
+</div>
+
+<div class="view-section" id="sec-auction">
+  <div class="promo-box">
+    <div class="promo-title">🔨 АУКЦИОН</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Ставки на редкие предметы. Таймер 60 сек.</div>
+    <div id="auction-list"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-leaderboard">
+  <div class="promo-box">
+    <div class="promo-title">🏆 ЛИДЕРБОРД</div>
+    <div id="leaderboard-list"></div>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">📊 СТАТИСТИКА</div>
+    <div id="stats-list"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-clans">
+  <div class="promo-box">
+    <div class="promo-title">🛡️ КЛАНЫ</div>
+    <div id="clan-info"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-premium">
+  <div class="promo-box" style="text-align:center;">
+    <div class="promo-title" style="justify-content:center;">💎 ПРЕМИУМ</div>
+    <div style="font-size:11px; color:var(--text-sub); margin-bottom:10px;">+50% к доходу, +1 бесплатный спин</div>
+    <div id="premium-status"></div>
+    <button class="btn-upgrade-main" onclick="buyPremium()" style="background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;">КУПИТЬ ЗА 5000 VEX</button>
+  </div>
+</div>
+<div class="view-section" id="sec-boosters">
+  <div class="promo-box">
+    <div class="promo-title">⚡ БУСТЕРЫ</div>
+    <div class="items-grid" id="boosters-grid" style="max-height:none;"></div>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">🔥 АКТИВНЫЕ</div>
+    <div id="active-boosters"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-cosmetics">
+  <div class="promo-box">
+    <div class="promo-title">🎨 КОСМЕТИКА</div>
+    <div class="items-grid" id="cosmetics-grid" style="max-height:none;"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-investments">
+  <div class="promo-box">
+    <div class="promo-title">📈 ИНВЕСТИЦИИ</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">ETF 0.1%, Крипта 0.3%, Недвижимость 0.05% в час</div>
+    <div id="investments-list"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-season">
+  <div class="promo-box">
+    <div class="promo-title">🏆 СЕЗОН</div>
+    <div id="season-info"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-analytics">
+  <div class="promo-box">
+    <div class="promo-title">📊 АНАЛИТИКА</div>
+    <div id="analytics-list"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-services">
+  <div class="promo-box">
+    <div class="promo-title">🛠️ УСЛУГИ</div>
+    <button class="btn-upgrade-main" style="font-size:11px; padding:10px; margin-bottom:6px;" onclick="changeNickname()">СМЕНИТЬ НИК (500 VEX)</button>
+    <button class="btn-upgrade-main" style="font-size:11px; padding:10px; background:linear-gradient(135deg, var(--neon-pink), var(--neon-purple));" onclick="resetStats()">СБРОСИТЬ СТАТИСТИКУ (10,000 VEX)</button>
+  </div>
+</div>
+<div class="bottom-nav">
+  <div class="nav-tab active" onclick="switchTab('sec-upgrade', this)"><span class="icon">🎰</span>Апгрейд</div>
+  <div class="nav-tab" onclick="switchTab('sec-crash', this)"><span class="icon">📈</span>Краш</div>
+  <div class="nav-tab" onclick="switchTab('sec-duels', this)"><span class="icon">⚔️</span>Дуэли</div>
+  <div class="nav-tab" onclick="switchTab('sec-cases', this)"><span class="icon">📦</span>Кейсы</div>
+  <div class="nav-tab" onclick="switchTab('sec-quests', this)"><span class="icon">🎯</span>Квесты</div>
+  <div class="nav-tab" onclick="switchTab('sec-skills', this)"><span class="icon">🌳</span>Скиллы</div>
+  <div class="nav-tab" onclick="switchTab('sec-craft', this)"><span class="icon">⚗️</span>Крафт</div>
+  <div class="nav-tab" onclick="switchTab('sec-pet', this)"><span class="icon">🐾</span>Питомец</div>
+  <div class="nav-tab" onclick="switchTab('sec-market', this)"><span class="icon">🛒</span>Маркет</div>
+  <div class="nav-tab" onclick="switchTab('sec-auction', this)"><span class="icon">🔨</span>Аукцион</div>
+  <div class="nav-tab" onclick="switchTab('sec-inventory', this)"><span class="icon">🎒</span>Склад</div>
+  <div class="nav-tab" onclick="switchTab('sec-bonuses', this)"><span class="icon">🎁</span>Бонусы</div>
+  <div class="nav-tab" onclick="switchTab('sec-leaderboard', this)"><span class="icon">🏆</span>Топ</div>
+  <div class="nav-tab" onclick="switchTab('sec-clans', this)"><span class="icon">🛡️</span>Клан</div>
+  <div class="nav-tab" onclick="switchTab('sec-premium', this)"><span class="icon">💎</span>Премиум</div>
+  <div class="nav-tab" onclick="switchTab('sec-boosters', this)"><span class="icon">⚡</span>Бустеры</div>
+  <div class="nav-tab" onclick="switchTab('sec-cosmetics', this)"><span class="icon">🎨</span>Косметика</div>
+  <div class="nav-tab" onclick="switchTab('sec-investments', this)"><span class="icon">📈</span>Инвест</div>
+  <div class="nav-tab" onclick="switchTab('sec-season', this)"><span class="icon">🏆</span>Сезон</div>
+  <div class="nav-tab" onclick="switchTab('sec-analytics', this)"><span class="icon">📊</span>Аналитика</div>
+  <div class="nav-tab" onclick="switchTab('sec-services', this)"><span class="icon">🛠️</span>Услуги</div>
+</div>
+<script>
+// ================= ДАННЫЕ =================
+const tg = window.Telegram?.WebApp;
+if (tg?.expand) tg.expand();
+
+const SAVE_KEY = 'cyberpunk_upgrade_save_v5';
+
+let balance = 4500;
+let level = 1;
+let xp = 0;
+let streak = 0;
+let soundEnabled = true;
+let isRolling = false;
+let dailyClaimed = false;
+let usedPromos = new Set();
+let skillPoints = 0;
+let skills = { luck: 0, crash: 0, market: 0, cases: 0, income: 0 };
+let pet = { level: 1 };
+let premium = { active: false, expires: 0 };
+let dailyQuests = [];
+let questsDate = '';
+let leaderboard = [];
+let clan = { name: 'Без клана', bonus: 0, members: 1 };
+let auctionItems = [];
+let caseGuarantee = { starter: 0, cyberware: 0, arsenal: 0, militech: 0, garage: 0, godlike: 0 };
+let hasFreeSpin = true;
+
+const ITEMS = [
+  // ===== COMMON (20) =====
+  { id:1, name:"Дата-Кристалл Mk.I", price:100, emoji:"💠", rarity:"common", color:"var(--rarity-common)" },
+  { id:2, name:"Нейро-Провод", price:110, emoji:"🧵", rarity:"common", color:"var(--rarity-common)" },
+  { id:3, name:"Кремниевый Чип", price:120, emoji:"🔲", rarity:"common", color:"var(--rarity-common)" },
+  { id:4, name:"Оптический Кабель", price:130, emoji:"🧬", rarity:"common", color:"var(--rarity-common)" },
+  { id:5, name:"Микро-Реактор", price:140, emoji:"⚛️", rarity:"common", color:"var(--rarity-common)" },
+  { id:6, name:"Квантовый Конденсатор", price:150, emoji:"🔵", rarity:"common", color:"var(--rarity-common)" },
+  { id:7, name:"Сигнальный Модуль", price:160, emoji:"📡", rarity:"common", color:"var(--rarity-common)" },
+  { id:8, name:"Портативный Терминал", price:170, emoji:"💻", rarity:"common", color:"var(--rarity-common)" },
+  { id:9, name:"Нано-Паяльник", price:180, emoji:"🔧", rarity:"common", color:"var(--rarity-common)" },
+  { id:10, name:"Био-Сенсор", price:190, emoji:"🧪", rarity:"common", color:"var(--rarity-common)" },
+  { id:11, name:"Кибер-Предохранитель", price:200, emoji:"🔌", rarity:"common", color:"var(--rarity-common)" },
+  { id:12, name:"Голографический Диск", price:210, emoji:"💿", rarity:"common", color:"var(--rarity-common)" },
+  { id:13, name:"Сетевая Карта", price:220, emoji:"🖥️", rarity:"common", color:"var(--rarity-common)" },
+  { id:14, name:"Микро-Дрон", price:230, emoji:"🪰", rarity:"common", color:"var(--rarity-common)" },
+  { id:15, name:"Сенсорный Экран", price:240, emoji:"📱", rarity:"common", color:"var(--rarity-common)" },
+  { id:16, name:"Кибер-Антенна", price:250, emoji:"📶", rarity:"common", color:"var(--rarity-common)" },
+  { id:17, name:"Энерго-Ячейка", price:260, emoji:"🔋", rarity:"common", color:"var(--rarity-common)" },
+  { id:18, name:"Сканер Отпечатков", price:270, emoji:"🖐️", rarity:"common", color:"var(--rarity-common)" },
+  { id:19, name:"Микро-Камера", price:280, emoji:"📷", rarity:"common", color:"var(--rarity-common)" },
+  { id:20, name:"Кибер-Часы", price:290, emoji:"⌚", rarity:"common", color:"var(--rarity-common)" },
+
+  // ===== UNCOMMON (20) =====
+  { id:21, name:"Очки Призрака", price:350, emoji:"🕶️", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:22, name:"AR-Визор «Хамелеон»", price:400, emoji:"🥽", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:23, name:"Сканер Сетки «Око»", price:450, emoji:"🔍", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:24, name:"Нейро-Линк v1", price:500, emoji:"⚡", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:25, name:"ИИ-Ядро «Атлас»", price:540, emoji:"🧠", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:26, name:"ИИ-Ядро «Оракул»", price:580, emoji:"🧬", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:27, name:"Взломщик Протоколов", price:620, emoji:"🔓", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:28, name:"Перчатка Сигнала", price:660, emoji:"🧤", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:29, name:"Кибер-Дека Mk.I", price:700, emoji:"📟", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:30, name:"Имплант «Ретро»", price:740, emoji:"🦿", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:31, name:"Сканер «Мираж»", price:780, emoji:"📸", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:32, name:"Грави-Модуль", price:820, emoji:"🌀", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:33, name:"Эхо-Локатор", price:860, emoji:"🔊", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:34, name:"Кибер-Компас", price:900, emoji:"🧭", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:35, name:"Плазменный Резак", price:940, emoji:"🔪", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:36, name:"Нейро-Стимулятор", price:980, emoji:"💉", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:37, name:"Кибер-Фонарь", price:1020, emoji:"🔦", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:38, name:"Модуль Невидимости", price:1060, emoji:"👤", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:39, name:"Квантовый Ключ", price:1100, emoji:"🗝️", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:40, name:"Био-Имплант", price:1140, emoji:"🫁", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+
+  // ===== RARE (20) =====
+  { id:41, name:"Дрон-Разведчик «Оса»", price:1300, emoji:"🛸", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:42, name:"Боевой Дрон «Кобра»", price:1500, emoji:"🤖", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:43, name:"Смарт-Пистолет «Гадюка»", price:1700, emoji:"🔫", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:44, name:"Броня «Травма»", price:1900, emoji:"🛡️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:45, name:"Винтовка «Шторм»", price:2100, emoji:"💥", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:46, name:"Неоновый Клинок «Заря»", price:2300, emoji:"⚔️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:47, name:"Катана «Ронин»", price:2500, emoji:"🗡️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:48, name:"Лазер «Гелиос»", price:2700, emoji:"🔦", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:49, name:"Модуль «Вихрь»", price:2900, emoji:"💨", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:50, name:"Щит «Бастион»", price:3100, emoji:"🛡️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:51, name:"Дрон-Снайпер «Сокол»", price:3300, emoji:"🦅", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:52, name:"Гранатомёт «Хаос»", price:3500, emoji:"💣", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:53, name:"Кибер-Крюк", price:3700, emoji:"🪝", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:54, name:"Импульсный Пистолет", price:3900, emoji:"🔫", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:55, name:"Кибер-Молот", price:4100, emoji:"🔨", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:56, name:"Лазерная Сеть", price:4300, emoji:"🕸️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:57, name:"Ракетница «Тайфун»", price:4500, emoji:"🚀", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:58, name:"Кибер-Кнут", price:4700, emoji:"➰", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:59, name:"Токсичный Дротик", price:4900, emoji:"☠️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:60, name:"Копьё «Зевс»", price:5100, emoji:"⚡", rarity:"rare", color:"var(--rarity-rare)" },
+
+  // ===== EPIC (20) =====
+  { id:61, name:"Снайперка «Рейлган»", price:7000, emoji:"🎯", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:62, name:"Моноструна «Арасака»", price:8500, emoji:"🕸️", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:63, name:"Нано-Броня «Титан»", price:10000, emoji:"🦺", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:64, name:"Кибер-Сердце «Апекс»", price:11500, emoji:"🫀", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:65, name:"Имплант «Сандевистан»", price:13000, emoji:"⚡", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:66, name:"«Сандевистан» Overclock", price:14500, emoji:"🔥", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:67, name:"Камуфляж «Мираж»", price:16000, emoji:"👻", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:68, name:"Дека «Милитех»", price:17500, emoji:"💻", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:69, name:"Экзо-Костюм «Фантом»", price:19000, emoji:"🥷", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:70, name:"Резак «Солнце»", price:20500, emoji:"☀️", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:71, name:"Крылья «Икар»", price:22000, emoji:"🪽", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:72, name:"Хлыст «Скорпион»", price:23500, emoji:"🦂", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:73, name:"Кибер-Паук", price:25000, emoji:"🕷️", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:74, name:"Нейро-Шлем «Оракул»", price:26500, emoji:"🪖", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:75, name:"Плазменный Меч", price:28000, emoji:"🗡️", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:76, name:"Кибер-Тентакли", price:29500, emoji:"🦑", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:77, name:"Импульсный Щит", price:31000, emoji:"🔵", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:78, name:"Дрон-Убийца «Вдова»", price:32500, emoji:"🕸️", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:79, name:"Кибер-Лук «Артемида»", price:34000, emoji:"🏹", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:80, name:"Ядро «Прометей»", price:35500, emoji:"🔥", rarity:"epic", color:"var(--rarity-epic)" },
+
+  // ===== LEGENDARY (20) =====
+  { id:81, name:"Кибер-Глаз «Кироши»", price:50000, emoji:"👁️", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:82, name:"Дрон «Мк.X»", price:60000, emoji:"🛸", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:83, name:"Клинок «Орочи»", price:70000, emoji:"🗡️", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:84, name:"Рука «Мантис»", price:80000, emoji:"🦾", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:85, name:"Мотоцикл «Кусанаги»", price:90000, emoji:"🏍️", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:86, name:"Экзоскелет «Голиаф»", price:100000, emoji:"🦾", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:87, name:"Кибер-Тигр «Раджа»", price:115000, emoji:"🐯", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:88, name:"Нейро-Дракон «Фафнир»", price:130000, emoji:"🐉", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:89, name:"Кибер-Феникс", price:145000, emoji:"🔥", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:90, name:"Нейро-Лев «Леонид»", price:160000, emoji:"🦁", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:91, name:"Кибер-Волк «Фенрир»", price:175000, emoji:"🐺", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:92, name:"Нейро-Акула", price:190000, emoji:"🦈", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:93, name:"Кибер-Орёл", price:205000, emoji:"🦅", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:94, name:"Нейро-Медведь «Берсерк»", price:220000, emoji:"🐻", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:95, name:"Кибер-Змея «Василиск»", price:235000, emoji:"🐍", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:96, name:"Нейро-Кит «Левиафан»", price:250000, emoji:"🐋", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:97, name:"Кибер-Слон «Ганеша»", price:265000, emoji:"🐘", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:98, name:"Нейро-Скорпион", price:280000, emoji:"🦂", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:99, name:"Кибер-Дракон «Смауг»", price:295000, emoji:"🐲", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:100, name:"Нейро-Феникс «Бессмертный»", price:310000, emoji:"🦅", rarity:"legendary", color:"var(--rarity-legendary)" },
+
+  // ===== GODLIKE (20) =====
+  { id:101, name:"Гиперкар «Квадра»", price:500000, emoji:"🏎️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:102, name:"«Рэйфилд» Аэрондайт", price:650000, emoji:"🏎️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:103, name:"Аэродрокер «АВ-4»", price:800000, emoji:"🚁", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:104, name:"Орбитальный Шаттл", price:950000, emoji:"🚀", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:105, name:"Станция «Нейронет»", price:1100000, emoji:"🛰️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:106, name:"Ядро ИИ «Нейромант»", price:1250000, emoji:"🔮", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:107, name:"Ключ от Города", price:1400000, emoji:"👑", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:108, name:"Кибер-Титан «Кронос»", price:1550000, emoji:"🗿", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:109, name:"Нейро-Бог «Один»", price:1700000, emoji:"👁️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:110, name:"Квантовый Реактор", price:1850000, emoji:"⚛️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:111, name:"Ядро Планеты", price:2000000, emoji:"🌍", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:112, name:"Кибер-Галактика", price:2150000, emoji:"🌌", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:113, name:"Нейро-Вселенная", price:2300000, emoji:"✨", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:114, name:"Ключ к Реальности", price:2450000, emoji:"🔑", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:115, name:"Кибер-Бог «Зевс»", price:2600000, emoji:"⚡", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:116, name:"Нейро-Император", price:2750000, emoji:"👑", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:117, name:"Ядро Бесконечности", price:2900000, emoji:"♾️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:118, name:"Кибер-Легенда «Геракл»", price:3050000, emoji:"💪", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:119, name:"Нейро-Творец", price:3200000, emoji:"🎨", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:120, name:"Абсолютный Ноль", price:5000000, emoji:"❄️", rarity:"godlike", color:"var(--rarity-godlike)" }
+];
+
+const CASES = [
+  { id:'starter', name:'📦 STARTER', desc:'$100-$500', price:2500, color:'var(--rarity-common)', pool:[1,2,3,4,5,6,7,8,9,10,11,12,13,14] },
+  { id:'cyberware', name:'⚙️ CYBERWARE', desc:'$300-$18,000', price:12000, color:'var(--rarity-uncommon)', pool:[21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40] },
+  { id:'arsenal', name:'⚔️ ARSENAL', desc:'$1,300-$80,000', price:45000, color:'var(--rarity-rare)', pool:[41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,81,82,83] },
+  { id:'militech', name:'🛡️ MILITECH', desc:'$7,000-$150,000', price:150000, color:'var(--rarity-epic)', pool:[61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85] },
+  { id:'garage', name:'🏎️ GARAGE', desc:'$90,000-$1,000,000', price:800000, color:'var(--rarity-legendary)', pool:[85,86,87,88,89,101,102,103] },
+  { id:'godlike', name:'👑 GODLIKE', desc:'до $5,000,000', price:3500000, color:'var(--rarity-godlike)', pool:[101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120] }
+];
+
+const BOOSTERS = [
+  { id:'x2_income', name:'×2 Доход', desc:'24 часа', price:50000, duration:86400000, effect:'income_mult', value:2 },
+  { id:'x2_luck', name:'×2 Удача', desc:'1 час', price:100000, duration:3600000, effect:'luck_mult', value:2 },
+  { id:'shield', name:'Щит', desc:'1 апгрейд', price:25000, duration:0, effect:'shield', value:1 },
+  { id:'reroll', name:'Ре-ролл', desc:'1 цель', price:15000, duration:0, effect:'reroll', value:1 }
+];
+
+let activeBoosters = [];
+let inventory = [ITEMS[0], ITEMS[2], ITEMS[4], ITEMS[6]];
+let myItem = inventory[0];
+let targetItem = ITEMS[1];
+let selectedCaseIndex = 0;
+let isCaseOpening = false;
+
+let marketListings = [
+  { id:101, seller:"@cyber_jack", item:ITEMS[5], price:2700 },
+  { id:102, seller:"@matrix_ninja", item:ITEMS[21], price:11000 },
+  { id:103, seller:"@araka_boss", item:ITEMS[47], price:30000 }
+];
+
+let achievements = [
+  { id:'tap_10', icon:'⚡', title:'Первый фарм', desc:'Нафармить кликом', reward:100, done:false },
+  { id:'upgrade_win', icon:'🚀', title:'Успешный хак', desc:'Прокачать скин', reward:300, done:false },
+  { id:'crash_play', icon:'📈', title:'Трейдер', desc:'Сыграть в Краш', reward:250, done:false },
+  { id:'inventory_5', icon:'🎒', title:'Коллекционер', desc:'5 предметов', reward:500, done:false }
+];// ================= УТИЛИТЫ =================
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+function initAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
+
+function playSound(type) {
+  if (!soundEnabled) return;
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  const now = audioCtx.currentTime;
+  if (type === 'tap') {
+    osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
+    gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+    osc.start(now); osc.stop(now + 0.05);
+  } else if (type === 'tick') {
+    osc.type = 'square'; osc.frequency.setValueAtTime(800, now);
+    gain.gain.setValueAtTime(0.04, now); gain.gain.linearRampToValueAtTime(0.001, now + 0.02);
+    osc.start(now); osc.stop(now + 0.02);
+  } else if (type === 'win') {
+    osc.type = 'triangle'; osc.frequency.setValueAtTime(440, now);
+    osc.frequency.setValueAtTime(659, now + 0.15);
+    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+    osc.start(now); osc.stop(now + 0.4);
+  } else if (type === 'fail') {
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(250, now);
+    osc.frequency.linearRampToValueAtTime(80, now + 0.3);
+    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+    osc.start(now); osc.stop(now + 0.3);
+  }
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
+}
+
+function spawnFloatText(text, color, x, y) {
+  const el = document.createElement('div');
+  el.className = 'float-text';
+  el.innerText = text;
+  el.style.color = color;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 600);
+}
+
+function switchTab(secId, tabEl) {
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(secId).classList.add('active');
+  if (tabEl) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+  }
+  // БАГФИКС: сброс isRolling при переключении
+  if (secId !== 'sec-upgrade') {
+    isRolling = false;
+  }
+}
+
+function addXP(amount) {
+  xp += amount;
+  while (xp >= 100) {
+    xp -= 100;
+    level++;
+    skillPoints += 1;
+    alert(`🎖️ НОВЫЙ УРОВЕНЬ: ${level}! +1 очко навыка`);
+  }
+}
+
+// ================= СОХРАНЕНИЕ =================
+function saveData() {
+  const data = {
+    balance, level, xp, streak, dailyClaimed, hasFreeSpin,
+    inventory, usedPromos: Array.from(usedPromos),
+    achievements, skillPoints, skills, pet, premium,
+    dailyQuests, questsDate, leaderboard, clan,
+    activeBoosters, caseGuarantee
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+}
+
+function loadData() {
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      balance = data.balance ?? 4500;
+      level = data.level ?? 1;
+      xp = data.xp ?? 0;
+      streak = data.streak ?? 0;
+      dailyClaimed = data.dailyClaimed ?? false;
+      hasFreeSpin = data.hasFreeSpin ?? true;
+      if (data.inventory) inventory = data.inventory;
+      if (data.usedPromos) data.usedPromos.forEach(p => usedPromos.add(p));
+      if (data.achievements) achievements = data.achievements;
+      if (data.skillPoints !== undefined) skillPoints = data.skillPoints;
+      if (data.skills) skills = data.skills;
+      if (data.pet) pet = data.pet;
+      if (data.premium) premium = data.premium;
+      if (data.dailyQuests) dailyQuests = data.dailyQuests;
+      if (data.questsDate) questsDate = data.questsDate;
+      if (data.leaderboard) leaderboard = data.leaderboard;
+      if (data.clan) clan = data.clan;
+      if (data.activeBoosters) activeBoosters = data.activeBoosters;
+      if (data.caseGuarantee) caseGuarantee = data.caseGuarantee;
+    } catch (e) { console.error("Save load error", e); }
+  }
+}
+
+function resetProgress() {
+  if (confirm("Сбросить весь прогресс?")) {
+    localStorage.removeItem(SAVE_KEY);
+    location.reload();
+  }
+}
+
+// ================= ДОСТИЖЕНИЯ =================
+function triggerAchievement(id) {
+  const ach = achievements.find(a => a.id === id);
+  if (ach && !ach.done) {
+    ach.done = true;
+    balance += ach.reward;
+    addXP(50);
+    playSound('win');
+    triggerParticles();
+    alert(`🏆 ДОСТИЖЕНИЕ: ${ach.title} (+${ach.reward} VEX)!`);
+    saveData();
+  }
+}
+
+function renderAchievements() {
+  const container = document.getElementById('achievements-list');
+  if (!container) return;
+  container.innerHTML = '';
+  achievements.forEach(ach => {
+    const div = document.createElement('div');
+    div.className = 'achievement-row';
+    div.innerHTML = `
+      <div class="achievement-info">
+        <div class="achievement-icon">${ach.icon}</div>
+        <div>
+          <div class="achievement-title">${ach.title}</div>
+          <div class="achievement-desc">${ach.desc}</div>
+        </div>
+      </div>
+      <div>
+        ${ach.done
+          ? `<span style="font-size:10px; color:var(--neon-green); font-weight:900;">ВЫПОЛНЕНО</span>`
+          : `<span style="font-size:10px; color:var(--neon-yellow); font-weight:800;">+${ach.reward}</span>`}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ================= БУСТЕРЫ =================
+function getIncomeMultiplier() {
+  let mult = 1;
+  activeBoosters.forEach(b => {
+    if (b.effect === 'income_mult' && b.expires > Date.now()) mult *= b.value;
+  });
+  if (premium.active && premium.expires > Date.now()) mult *= 1.5;
+  return mult;
+}
+
+function getLuckMultiplier() {
+  let mult = 1;
+  activeBoosters.forEach(b => {
+    if (b.effect === 'luck_mult' && b.expires > Date.now()) mult *= b.value;
+  });
+  mult *= (1 + (skills.luck || 0) * 0.01);
+  return mult;
+}
+
+function cleanExpiredBoosters() {
+  activeBoosters = activeBoosters.filter(b => b.expires === 0 || b.expires > Date.now());
+}
+
+// ================= RENDER: КАТАЛОГ =================
+let activeCatalogFilter = 'all';
+function renderCatalog() {
+  const grid = document.getElementById('catalog-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  ITEMS.forEach(item => {
+    if (activeCatalogFilter === 'common' && item.price > 1200) return;
+    if (activeCatalogFilter === 'rare' && (item.price <= 1200 || item.price > 40000)) return;
+    if (activeCatalogFilter === 'legendary' && item.price <= 40000) return;
+
+    const isTarget = targetItem && targetItem.id === item.id;
+    const card = document.createElement('div');
+    card.className = `grid-card ${isTarget ? 'selected-target' : ''}`;
+    card.onclick = () => { if (!isRolling) { targetItem = item; updateUI(); } };
+    card.innerHTML = `
+      <div class="rarity-line" style="background:${item.color}"></div>
+      <div class="emoji">${item.emoji}</div>
+      <div class="name">${item.name}</div>
+      <div class="price">${item.price.toLocaleString()} VEX</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function filterCatalog(type, el) {
+  activeCatalogFilter = type;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderCatalog();
+}
+
+// ================= RENDER: ИНВЕНТАРЬ =================
+function renderInventory() {
+  const count = document.getElementById('inv-count');
+  if (count) count.innerText = inventory.length;
+  const grid = document.getElementById('inventory-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  inventory.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'grid-card';
+    card.innerHTML = `
+      <div class="rarity-line" style="background:${item.color}"></div>
+      <div class="emoji">${item.emoji}</div>
+      <div class="name">${item.name}</div>
+      <div class="price">${item.price.toLocaleString()} VEX</div>
+      <button style="width:100%; margin-top:4px; font-size:8px; background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:4px;" onclick="event.stopPropagation(); sellItem(${idx})">ПРОДАТЬ</button>
+    `;
+    card.onclick = (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      myItem = item;
+      selectHighChanceTarget();
+      switchTab('sec-upgrade');
+      updateUI();
+    };
+    grid.appendChild(card);
+  });
+}
+
+function sellItem(idx) {
+  const item = inventory[idx];
+  if (!item) return;
+  const mult = 0.8;
+  balance += Math.floor(item.price * mult);
+  if (myItem === item) myItem = null;
+  inventory.splice(idx, 1);
+  updateUI();
+  playSound('tap');
+}
+
+function sellAllCommon() {
+  inventory = inventory.filter(item => {
+    if (item.price <= 1200) {
+      balance += Math.floor(item.price * 0.8);
+      if (myItem === item) myItem = null;
+      return false;
+    }
+    return true;
+  });
+  // БАГФИКС: обновление targetItem, если его больше нет
+  if (targetItem && !ITEMS.find(i => i.id === targetItem.id)) {
+    targetItem = ITEMS[1];
+  }
+  updateUI();
+}
+
+// ================= RENDER: МАРКЕТ =================
+function renderMarket() {
+  const list = document.getElementById('market-listings-list');
+  if (!list) return;
+  list.innerHTML = '';
+  marketListings.forEach(listObj => {
+    const card = document.createElement('div');
+    card.className = 'market-item-card';
+    card.innerHTML = `
+      <div class="market-item-info">
+        <div class="emoji">${listObj.item.emoji}</div>
+        <div>
+          <div style="font-size:11px; font-weight:800; color:#fff;">${listObj.item.name}</div>
+          <div class="market-seller">Продавец: ${listObj.seller}</div>
+        </div>
+      </div>
+      <div>
+        <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="buyMarketItem(${listObj.id})">
+          ${listObj.price.toLocaleString()} VEX
+        </button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function buyMarketItem(id) {
+  const idx = marketListings.findIndex(l => l.id === id);
+  if (idx === -1) return;
+  const itemObj = marketListings[idx];
+  if (balance >= itemObj.price) {
+    balance -= itemObj.price;
+    inventory.push(itemObj.item);
+    marketListings.splice(idx, 1);
+    playSound('win');
+    triggerParticles();
+    alert(`✅ Куплено: ${itemObj.item.name}`);
+    updateUI();
+  } else {
+    alert("Недостаточно VEX!");
+  }
+}
+
+function openSellModal() {
+  if (inventory.length === 0) { alert("Нет скинов для продажи!"); return; }
+  // БАГФИКС: выбор предмета через индекс
+  const list = inventory.map((it, i) => `${i + 1}. ${it.name} (${it.price.toLocaleString()} VEX)`).join('\n');
+  const choice = prompt(`Выберите номер предмета для продажи:\n${list}`, '1');
+  const idx = parseInt(choice) - 1;
+  if (isNaN(idx) || idx < 0 || idx >= inventory.length) return;
+  const sellItemObj = inventory[idx];
+  const price = prompt(`Цена для ${sellItemObj.name}:`, sellItemObj.price);
+  if (price && !isNaN(price) && price > 0) {
+    marketListings.unshift({
+      id: Date.now(),
+      seller: "@you",
+      item: sellItemObj,
+      price: parseInt(price)
+    });
+    inventory.splice(idx, 1);
+    updateUI();
+    alert("✅ Предмет выставлен на маркет!");
+  }
+}
+
+// ================= RENDER: КВЕСТЫ =================
+function generateDailyQuests() {
+  const today = new Date().toDateString();
+  if (questsDate === today && dailyQuests.length > 0) return;
+  questsDate = today;
+  const pool = [
+    { id:'tap', icon:'⚡', title:'Фармила', desc:'Натапай 100 VEX', target:100, progress:0, reward:300 },
+    { id:'upgrade', icon:'🚀', title:'Хакер', desc:'Сделай 5 апгрейдов', target:5, progress:0, reward:500 },
+    { id:'crash', icon:'📈', title:'Трейдер', desc:'Сыграй 2 раза в Краш', target:2, progress:0, reward:400 },
+    { id:'case', icon:'📦', title:'Лудоман', desc:'Открой 1 кейс', target:1, progress:0, reward:600 },
+    { id:'duel', icon:'⚔️', title:'Дуэлянт', desc:'Выиграй 1 дуэль', target:1, progress:0, reward:700 },
+    { id:'fortune', icon:'🎰', title:'Счастливчик', desc:'Крути колесо', target:1, progress:0, reward:400 }
+  ];
+  dailyQuests = pool.sort(() => Math.random() - 0.5).slice(0, 3).map(q => ({ ...q }));
+  saveData();
+}
+
+function updateQuestProgress(id, amount = 1) {
+  const q = dailyQuests.find(q => q.id === id);
+  if (q && q.progress < q.target && !q.claimed) {
+    q.progress = Math.min(q.target, q.progress + amount);
+    saveData();
+  }
+}
+
+function claimQuestReward(id) {
+  const q = dailyQuests.find(q => q.id === id);
+  if (!q || q.progress < q.target || q.claimed) return;
+  q.claimed = true;
+  balance += q.reward;
+  playSound('win'); triggerParticles();
+  alert(`🎉 Квест выполнен! +${q.reward} VEX`);
+  updateUI();
+}
+
+function renderQuests() {
+  const list = document.getElementById('quests-list');
+  if (!list) return;
+  list.innerHTML = '';
+  dailyQuests.forEach(q => {
+    const done = q.progress >= q.target;
+    const div = document.createElement('div');
+    div.className = 'achievement-row';
+    div.innerHTML = `
+      <div class="achievement-info">
+        <div class="achievement-icon">${q.icon}</div>
+        <div>
+          <div class="achievement-title">${q.title}</div>
+          <div class="achievement-desc">${q.desc} (${q.progress}/${q.target})</div>
+        </div>
+      </div>
+      <div>
+        ${q.claimed
+          ? `<span style="font-size:10px; color:var(--neon-green); font-weight:900;">ПОЛУЧЕНО</span>`
+          : done
+            ? `<button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="claimQuestReward('${q.id}')">+${q.reward}</button>`
+            : `<span style="font-size:10px; color:var(--text-sub);">+${q.reward}</span>`}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ================= RENDER: СКИЛЛЫ =================
+const SKILLS_DEF = [
+  { id:'luck', icon:'🍀', name:'Удача', desc:'+1% шанс апгрейда за уровень' },
+  { id:'crash', icon:'📈', name:'Трейдер', desc:'+2% выигрыш в краше' },
+  { id:'market', icon:'🛒', name:'Брокер', desc:'-3% комиссия маркета' },
+  { id:'cases', icon:'📦', name:'Лудоман', desc:'+2% шанс редкого дропа' },
+  { id:'income', icon:'💰', name:'Инвестор', desc:'+5% пассивный доход' }
+];
+
+function renderSkills() {
+  const list = document.getElementById('skills-list');
+  if (!list) return;
+  list.innerHTML = '';
+  SKILLS_DEF.forEach(sk => {
+    const lvl = skills[sk.id] || 0;
+    const div = document.createElement('div');
+    div.className = 'achievement-row';
+    div.innerHTML = `
+      <div class="achievement-info">
+        <div class="achievement-icon">${sk.icon}</div>
+        <div>
+          <div class="achievement-title">${sk.name} (ур. ${lvl})</div>
+          <div class="achievement-desc">${sk.desc}</div>
+        </div>
+      </div>
+      <div>
+        ${skillPoints > 0
+          ? `<button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="upgradeSkill('${sk.id}')">+1</button>`
+          : `<span style="font-size:10px; color:var(--text-sub);">Нет очков</span>`}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+  const sp = document.getElementById('skill-points');
+  if (sp) sp.innerText = skillPoints;
+}
+
+function upgradeSkill(id) {
+  if (skillPoints <= 0) return;
+  skillPoints--;
+  skills[id] = (skills[id] || 0) + 1;
+  playSound('win');
+  updateUI();
+}
+
+// ================= RENDER: КРАФТ =================
+function craftItems(rarity) {
+  const required = rarity === 'common' ? 3 : rarity === 'uncommon' ? 5 : 10;
+  const targetRarity = rarity === 'common' ? 'uncommon' : rarity === 'uncommon' ? 'rare' : 'epic';
+  const matching = inventory.filter(i => i.rarity === rarity);
+  if (matching.length < required) {
+    alert(`Нужно ${required} предметов "${rarity}". У тебя: ${matching.length}`);
+    return;
+  }
+  for (let i = 0; i < required; i++) {
+    const idx = inventory.indexOf(matching[i]);
+    if (idx !== -1) inventory.splice(idx, 1);
+  }
+  const pool = ITEMS.filter(i => i.rarity === targetRarity);
+  const reward = pool[Math.floor(Math.random() * pool.length)];
+  inventory.push(reward);
+  playSound('win');
+  triggerParticles();
+  alert(`⚗️ Крафт успешен! Получен: ${reward.name}`);
+  updateUI();
+}
+
+function renderCraftPreview() {
+  const grid = document.getElementById('craft-preview');
+  if (!grid) return;
+  grid.innerHTML = '';
+  ['common', 'uncommon', 'rare'].forEach(r => {
+    const count = inventory.filter(i => i.rarity === r).length;
+    const div = document.createElement('div');
+    div.className = 'grid-card';
+    div.innerHTML = `
+      <div class="rarity-line" style="background:var(--rarity-${r})"></div>
+      <div class="emoji">📦</div>
+      <div class="name">${r}</div>
+      <div class="price">${count} шт.</div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+// ================= RENDER: ПИТОМЕЦ =================
+const PET_STAGES = [
+  { emoji:'🥚', name:'Яйцо', income:0 },
+  { emoji:'🐣', name:'Птенец', income:1 },
+  { emoji:'🐥', name:'Птенец+', income:2 },
+  { emoji:'🦅', name:'Дрон', income:5 },
+  { emoji:'🐉', name:'Кибер-Дракон', income:10 },
+  { emoji:'👾', name:'ИИ-Питомец', income:25 }
+];
+
+function updatePet() {
+  const stage = PET_STAGES[Math.min(pet.level - 1, PET_STAGES.length - 1)];
+  pet.emoji = stage.emoji;
+  pet.name = stage.name;
+  const bonus = getIncomeMultiplier();
+  pet.income = Math.floor(stage.income * bonus);
+  const e = document.getElementById('pet-emoji');
+  if (e) e.innerText = pet.emoji;
+  const n = document.getElementById('pet-name');
+  if (n) n.innerText = pet.name;
+  const l = document.getElementById('pet-level');
+  if (l) l.innerText = `Уровень ${pet.level}`;
+  const i = document.getElementById('pet-income');
+  if (i) i.innerText = `+${pet.income} VEX/мин`;
+}
+
+function feedPet() {
+  if (balance < 500) { alert('Нужно 500 VEX'); return; }
+  balance -= 500;
+  playSound('tap');
+  alert('🐾 Питомец покормлен!');
+  updateUI();
+}
+
+function upgradePet() {
+  if (pet.level >= PET_STAGES.length) { alert('Максимальный уровень!'); return; }
+  if (balance < 2000) { alert('Нужно 2000 VEX'); return; }
+  balance -= 2000;
+  pet.level++;
+  playSound('win');
+  triggerParticles();
+  alert(`🐾 Питомец улучшен: ${PET_STAGES[pet.level - 1].name}!`);
+  updateUI();
+}
+
+// ================= RENDER: ЛИДЕРБОРД =================
+function updateLeaderboard() {
+  const name = (tg?.initDataUnsafe?.user?.first_name) || 'Вы';
+  const entry = { name, balance };
+  const idx = leaderboard.findIndex(l => l.name === name);
+  if (idx !== -1) leaderboard[idx] = entry;
+  else leaderboard.push(entry);
+  leaderboard.sort((a, b) => b.balance - a.balance);
+  leaderboard = leaderboard.slice(0, 10);
+}
+
+function renderLeaderboard() {
+  const list = document.getElementById('leaderboard-list');
+  if (!list) return;
+  list.innerHTML = '';
+  updateLeaderboard();
+  leaderboard.forEach((entry, idx) => {
+    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+    const div = document.createElement('div');
+    div.className = 'achievement-row';
+    div.innerHTML = `
+      <div class="achievement-info">
+        <div class="achievement-icon">${medal}</div>
+        <div><div class="achievement-title">${entry.name}</div></div>
+      </div>
+      <div style="font-family:'Orbitron'; font-size:11px; font-weight:900; color:var(--neon-yellow);">${entry.balance.toLocaleString()}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function renderStats() {
+  const stats = document.getElementById('stats-list');
+  if (!stats) return;
+  stats.innerHTML = `
+    <div class="achievement-row"><div>Баланс</div><div style="color:var(--neon-yellow); font-weight:900;">${balance.toLocaleString()}</div></div>
+    <div class="achievement-row"><div>Уровень</div><div style="color:var(--neon-cyan); font-weight:900;">${level}</div></div>
+    <div class="achievement-row"><div>Предметов</div><div style="color:var(--neon-green); font-weight:900;">${inventory.length}</div></div>
+    <div class="achievement-row"><div>Достижений</div><div style="color:var(--neon-pink); font-weight:900;">${achievements.filter(a => a.done).length}/${achievements.length}</div></div>
+  `;
+}
+
+// ================= RENDER: КЛАН =================
+function renderClan() {
+  const info = document.getElementById('clan-info');
+  if (!info) return;
+  info.innerHTML = `
+    <div class="achievement-row"><div>Клан</div><div style="color:var(--neon-cyan); font-weight:900;">${clan.name}</div></div>
+    <div class="achievement-row"><div>Участников</div><div style="color:var(--neon-green); font-weight:900;">${clan.members}</div></div>
+    <div class="achievement-row"><div>Бонус к доходу</div><div style="color:var(--neon-yellow); font-weight:900;">+${clan.bonus}%</div></div>
+    <button class="btn-upgrade-main" style="margin-top:10px; font-size:11px; padding:10px;" onclick="joinClan()">ВСТУПИТЬ В КЛАН</button>
+  `;
+}
+
+function joinClan() {
+  clan = { name: 'Neon Riders', bonus: 5, members: Math.floor(Math.random() * 50) + 10 };
+  playSound('win');
+  alert('🛡️ Вы вступили в клан Neon Riders! +5% к доходу.');
+  updateUI();
+}
+
+// ================= RENDER: ПРЕМИУМ =================
+function renderPremium() {
+  const status = document.getElementById('premium-status');
+  if (!status) return;
+  if (premium.active && premium.expires > Date.now()) {
+    const days = Math.ceil((premium.expires - Date.now()) / 86400000);
+    status.innerHTML = `<div style="font-size:14px; color:var(--neon-yellow); font-weight:900;">✅ АКТИВЕН</div><div style="font-size:10px; color:var(--text-sub);">Осталось: ${days} дн.</div>`;
+  } else {
+    premium.active = false;
+    status.innerHTML = `<div style="font-size:14px; color:var(--text-sub); font-weight:900;">❌ НЕ АКТИВЕН</div>`;
+  }
+}
+
+function buyPremium() {
+  if (balance < 5000) { alert('Нужно 5000 VEX'); return; }
+  balance -= 5000;
+  premium.active = true;
+  premium.expires = Date.now() + 30 * 86400000;
+  playSound('win');
+  triggerParticles();
+  alert('💎 Премиум активирован на 30 дней!');
+  updateUI();
+}
+
+// ================= RENDER: АУКЦИОН =================
+function generateAuction() {
+  auctionItems = [];
+  for (let i = 0; i < 3; i++) {
+    const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    auctionItems.push({
+      id: Date.now() + i,
+      item,
+      currentBid: Math.floor(item.price * 0.5),
+      timeLeft: 60,
+      highBidder: null
+    });
+  }
+  renderAuction();
+}
+
+function renderAuction() {
+  const list = document.getElementById('auction-list');
+  if (!list) return;
+  list.innerHTML = '';
+  auctionItems.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'market-item-card';
+    div.innerHTML = `
+      <div class="market-item-info">
+        <div class="emoji">${a.item.emoji}</div>
+        <div>
+          <div style="font-size:11px; font-weight:800; color:#fff;">${a.item.name}</div>
+          <div class="market-seller">Ставка: ${a.currentBid.toLocaleString()} | ${a.timeLeft}с</div>
+        </div>
+      </div>
+      <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="bidAuction(${a.id})">+10%</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function bidAuction(id) {
+  const a = auctionItems.find(x => x.id === id);
+  if (!a) return;
+  const newBid = Math.floor(a.currentBid * 1.1);
+  if (balance < newBid) { alert('Недостаточно VEX'); return; }
+  balance -= newBid;
+  a.currentBid = newBid;
+  a.highBidder = 'you';
+  playSound('tap');
+  updateUI();
+}
+
+// ================= RENDER: КЕЙСЫ =================
+function renderCasesList() {
+  const grid = document.getElementById('cases-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  CASES.forEach((c, idx) => {
+    const card = document.createElement('div');
+    card.className = `case-select-card ${idx === selectedCaseIndex ? 'active' : ''}`;
+    card.onclick = () => selectCase(idx);
+    card.innerHTML = `
+      <div class="c-title">${c.name}</div>
+      <div class="c-price">${c.price.toLocaleString()} VEX</div>
+    `;
+    grid.appendChild(card);
+  });
+  renderActiveCase();
+}
+
+function selectCase(idx) {
+  if (isCaseOpening) return;
+  selectedCaseIndex = idx;
+  renderCasesList();
+}
+
+function renderActiveCase() {
+  const c = CASES[selectedCaseIndex];
+  if (!c) return;
+  const t = document.getElementById('active-case-title');
+  const d = document.getElementById('active-case-desc');
+  const b = document.getElementById('btn-open-case');
+  if (t) t.innerText = c.name;
+  if (d) d.innerText = c.desc;
+  if (b) b.innerText = `ОТКРЫТЬ ЗА ${c.price.toLocaleString()} VEX`;
+
+  const previewGrid = document.getElementById('case-preview-grid');
+  if (!previewGrid) return;
+  previewGrid.innerHTML = '';
+  const poolItems = ITEMS.filter(item => c.pool.includes(item.id));
+  poolItems.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'grid-card';
+    card.innerHTML = `
+      <div class="rarity-line" style="background:${item.color}"></div>
+      <div class="emoji">${item.emoji}</div>
+      <div class="name">${item.name}</div>
+      <div class="price">${item.price.toLocaleString()} VEX</div>
+    `;
+    previewGrid.appendChild(card);
+  });
+}
+
+// ================= ГЛАВНЫЙ updateUI =================
+function updateUI() {
+  document.getElementById('balance-val').innerText = balance.toLocaleString() + ' VEX';
+  document.getElementById('user-lvl').innerText = level;
+  document.getElementById('xp-fill').style.width = (xp % 100) + '%';
+  document.getElementById('streak-days').innerText = streak;
+  document.getElementById('streak-card-val').innerText = streak;
+  document.getElementById('quest-streak').innerText = '🔥 ' + streak + ' дн.';
+
+  const bankruptBanner = document.getElementById('bankrupt-banner');
+  if (inventory.length === 0 && balance < 100) {
+    bankruptBanner.classList.add('show');
+  } else {
+    bankruptBanner.classList.remove('show');
+  }
+
+  if (!myItem && inventory.length > 0) myItem = inventory[0];
+
+  const slotMy = document.getElementById('slot-my');
+  if (myItem) {
+    slotMy.classList.add('has-item');
+    slotMy.style.borderColor = myItem.color;
+    document.getElementById('my-emoji').innerText = myItem.emoji;
+    document.getElementById('my-title').innerText = myItem.name;
+    document.getElementById('my-val').innerText = myItem.price.toLocaleString() + ' VEX';
+  } else {
+    slotMy.classList.remove('has-item');
+    slotMy.style.borderColor = 'rgba(255,255,255,0.15)';
+    document.getElementById('my-emoji').innerText = '❓';
+    document.getElementById('my-title').innerText = 'Нет предметов';
+    document.getElementById('my-val').innerText = '0 VEX';
+  }
+
+  const slotTarget = document.getElementById('slot-target');
+  if (targetItem) {
+    slotTarget.classList.add('has-item');
+    slotTarget.style.borderColor = targetItem.color;
+    document.getElementById('target-emoji').innerText = targetItem.emoji;
+    document.getElementById('target-title').innerText = targetItem.name;
+    document.getElementById('target-val').innerText = targetItem.price.toLocaleString() + ' VEX';
+  }
+
+  // БАГФИКС: шанс с комиссией 0.7, макс 85
+  let chance = 0;
+  if (myItem && targetItem) {
+    chance = (myItem.price / targetItem.price) * 70;
+    chance *= getLuckMultiplier();
+    if (chance > 85) chance = 85;
+    if (chance < 1) chance = 1;
+  }
+  document.getElementById('chance-val').innerText = chance.toFixed(1) + '%';
+
+  const circleArc = document.getElementById('wheel-arc');
+  const strokeOffset = 283 - (283 * (chance / 100));
+  circleArc.style.strokeDashoffset = strokeOffset;
+  if (chance >= 60) circleArc.style.stroke = 'var(--neon-green)';
+  else if (chance >= 30) circleArc.style.stroke = 'var(--neon-cyan)';
+  else circleArc.style.stroke = 'var(--neon-pink)';
+
+  const btn = document.getElementById('btn-upgrade');
+  if (isRolling) {
+    btn.disabled = true; btn.innerText = "ПРОКАЧКА...";
+  } else if (!myItem) {
+    btn.disabled = true; btn.innerText = "ИНВЕНТАРЬ ПУСТ";
+  } else if (!targetItem || myItem.price >= targetItem.price) {
+    btn.disabled = true; btn.innerText = "ЦЕЛЬ ДЕШЕВЛЕ";
+  } else {
+    btn.disabled = false; btn.innerText = "🚀 ПРОКАЧАТЬ";
+  }
+
+  if (inventory.length >= 5) triggerAchievement('inventory_5');
+
+  renderCatalog();
+  renderInventory();
+  renderMarket();
+  renderAchievements();
+  renderCasesList();
+  renderQuests();
+  renderSkills();
+  renderCraftPreview();
+  updatePet();
+  renderClan();
+  renderPremium();
+  renderAuction();
+  renderLeaderboard();
+  renderStats();
+  saveData();
+}// ================= АПГРЕЙД =================
+function selectHighChanceTarget() {
+  if (!myItem) { alert("Инвентарь пуст!"); return; }
+  let bestTarget = null;
+  let closestRatio = 0;
+  ITEMS.forEach(item => {
+    if (item.price > myItem.price) {
+      let ratio = myItem.price / item.price;
+      if (ratio <= 0.85 && ratio > closestRatio) {
+        closestRatio = ratio;
+        bestTarget = item;
+      }
+    }
+  });
+  if (bestTarget) {
+    targetItem = bestTarget;
+    updateUI();
+    playSound('tap');
+  } else {
+    alert("Это топовый предмет!");
+  }
+}
+
+function runUpgrade() {
+  if (isRolling || !myItem || !targetItem) return;
+
+  const isInsured = document.getElementById('insurance-check').checked;
+  const insuranceCost = Math.floor(myItem.price * 0.2);
+  const commission = Math.floor(myItem.price * 0.05);
+
+  if (isInsured && balance < insuranceCost + commission) {
+    alert("Не хватает VEX на страховку + комиссию!"); return;
+  }
+  if (!isInsured && balance < commission) {
+    alert("Не хватает VEX на комиссию!"); return;
+  }
+
+  balance -= commission;
+  if (isInsured) balance -= insuranceCost;
+
+  // БАГФИКС: шанс с комиссией 0.7, макс 85, бонус удачи
+  let chance = Math.min(85, (myItem.price / targetItem.price) * 70 * getLuckMultiplier());
+  if (chance < 1) chance = 1;
+
+  isRolling = true;
+  updateUI();
+
+  const needle = document.getElementById('needle');
+  const winAngle = (chance / 100) * 360;
+  const isSuccess = (Math.random() * 100) <= chance;
+
+  let finalDegrees = isSuccess
+    ? Math.random() * (winAngle - 6) + 3
+    : Math.random() * (350 - winAngle) + winAngle + 3;
+  const totalRotation = 2160 + finalDegrees;
+
+  needle.style.transform = `translateX(-50%) rotate(${totalRotation}deg)`;
+
+  let tickCount = 0;
+  const tickInterval = setInterval(() => {
+    playSound('tick');
+    tickCount++;
+    if (tickCount > 12) clearInterval(tickInterval);
+  }, 150);
+
+  setTimeout(() => {
+    const arena = document.getElementById('arena-card');
+    if (isSuccess) {
+      playSound('win');
+      triggerParticles();
+      const idx = inventory.indexOf(myItem);
+      if (idx !== -1) inventory[idx] = targetItem;
+      myItem = targetItem;
+      addXP(25);
+      triggerAchievement('upgrade_win');
+      updateQuestProgress('upgrade', 1);
+    } else {
+      playSound('fail');
+      arena.classList.add('shake');
+      setTimeout(() => arena.classList.remove('shake'), 500);
+      if (!isInsured) {
+        const idx = inventory.indexOf(myItem);
+        if (idx !== -1) inventory.splice(idx, 1);
+        myItem = null;
+      }
+    }
+
+    // БАГФИКС: стрелка сбрасывается корректно
+    needle.style.transition = 'none';
+    needle.style.transform = `translateX(-50%) rotate(${finalDegrees % 360}deg)`;
+    setTimeout(() => {
+      needle.style.transition = 'transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1)';
+    }, 50);
+
+    isRolling = false;
+    updateUI();
+  }, 2200);
+}
+
+function runMultiUpgrade(count) {
+  if (isRolling) return;
+  const items = inventory.slice(0, count);
+  if (items.length < count) { alert(`Нужно ${count} предметов`); return; }
+  items.forEach(item => {
+    myItem = item;
+    selectHighChanceTarget();
+    runUpgrade();
+  });
+  updateQuestProgress('upgrade', count);
+}
+
+// ================= КРАШ =================
+let isCrashRunning = false;
+let crashMultiplier = 1.00;
+let crashCrashPoint = 0;
+let crashInterval = null;
+let crashBet = 0;
+let hasCashedOut = false;
+let autoCashout = 0;
+
+function handleCrashBtn() {
+  const btn = document.getElementById('btn-crash-toggle');
+  if (!isCrashRunning) {
+    const betVal = parseInt(document.getElementById('crash-bet-input').value);
+    if (isNaN(betVal) || betVal <= 0 || betVal > balance) {
+      alert("Некорректная ставка!"); return;
+    }
+    const ac = prompt('Авто-кашоут (множитель, пусто = выкл):', '');
+    autoCashout = ac ? parseFloat(ac) : 0;
+
+    crashBet = betVal;
+    balance -= crashBet;
+    hasCashedOut = false;
+    isCrashRunning = true;
+    crashMultiplier = 1.00;
+
+    // БАГФИКС: краш-поинт как число
+    crashCrashPoint = Math.max(1.05, parseFloat((100 / (Math.random() * 95 + 1)).toFixed(2)));
+
+    btn.innerText = "ЗАБРАТЬ (CASHOUT)";
+    btn.className = "btn-crash-action cashout";
+    document.getElementById('crash-mult').classList.remove('crashed');
+
+    triggerAchievement('crash_play');
+    updateQuestProgress('crash', 1);
+    updateUI();
+
+    crashInterval = setInterval(() => {
+      // БАГФИКС: комиссия 3%
+      crashMultiplier += 0.03 + (crashMultiplier * 0.015);
+      if (crashMultiplier > 50) crashMultiplier = 50;
+
+      document.getElementById('crash-mult').innerText = 'x' + crashMultiplier.toFixed(2);
+      playSound('tick');
+
+      // Авто-кашоут
+      if (autoCashout && crashMultiplier >= autoCashout && !hasCashedOut) {
+        hasCashedOut = true;
+        clearInterval(crashInterval);
+        isCrashRunning = false;
+        const winAmt = Math.floor(crashBet * crashMultiplier * 0.97);
+        balance += winAmt;
+        playSound('win');
+        triggerParticles();
+        btn.innerText = "ПОСТАВИТЬ И СТАРТ";
+        btn.className = "btn-crash-action";
+        document.getElementById('crash-mult').innerText = 'АВТО-ВЫИГРЫШ ' + winAmt + ' VEX!';
+        updateUI();
+        return;
+      }
+
+      if (crashMultiplier >= crashCrashPoint) {
+        clearInterval(crashInterval);
+        isCrashRunning = false;
+        document.getElementById('crash-mult').innerText = 'x' + crashCrashPoint + ' CRASHED!';
+        document.getElementById('crash-mult').classList.add('crashed');
+        playSound('fail');
+        btn.innerText = "ПОСТАВИТЬ И СТАРТ";
+        btn.className = "btn-crash-action";
+
+        const hist = document.getElementById('crash-history');
+        const pill = document.createElement('div');
+        pill.className = `history-pill ${crashCrashPoint >= 2 ? 'high' : 'low'}`;
+        pill.innerText = 'x' + crashCrashPoint;
+        hist.prepend(pill);
+        if (hist.children.length > 8) hist.removeChild(hist.lastChild);
+
+        updateUI();
+      }
+    }, 100);
+
+  } else {
+    if (!hasCashedOut) {
+      hasCashedOut = true;
+      clearInterval(crashInterval);
+      isCrashRunning = false;
+      // БАГФИКС: комиссия 3% при кашоуте
+      const winAmt = Math.floor(crashBet * crashMultiplier * 0.97);
+      balance += winAmt;
+      playSound('win');
+      triggerParticles();
+      btn.innerText = "ПОСТАВИТЬ И СТАРТ";
+      btn.className = "btn-crash-action";
+      document.getElementById('crash-mult').innerText = 'ВЫИГРЫШ ' + winAmt + ' VEX!';
+      updateUI();
+    }
+  }
+}
+
+// ================= ДУЭЛИ =================
+let isDuelRunning = false;
+function startCyberDuel() {
+  if (isDuelRunning) return;
+  if (balance < 500) { alert("Недостаточно 500 VEX!"); return; }
+
+  balance -= 500;
+  isDuelRunning = true;
+  const btn = document.getElementById('btn-start-duel');
+  btn.disabled = true; btn.innerText = "ИДЕТ ВЗЛОМ СЕТИ...";
+
+  const bar = document.getElementById('duel-bar');
+  let progress = 0;
+
+  const oppNames = ['@hacker_x', '@phantom_99', '@v_cyber', '@neo_tokyo'];
+  document.getElementById('duel-opp-name').innerText = oppNames[Math.floor(Math.random() * oppNames.length)];
+
+  const interval = setInterval(() => {
+    progress += 5;
+    bar.style.width = progress + '%';
+    playSound('tick');
+
+    if (progress >= 100) {
+      clearInterval(interval);
+      isDuelRunning = false;
+      btn.disabled = false;
+      btn.innerText = "⚔️ НАЧАТЬ ДУЭЛЬ";
+      bar.style.width = '0%';
+
+      const win = Math.random() > 0.5;
+      if (win) {
+        balance += 1000;
+        playSound('win');
+        triggerParticles();
+        alert("🎉 ПОБЕДА! +1,000 VEX");
+        updateQuestProgress('duel', 1);
+      } else {
+        playSound('fail');
+        alert("💀 ВАС ВЗЛОМАЛИ! -500 VEX");
+      }
+      updateUI();
+    }
+  }, 100);
+}
+
+// ================= КЕЙСЫ =================
+function weightedDrop(pool) {
+  const weights = pool.map(i => {
+    if (i.rarity === 'common') return 60;
+    if (i.rarity === 'uncommon') return 25;
+    if (i.rarity === 'rare') return 10;
+    if (i.rarity === 'epic') return 4;
+    if (i.rarity === 'legendary') return 0.9;
+    return 0.1;
+  });
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < pool.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return pool[i];
+  }
+  return pool[0];
+}
+
+function openSelectedCase() {
+  if (isCaseOpening) return;
+  const c = CASES[selectedCaseIndex];
+  if (!c) return;
+
+  if (balance < c.price) {
+    alert("Недостаточно VEX!"); return;
+  }
+
+  balance -= c.price;
+  isCaseOpening = true;
+  updateQuestProgress('case', 1);
+
+  const track = document.getElementById('case-track');
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0px)';
+  track.innerHTML = '';
+
+  const poolItems = ITEMS.filter(item => c.pool.includes(item.id));
+  if (poolItems.length === 0) poolItems.push(ITEMS[0]);
+
+  const reelItems = [];
+  for (let i = 0; i < 30; i++) {
+    const randItem = weightedDrop(poolItems);
+    reelItems.push(randItem);
+    const el = document.createElement('div');
+    el.className = 'reel-item';
+    el.style.borderColor = randItem.color;
+    el.innerHTML = `<div class="emoji">${randItem.emoji}</div>`;
+    track.appendChild(el);
+  }
+
+  // Гарант: каждые 100 открытий — редкий дроп
+  caseGuarantee[c.id] = (caseGuarantee[c.id] || 0) + 1;
+  let finalItem = reelItems[22];
+  if (caseGuarantee[c.id] >= 100) {
+    const rarePool = poolItems.filter(i => i.price > 50000);
+    if (rarePool.length > 0) {
+      finalItem = rarePool[Math.floor(Math.random() * rarePool.length)];
+    }
+    caseGuarantee[c.id] = 0;
+  }
+
+  setTimeout(() => {
+    track.style.transition = 'transform 3.5s cubic-bezier(0.1, 0.85, 0.1, 1)';
+    track.style.transform = 'translateX(-1550px)';
+  }, 50);
+
+  let tickCount = 0;
+  const tickInterval = setInterval(() => {
+    playSound('tick');
+    tickCount++;
+    if (tickCount > 18) clearInterval(tickInterval);
+  }, 180);
+
+  setTimeout(() => {
+    playSound('win');
+    inventory.push(finalItem);
+    isCaseOpening = false;
+    triggerParticles();
+    alert(`🎉 ВЫ ВЫБИЛИ: ${finalItem.name} (${finalItem.price.toLocaleString()} VEX)!`);
+    updateUI();
+  }, 3600);
+}
+
+// ================= ТАПАЛКА (энергия) =================
+let energy = 50;
+let maxEnergy = 50;
+let lastEnergyUpdate = Date.now();
+
+function regenEnergy() {
+  const now = Date.now();
+  const diff = Math.floor((now - lastEnergyUpdate) / 60000); // 1 ед./мин
+  if (diff > 0) {
+    energy = Math.min(maxEnergy, energy + diff);
+    lastEnergyUpdate = now;
+  }
+}
+
+function handleTap(e) {
+  regenEnergy();
+  if (energy <= 0) {
+    alert('Энергия кончилась! Восстанавливается 1 ед./мин.');
+    return;
+  }
+  energy--;
+  const gain = Math.floor(1 * getIncomeMultiplier());
+  balance += gain;
+  playSound('tap');
+  const x = (e?.clientX) || (e?.touches?.[0]?.clientX) || window.innerWidth / 2;
+  const y = (e?.clientY) || (e?.touches?.[0]?.clientY) || window.innerHeight / 2;
+  spawnFloatText('+' + gain + ' VEX', '#ffe600', x, y);
+  triggerAchievement('tap_10');
+  updateQuestProgress('tap', gain);
+  updateUI();
+}
+
+// ================= БОНУСЫ =================
+function claimDailyReward() {
+  if (dailyClaimed) { alert("Уже забрано!"); return; }
+  dailyClaimed = true;
+  balance += 100; // уменьшено с 500
+  streak += 1;
+  document.getElementById('btn-claim-daily').disabled = true;
+  document.getElementById('btn-claim-daily').innerText = "ПОЛУЧЕНО";
+  playSound('win'); triggerParticles();
+  updateUI();
+  alert("🎁 +100 VEX");
+}
+
+function applyPromo() {
+  const codeInput = document.getElementById('promo-input');
+  const code = codeInput.value.trim().toUpperCase();
+  if (usedPromos.has(code)) { alert("Уже активирован!"); return; }
+  if (code === 'VEX2027') {
+    balance += 2000; usedPromos.add(code); playSound('win'); triggerParticles();
+    alert("🎉 +2,000 VEX!");
+  } else if (code === 'CYBERPUNK') {
+    balance += 5000; usedPromos.add(code); playSound('win'); triggerParticles();
+    alert("🎉 +5,000 VEX!");
+  } else {
+    alert("Неверный промокод!");
+  }
+  codeInput.value = '';
+  updateUI();
+}
+
+// ================= КОЛЕСО УДАЧИ =================
+const FORTUNE_SECTORS = [
+  { label: "250 VEX", type: "vex", val: 250, color: "#00f3ff" },
+  { label: "500 VEX", type: "vex", val: 500, color: "#9d00ff" },
+  { label: "1,000 VEX", type: "vex", val: 1000, color: "#ffe600" },
+  { label: "2,500 VEX", type: "vex", val: 2500, color: "#00ff66" },
+  { label: "5,000 VEX", type: "vex", val: 5000, color: "#ff0055" },
+  { label: "📼 Скин", type: "item", item: ITEMS[21], color: "#ff8c00" }
+];
+
+let isFortuneSpinning = false;
+let currentFortuneAngle = 0;
+
+function drawFortuneWheel() {
+  const canvas = document.getElementById('fortune-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const numSectors = FORTUNE_SECTORS.length;
+  const arcSize = (2 * Math.PI) / numSectors;
+  ctx.clearRect(0, 0, 220, 220);
+
+  FORTUNE_SECTORS.forEach((sec, i) => {
+    const angle = i * arcSize;
+    ctx.beginPath();
+    ctx.fillStyle = sec.color;
+    ctx.moveTo(110, 110);
+    ctx.arc(110, 110, 105, angle, angle + arcSize);
+    ctx.lineTo(110, 110);
+    ctx.fill();
+    ctx.save();
+    ctx.translate(110, 110);
+    ctx.rotate(angle + arcSize / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#000";
+    ctx.font = "900 11px Orbitron, sans-serif";
+    ctx.fillText(sec.label, 95, 4);
+    ctx.restore();
+  });
+
+  ctx.beginPath();
+  ctx.arc(110, 110, 22, 0, 2 * Math.PI);
+  ctx.fillStyle = "#0a0f1a";
+  ctx.fill();
+  ctx.strokeStyle = "#00f3ff";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function spinFortuneWheel() {
+  if (isFortuneSpinning) return;
+  if (!hasFreeSpin) {
+    if (balance < 500) { alert("Вращение стоит 500 VEX!"); return; }
+    balance -= 500;
+  }
+  isFortuneSpinning = true;
+  const btn = document.getElementById('btn-spin-fortune');
+  btn.disabled = true; btn.innerText = "ВРАЩЕНИЕ...";
+
+  const winIndex = Math.floor(Math.random() * FORTUNE_SECTORS.length);
+  const sectorDegree = 360 / FORTUNE_SECTORS.length;
+  const targetSectorAngle = 360 - (winIndex * sectorDegree) - (sectorDegree / 2) - 90;
+  const totalRotation = currentFortuneAngle + 1800 + (targetSectorAngle - (currentFortuneAngle % 360));
+  currentFortuneAngle = totalRotation;
+
+  const canvas = document.getElementById('fortune-canvas');
+  canvas.style.transform = `rotate(${totalRotation}deg)`;
+
+  let ticks = 0;
+  const tickInterval = setInterval(() => {
+    playSound('tick');
+    if (++ticks > 15) clearInterval(tickInterval);
+  }, 200);
+
+  setTimeout(() => {
+    isFortuneSpinning = false;
+    hasFreeSpin = false;
+    const won = FORTUNE_SECTORS[winIndex];
+    if (won.type === "vex") {
+      balance += won.val;
+      alert(`🎰 ВЫИГРЫШ: ${won.val.toLocaleString()} VEX!`);
+    } else if (won.type === "item") {
+      inventory.push(won.item);
+      alert(`🎰 ВЫИГРЫШ: ${won.item.name}!`);
+    }
+    playSound('win');
+    triggerParticles();
+    updateQuestProgress('fortune', 1);
+    btn.disabled = false;
+    btn.innerText = "🎰 КРУТИТЬ ЗА 500 VEX";
+    document.getElementById('fortune-timer').innerText = "Бесплатный спин завтра!";
+    updateUI();
+  }, 3900);
+}
+
+// ================= АВАРИЙНЫЙ НАБОР =================
+function claimBankruptcyKit() {
+  inventory.push(ITEMS[0]);
+  balance += 250;
+  myItem = ITEMS[0];
+  playSound('win');
+  triggerParticles();
+  alert("🎁 ВЫ ПОЛУЧИЛИ: Дата-Кристалл + 250 VEX!");
+  updateUI();
+}// ================= БУСТЕРЫ =================
+function buyBooster(id) {
+  const b = BOOSTERS.find(x => x.id === id);
+  if (!b) return;
+  if (balance < b.price) { alert('Недостаточно VEX!'); return; }
+  balance -= b.price;
+  if (b.duration > 0) {
+    activeBoosters.push({ ...b, expires: Date.now() + b.duration });
+  } else {
+    activeBoosters.push({ ...b, expires: 0 });
+  }
+  playSound('win');
+  triggerParticles();
+  alert(`✅ ${b.name} активирован!`);
+  updateUI();
+}
+
+function renderBoosters() {
+  const grid = document.getElementById('boosters-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  BOOSTERS.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'grid-card';
+    card.innerHTML = `
+      <div class="rarity-line" style="background:var(--neon-cyan)"></div>
+      <div class="emoji">⚡</div>
+      <div class="name">${b.name}</div>
+      <div class="price">${b.price.toLocaleString()} VEX</div>
+      <div style="font-size:8px; color:var(--text-sub); margin-top:2px;">${b.desc}</div>
+      <button class="filter-chip" style="margin-top:4px; width:100%;" onclick="buyBooster('${b.id}')">КУПИТЬ</button>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Отображение активных бустеров
+  const active = document.getElementById('active-boosters');
+  if (active) {
+    active.innerHTML = '';
+    activeBoosters.forEach(b => {
+      if (b.expires > Date.now() || b.expires === 0) {
+        const div = document.createElement('div');
+        div.className = 'achievement-row';
+        const left = b.expires > 0 ? Math.ceil((b.expires - Date.now()) / 60000) + ' мин' : '∞';
+        div.innerHTML = `
+          <div class="achievement-info">
+            <div class="achievement-icon">⚡</div>
+            <div><div class="achievement-title">${b.name}</div><div class="achievement-desc">Осталось: ${left}</div></div>
+          </div>
+        `;
+        active.appendChild(div);
+      }
+    });
+  }
+}
+
+// ================= АУКЦИОН (таймер) =================
+setInterval(() => {
+  if (auctionItems.length === 0) return;
+  auctionItems.forEach(a => {
+    a.timeLeft--;
+    if (a.timeLeft <= 0) {
+      if (a.highBidder === 'you') {
+        inventory.push(a.item);
+        playSound('win');
+        triggerParticles();
+        alert(`🔨 Вы выиграли аукцион: ${a.item.name}!`);
+      }
+    }
+  });
+  auctionItems = auctionItems.filter(a => a.timeLeft > 0);
+  if (auctionItems.length === 0) generateAuction();
+  renderAuction();
+}, 1000);
+
+// ================= СОБЫТИЯ (ивент) =================
+let activeEvent = null;
+
+function checkEvent() {
+  const now = new Date();
+  const day = now.getDate();
+  // Каждое 1-е число — двойной дроп
+  if (day === 1) {
+    activeEvent = { name: 'ДВОЙНОЙ ДРОП', desc: 'Все награды ×2', multiplier: 2 };
+  } else if (day === 15) {
+    activeEvent = { name: 'ДЕНЬ УДАЧИ', desc: '+20% шанс апгрейда', multiplier: 1.2 };
+  } else {
+    activeEvent = null;
+  }
+  renderEvent();
+}
+
+function renderEvent() {
+  const banner = document.getElementById('event-banner');
+  if (!banner) return;
+  if (activeEvent) {
+    banner.style.display = 'block';
+    banner.innerHTML = `
+      <div style="font-family:'Orbitron'; font-size:12px; font-weight:900; color:var(--neon-yellow);">🎉 ${activeEvent.name}</div>
+      <div style="font-size:10px; color:#fff;">${activeEvent.desc}</div>
+    `;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ================= ПАССИВНЫЙ ДОХОД =================
+setInterval(() => {
+  cleanExpiredBoosters();
+  if (pet.income > 0) {
+    const gain = Math.floor(pet.income * getIncomeMultiplier());
+    balance += gain;
+    updateUI();
+  }
+}, 60000);
+
+// ================= АНАЛИТИКА =================
+let analytics = {
+  taps: 0,
+  upgrades: 0,
+  upgradeWins: 0,
+  casesOpened: 0,
+  crashesPlayed: 0,
+  duelsPlayed: 0
+};
+
+function trackEvent(name) {
+  if (analytics[name] !== undefined) analytics[name]++;
+}
+
+function renderAnalytics() {
+  const el = document.getElementById('analytics-list');
+  if (!el) return;
+  const winRate = analytics.upgrades > 0
+    ? ((analytics.upgradeWins / analytics.upgrades) * 100).toFixed(1)
+    : '0.0';
+  el.innerHTML = `
+    <div class="achievement-row"><div>Тапов</div><div style="color:var(--neon-cyan);">${analytics.taps}</div></div>
+    <div class="achievement-row"><div>Апгрейдов</div><div style="color:var(--neon-yellow);">${analytics.upgrades}</div></div>
+    <div class="achievement-row"><div>Успешных</div><div style="color:var(--neon-green);">${analytics.upgradeWins}</div></div>
+    <div class="achievement-row"><div>Winrate</div><div style="color:var(--neon-pink);">${winRate}%</div></div>
+    <div class="achievement-row"><div>Кейсов</div><div style="color:var(--neon-purple);">${analytics.casesOpened}</div></div>
+    <div class="achievement-row"><div>Крашей</div><div style="color:var(--neon-cyan);">${analytics.crashesPlayed}</div></div>
+    <div class="achievement-row"><div>Дуэлей</div><div style="color:var(--neon-yellow);">${analytics.duelsPlayed}</div></div>
+  `;
+}
+
+// ================= СЕЗОНЫ =================
+let season = {
+  number: 1,
+  startDate: Date.now(),
+  duration: 14 * 86400000, // 14 дней
+  rewards: [
+    { place: 1, reward: 500000 },
+    { place: 2, reward: 250000 },
+    { place: 3, reward: 100000 }
+  ]
+};
+
+function checkSeason() {
+  if (Date.now() - season.startDate > season.duration) {
+    // Конец сезона: выдать награды топ-3
+    const sorted = [...leaderboard].sort((a, b) => b.balance - a.balance);
+    sorted.slice(0, 3).forEach((entry, idx) => {
+      if (entry.name === ((tg?.initDataUnsafe?.user?.first_name) || 'Вы')) {
+        balance += season.rewards[idx].reward;
+        alert(`🏆 Сезон завершён! Вы заняли ${idx + 1} место. Награда: ${season.rewards[idx].reward} VEX`);
+      }
+    });
+    // Сброс сезона
+    season.number++;
+    season.startDate = Date.now();
+    leaderboard = [];
+    updateUI();
+  }
+}
+
+function renderSeason() {
+  const el = document.getElementById('season-info');
+  if (!el) return;
+  const left = Math.ceil((season.duration - (Date.now() - season.startDate)) / 86400000);
+  el.innerHTML = `
+    <div class="achievement-row"><div>Сезон</div><div style="color:var(--neon-cyan);">#${season.number}</div></div>
+    <div class="achievement-row"><div>Осталось</div><div style="color:var(--neon-yellow);">${left} дн.</div></div>
+    <div class="achievement-row"><div>Награды</div><div style="color:var(--neon-green);">Топ-3</div></div>
+  `;
+}
+
+// ================= КОСМЕТИКА =================
+const COSMETICS = [
+  { id: 'title_hacker', name: 'Титул «Хакер»', price: 10000, type: 'title' },
+  { id: 'title_legend', name: 'Титул «Легенда»', price: 50000, type: 'title' },
+  { id: 'frame_cyan', name: 'Рамка «Неон»', price: 25000, type: 'frame' },
+  { id: 'avatar_ghost', name: 'Аватар «Призрак»', price: 75000, type: 'avatar' }
+];
+
+let ownedCosmetics = [];
+let activeTitle = '';
+
+function renderCosmetics() {
+  const grid = document.getElementById('cosmetics-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  COSMETICS.forEach(c => {
+    const owned = ownedCosmetics.includes(c.id);
+    const card = document.createElement('div');
+    card.className = 'grid-card';
+    card.innerHTML = `
+      <div class="rarity-line" style="background:var(--neon-purple)"></div>
+      <div class="emoji">🎨</div>
+      <div class="name">${c.name}</div>
+      <div class="price">${c.price.toLocaleString()} VEX</div>
+      <button class="filter-chip" style="margin-top:4px; width:100%; ${owned ? 'background:var(--neon-green); color:#000;' : ''}" onclick="buyCosmetic('${c.id}')">
+        ${owned ? 'КУПЛЕНО' : 'КУПИТЬ'}
+      </button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function buyCosmetic(id) {
+  const c = COSMETICS.find(x => x.id === id);
+  if (!c) return;
+  if (ownedCosmetics.includes(id)) { alert('Уже куплено!'); return; }
+  if (balance < c.price) { alert('Недостаточно VEX!'); return; }
+  balance -= c.price;
+  ownedCosmetics.push(id);
+  if (c.type === 'title') activeTitle = c.name;
+  playSound('win');
+  triggerParticles();
+  alert(`✅ Куплено: ${c.name}`);
+  updateUI();
+}
+
+// ================= УСЛУГИ =================
+function changeNickname() {
+  if (balance < 500) { alert('Нужно 500 VEX'); return; }
+  balance -= 500;
+  const newName = prompt('Новый ник:');
+  if (newName) {
+    // В localStorage
+    const s = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+    s.nickname = newName;
+    localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+    alert(`✅ Ник изменён на: ${newName}`);
+  }
+  updateUI();
+}
+
+function resetStats() {
+  if (balance < 10000) { alert('Нужно 10,000 VEX'); return; }
+  balance -= 10000;
+  analytics = { taps: 0, upgrades: 0, upgradeWins: 0, casesOpened: 0, crashesPlayed: 0, duelsPlayed: 0 };
+  alert('✅ Статистика сброшена');
+  updateUI();
+}
+
+// ================= ИНВЕСТИЦИИ =================
+let investments = {
+  etf: 0,
+  crypto: 0,
+  realEstate: 0
+};
+
+function invest(type, amount) {
+  if (amount <= 0 || amount > balance) { alert('Некорректная сумма'); return; }
+  balance -= amount;
+  investments[type] = (investments[type] || 0) + amount;
+  playSound('tap');
+  alert(`✅ Инвестировано ${amount.toLocaleString()} VEX в ${type}`);
+  updateUI();
+}
+
+function renderInvestments() {
+  const el = document.getElementById('investments-list');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="achievement-row"><div>ETF</div><div style="color:var(--neon-cyan);">${(investments.etf || 0).toLocaleString()}</div></div>
+    <div class="achievement-row"><div>Крипта</div><div style="color:var(--neon-yellow);">${(investments.crypto || 0).toLocaleString()}</div></div>
+    <div class="achievement-row"><div>Недвижимость</div><div style="color:var(--neon-green);">${(investments.realEstate || 0).toLocaleString()}</div></div>
+    <div style="display:flex; gap:6px; margin-top:8px;">
+      <button class="filter-chip" onclick="invest('etf', 1000)">+1000 ETF</button>
+      <button class="filter-chip" onclick="invest('crypto', 1000)">+1000 КРИПТА</button>
+      <button class="filter-chip" onclick="invest('realEstate', 1000)">+1000 НЕДВИЖ</button>
+    </div>
+  `;
+}
+
+// ================= ДИВИДЕНДЫ =================
+setInterval(() => {
+  let income = 0;
+  income += (investments.etf || 0) * 0.001;
+  income += (investments.crypto || 0) * 0.003;
+  income += (investments.realEstate || 0) * 0.0005;
+  if (income > 0) {
+    balance += Math.floor(income);
+    updateUI();
+  }
+}, 3600000); // раз в час// ================= LIVE FEED =================
+function initLiveFeed() {
+  const names = ['@alex_v', '@cyber_sam', '@matrix_99', '@v_punk', '@neon_fox', '@netrunner_x'];
+  const track = document.getElementById('feed-track');
+  if (!track) return;
+
+  function addFeedItem() {
+    const name = names[Math.floor(Math.random() * names.length)];
+    const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const chance = (Math.random() * 40 + 50).toFixed(1);
+    const div = document.createElement('div');
+    div.className = 'feed-item';
+    div.innerHTML = `<span class="user">${name}</span> прокачал ${item.emoji} <span class="chance">(${chance}%)</span>`;
+    track.prepend(div);
+    if (track.children.length > 10) track.removeChild(track.lastChild);
+  }
+
+  // Первичное заполнение
+  for (let i = 0; i < 5; i++) addFeedItem();
+  setInterval(addFeedItem, 3000);
+}
+
+// ================= ЧАСТИЦЫ =================
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function triggerParticles() {
+  for (let i = 0; i < 60; i++) {
+    particles.push({
+      x: canvas.width / 2,
+      y: canvas.height / 3,
+      vx: (Math.random() - 0.5) * 12,
+      vy: (Math.random() - 0.5) * 12,
+      color: ['#00f3ff', '#ff0055', '#ffe600', '#00ff66'][Math.floor(Math.random() * 4)],
+      size: Math.random() * 4 + 2,
+      alpha: 1
+    });
+  }
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach((p, idx) => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.02;
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = Math.max(0, p.alpha);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    if (p.alpha <= 0) particles.splice(idx, 1);
+  });
+  requestAnimationFrame(animateParticles);
+}
+
+// ================= РЕГЕНЕРАЦИЯ ЭНЕРГИИ =================
+setInterval(() => {
+  regenEnergy();
+  const e = document.getElementById('energy-val');
+  if (e) e.innerText = energy + '/' + maxEnergy;
+}, 10000);
+
+// ================= НАЛОГ НА БОГАТСТВО =================
+setInterval(() => {
+  if (balance > 1000000) {
+    balance = Math.floor(balance * 0.995);
+    updateUI();
+  }
+}, 86400000); // раз в день
+
+// ================= ИНФЛЯЦИЯ =================
+setInterval(() => {
+  ITEMS.forEach(item => {
+    item.price = Math.floor(item.price * 1.01);
+  });
+}, 86400000);
+
+// ================= СЕЗОН =================
+setInterval(() => {
+  checkSeason();
+  renderSeason();
+}, 3600000);
+
+// ================= ГЛАВНАЯ ИНИЦИАЛИЗАЦИЯ =================
+function init() {
+  loadData();
+  generateDailyQuests();
+  generateAuction();
+  checkEvent();
+  drawFortuneWheel();
+  animateParticles();
+  initLiveFeed();
+  renderBoosters();
+  renderCosmetics();
+  renderInvestments();
+  renderSeason();
+  renderAnalytics();
+  updateUI();
+
+  // Ежедневный сброс бонусов
+  const lastDay = localStorage.getItem('last_day');
+  const today = new Date().toDateString();
+  if (lastDay !== today) {
+    dailyClaimed = false;
+    hasFreeSpin = true;
+    localStorage.setItem('last_day', today);
+    saveData();
+  }
+
+  // Обновление UI каждые 30 секунд
+  setInterval(updateUI, 30000);
+}
+
+// ================= СТАРТ =================
+window.addEventListener('load', init);
+</script>
 </body>
 </html>
