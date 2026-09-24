@@ -219,7 +219,7 @@
         }
         .filter-chip.active { background: rgba(0,243,255,0.15); border-color: var(--neon-cyan); color: #fff; }
 
-        .items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 220px; overflow-y: auto; }
+        .items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 240px; overflow-y: auto; }
         .grid-card {
             background: rgba(10, 14, 23, 0.7); border: 1px solid rgba(255,255,255,0.08);
             border-radius: 10px; padding: 6px; text-align: center; cursor: pointer; position: relative;
@@ -284,10 +284,6 @@
             border-radius: 14px; padding: 12px; margin-bottom: 12px;
         }
         .promo-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-yellow); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .ref-link-container {
-            display: flex; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; padding: 6px; align-items: center; font-size: 10px; color: var(--neon-cyan);
-        }
 
         /* КОЛЕСО УДАЧИ */
         .fortune-wheel-wrapper {
@@ -304,12 +300,27 @@
             transition: transform 3.8s cubic-bezier(0.15, 0.85, 0.1, 1);
         }
 
-        /* КЕЙСЫ */
+        /* МНОГО КЕЙСОВ */
+        .cases-selector-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;
+        }
+        .case-select-card {
+            background: rgba(10, 14, 23, 0.8); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 10px; text-align: center; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .case-select-card.active {
+            border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3);
+            background: rgba(0, 243, 255, 0.1);
+        }
+        .case-select-card .c-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 900; color: #fff; margin-bottom: 2px; }
+        .case-select-card .c-price { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); }
+
         .case-card {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 14px;
         }
-        .case-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: var(--neon-cyan); margin-bottom: 8px; }
+        .case-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: var(--neon-cyan); margin-bottom: 6px; }
         .case-reel-container {
             position: relative; width: 100%; height: 80px; background: rgba(0,0,0,0.6);
             border: 1px solid rgba(0,243,255,0.3); border-radius: 12px; overflow: hidden; margin: 10px 0;
@@ -318,7 +329,7 @@
             position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
             width: 3px; background: var(--neon-yellow); z-index: 10; box-shadow: 0 0 10px var(--neon-yellow);
         }
-        .case-reel-track { display: flex; gap: 8px; position: absolute; left: 0; top: 5px; transition: transform 4s cubic-bezier(0.1, 0.9, 0.1, 1); }
+        .case-reel-track { display: flex; gap: 8px; position: absolute; left: 0; top: 5px; transition: transform 3.5s cubic-bezier(0.1, 0.85, 0.1, 1); }
         .reel-item {
             width: 65px; height: 65px; background: rgba(255,255,255,0.05); border-radius: 8px;
             display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
@@ -328,11 +339,11 @@
 
         .btn-open-case {
             width: 100%; background: linear-gradient(135deg, var(--neon-yellow), #ff8c00);
-            color: #000; border: none; border-radius: 10px; padding: 10px;
+            color: #000; border: none; border-radius: 10px; padding: 12px;
             font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; cursor: pointer;
         }
 
-        /* НОВЫЙ РЕЖИМ: PVP КИБЕР-ДУЭЛИ */
+        /* PVP КИБЕР-ДУЭЛИ */
         .duel-card {
             background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.2);
             border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px;
@@ -349,7 +360,7 @@
         }
         .duel-progress-fill { height: 100%; width: 0%; background: var(--neon-cyan); transition: width 0.1s linear; }
 
-        /* ДОСТИЖЕНИЯ (ACHIEVEMENTS) */
+        /* ДОСТИЖЕНИЯ */
         .achievement-row {
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
@@ -465,10 +476,10 @@
 
         <!-- КАТАЛОГ -->
         <div class="catalog-filter">
-            <div class="filter-chip active" onclick="filterCatalog('all', this)">ВСЕ</div>
+            <div class="filter-chip active" onclick="filterCatalog('all', this)">ВСЕ (48)</div>
             <div class="filter-chip" onclick="filterCatalog('common', this)">БЮДЖЕТ</div>
             <div class="filter-chip" onclick="filterCatalog('rare', this)">СРЕДНИЕ</div>
-            <div class="filter-chip" onclick="filterCatalog('legendary', this)">ТОП</div>
+            <div class="filter-chip" onclick="filterCatalog('legendary', this)">ТОП И GODLIKE</div>
         </div>
 
         <div class="items-grid" id="catalog-grid"></div>
@@ -499,7 +510,7 @@
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 3: КИБЕР-ДУЭЛИ (НОВАЯ ФИЧА) ================= -->
+    <!-- ================= СЕКЦИЯ 3: КИБЕР-ДУЭЛИ ================= -->
     <div class="view-section" id="sec-duels">
         <div class="duel-card">
             <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-pink);">⚔️ КИБЕР-ДУЭЛЬ (PVP P2P)</div>
@@ -545,7 +556,7 @@
         <div class="items-grid" id="inventory-grid" style="max-height: none;"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 6: БОНУСЫ, ДОСТИЖЕНИЯ И ТОП ================= -->
+    <!-- ================= СЕКЦИЯ 6: БОНУСЫ И ДОСТИЖЕНИЯ ================= -->
     <div class="view-section" id="sec-bonuses">
         
         <!-- Ежедневный заход -->
@@ -557,7 +568,7 @@
             <button class="btn-upgrade-main" style="font-size:11px; padding:10px; margin-top:6px;" id="btn-claim-daily" onclick="claimDailyReward()">ЗАБРАТЬ +500 VEX</button>
         </div>
 
-        <!-- Достижения (Ачивки) -->
+        <!-- Достижения -->
         <div class="promo-box">
             <div class="promo-title">🏆 ДОСТИЖЕНИЯ (АЧИВКИ)</div>
             <div id="achievements-list"></div>
@@ -591,18 +602,29 @@
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 7: КЕЙСЫ ================= -->
+    <!-- ================= СЕКЦИЯ 7: МНОГО КЕЙСОВ ================= -->
     <div class="view-section" id="sec-cases">
-        <div class="case-card">
-            <div class="case-title">📦 CYBER-CASE // NEON DROP</div>
-            <div style="font-size:11px; color:var(--text-sub);">Содержит скины от $100 до $100,000 VEX</div>
-            
+        <!-- КАТАЛОГ КЕЙСОВ -->
+        <div style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan); margin-bottom:8px;">ВЫБЕРИТЕ КЕЙС:</div>
+        <div class="cases-selector-grid" id="cases-grid"></div>
+
+        <!-- АКТИВНЫЙ КЕЙС -->
+        <div class="case-card" id="active-case-card">
+            <div class="case-title" id="active-case-title">📦 CYBER-CASE</div>
+            <div style="font-size:11px; color:var(--text-sub); margin-bottom:6px;" id="active-case-desc">Загрузка...</div>
+
             <div class="case-reel-container">
                 <div class="case-reel-pointer"></div>
                 <div class="case-reel-track" id="case-track"></div>
             </div>
 
-            <button class="btn-open-case" onclick="openCase(1000)">ОТКРЫТЬ ЗА 1,000 VEX</button>
+            <button class="btn-open-case" id="btn-open-case" onclick="openSelectedCase()">ОТКРЫТЬ</button>
+
+            <!-- ПРЕВЬЮ ДРОПА -->
+            <div style="margin-top:14px; text-align:left;">
+                <div style="font-family:'Orbitron'; font-size:10px; font-weight:800; color:var(--text-sub); margin-bottom:6px;">ВОЗМОЖНЫЙ ДРОП:</div>
+                <div class="items-grid" id="case-preview-grid" style="max-height: 140px;"></div>
+            </div>
         </div>
     </div>
 
@@ -635,7 +657,7 @@
         const tg = window.Telegram.WebApp;
         if (tg.expand) tg.expand();
 
-        const SAVE_KEY = 'cyberpunk_upgrade_save_v2';
+        const SAVE_KEY = 'cyberpunk_upgrade_save_v3';
 
         let balance = 4500;
         let level = 1;
@@ -687,28 +709,119 @@
             document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
         }
 
-        // БАЗА ПРЕДМЕТОВ
+        // БАЗА ПРЕДМЕТОВ (48 ПРЕДМЕТОВ)
         const ITEMS = [
+            // Common ($100 - $250)
             { id: 1, name: "Чип 64KB", price: 100, emoji: "💾", rarity: "common", color: "var(--rarity-common)" },
             { id: 2, name: "Чип 128KB", price: 110, emoji: "📼", rarity: "common", color: "var(--rarity-common)" },
             { id: 3, name: "Кабель Сверхпроводник", price: 125, emoji: "🔌", rarity: "common", color: "var(--rarity-common)" },
-            { id: 4, name: "Флешка Нейро", price: 150, emoji: "📟", rarity: "common", color: "var(--rarity-common)" },
-            { id: 5, name: "Модем NetRunner", price: 200, emoji: "📻", rarity: "common", color: "var(--rarity-common)" },
-            { id: 6, name: "Очки AR Light", price: 300, emoji: "🕶️", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 7, name: "Очки AR CyberPro", price: 350, emoji: "🥽", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 8, name: "ИИ-Процессор V1", price: 500, emoji: "🧠", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 9, name: "ИИ-Процессор V2", price: 600, emoji: "⚡", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 10, name: "Дрон-Разведчик", price: 1000, emoji: "🛸", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 11, name: "Боевой Дрон 'Кобра'", price: 1200, emoji: "🤖", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 12, name: "Неоновый Клинок", price: 2500, emoji: "⚔️", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 13, name: "Плазменный Катана", price: 3000, emoji: "🗡️", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 14, name: "Моноструна Arasaka", price: 7500, emoji: "🕸️", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 15, name: "Имплант Sandevistan", price: 15000, emoji: "⚡", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 16, name: "Sandevistan Overclock", price: 18000, emoji: "🔥", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 17, name: "Кибер-Глаз Kiroshi", price: 40000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 18, name: "Рука Mantis Blade", price: 100000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 19, name: "Quadra Turbo-R", price: 250000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
-            { id: 20, name: "Аэродрокер AV-4", price: 1000000, emoji: "🚁", rarity: "godlike", color: "var(--rarity-godlike)" }
+            { id: 4, name: "Старый Дисплей", price: 140, emoji: "📺", rarity: "common", color: "var(--rarity-common)" },
+            { id: 5, name: "Флешка Нейро", price: 150, emoji: "📟", rarity: "common", color: "var(--rarity-common)" },
+            { id: 6, name: "Кибер-Батарея", price: 180, emoji: "🔋", rarity: "common", color: "var(--rarity-common)" },
+            { id: 7, name: "Модем NetRunner", price: 200, emoji: "📻", rarity: "common", color: "var(--rarity-common)" },
+            { id: 8, name: "Портативный Терминал", price: 230, emoji: "💻", rarity: "common", color: "var(--rarity-common)" },
+            { id: 9, name: "Паяльник Хакера", price: 250, emoji: "🛠️", rarity: "common", color: "var(--rarity-common)" },
+
+            // Uncommon ($300 - $900)
+            { id: 10, name: "Очки AR Light", price: 300, emoji: "🕶️", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 11, name: "Очки AR CyberPro", price: 350, emoji: "🥽", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 12, name: "Сканер Сетки", price: 400, emoji: "🔍", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 13, name: "Нейро-Интерфейс v1", price: 450, emoji: "⚡", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 14, name: "ИИ-Процессор V1", price: 500, emoji: "🧠", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 15, name: "ИИ-Процессор V2", price: 600, emoji: "🧬", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 16, name: "Взломщик Протоколов", price: 700, emoji: "🔓", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 17, name: "Перчатка Сигнала", price: 800, emoji: "🧤", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+            { id: 18, name: "Кибер-Дека Mk.1", price: 900, emoji: "📟", rarity: "uncommon", color: "var(--rarity-uncommon)" },
+
+            // Rare ($1,000 - $4,500)
+            { id: 19, name: "Дрон-Разведчик", price: 1000, emoji: "🛸", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 20, name: "Боевой Дрон 'Кобра'", price: 1200, emoji: "🤖", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 21, name: "Кибер-Пистолет Smart-G", price: 1500, emoji: "🔫", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 22, name: "Тяжелая Броня Trauma", price: 1800, emoji: "🛡️", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 23, name: "Импульсная Винтовка", price: 2200, emoji: "💥", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 24, name: "Неоновый Клинок", price: 2500, emoji: "⚔️", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 25, name: "Плазменная Катана", price: 3000, emoji: "🗡️", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 26, name: "Тяжелый Лазер Mk.2", price: 3800, emoji: "🔦", rarity: "rare", color: "var(--rarity-rare)" },
+            { id: 27, name: "Модуль Скорости", price: 4500, emoji: "💨", rarity: "rare", color: "var(--rarity-rare)" },
+
+            // Epic ($6,000 - $28,000)
+            { id: 28, name: "Кибер-Снайперка Рейл", price: 6000, emoji: "🎯", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 29, name: "Моноструна Arasaka", price: 7500, emoji: "🕸️", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 30, name: "Нано-Броня Титан", price: 10000, emoji: "🦺", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 31, name: "Кибер-Сердце Apex", price: 12500, emoji: "🫀", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 32, name: "Имплант Sandevistan", price: 15000, emoji: "⚡", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 33, name: "Sandevistan Overclock", price: 18000, emoji: "🔥", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 34, name: "Оптический Камуфляж", price: 22000, emoji: "👻", rarity: "epic", color: "var(--rarity-epic)" },
+            { id: 35, name: "Хакерская Дека Militech", price: 28000, emoji: "💻", rarity: "epic", color: "var(--rarity-epic)" },
+
+            // Legendary ($40,000 - $150,000)
+            { id: 36, name: "Кибер-Глаз Kiroshi", price: 40000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 37, name: "Плазменный Дрон Mk.X", price: 60000, emoji: "🛸", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 38, name: "Моно-Клинок Орочи", price: 80000, emoji: "🗡️", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 39, name: "Рука Mantis Blade", price: 100000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 40, name: "Yaiba Kusanagi", price: 125000, emoji: "🏍️", rarity: "legendary", color: "var(--rarity-legendary)" },
+            { id: 41, name: "Кибер-Экзоскелет", price: 150000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
+
+            // Godlike ($250,000 - $5,000,000)
+            { id: 42, name: "Quadra Turbo-R", price: 250000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 43, name: "Rayfield Aerondight", price: 500000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 44, name: "Аэродрокер AV-4", price: 1000000, emoji: "🚁", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 45, name: "Шаттл Orbital", price: 1500000, emoji: "🚀", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 46, name: "Орбитальная Станция Net", price: 2000000, emoji: "🛰️", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 47, name: "Ядро ИИ Нейромант", price: 3000000, emoji: "🔮", rarity: "godlike", color: "var(--rarity-godlike)" },
+            { id: 48, name: "Ключ От Города", price: 5000000, emoji: "👑", rarity: "godlike", color: "var(--rarity-godlike)" }
+        ];
+
+        // БАЗА КЕЙСОВ
+        const CASES = [
+            {
+                id: 'starter',
+                name: '📦 STARTER CASE',
+                desc: 'Бюджетный кейс для начинающих ($100 - $500 VEX)',
+                price: 250,
+                color: 'var(--rarity-common)',
+                pool: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+            },
+            {
+                id: 'cyberware',
+                name: '⚙️ CYBERWARE CASE',
+                desc: 'Импланты, чипы и нейро-интерфейсы ($300 - $18,000 VEX)',
+                price: 1200,
+                color: 'var(--rarity-uncommon)',
+                pool: [10, 11, 13, 14, 15, 17, 18, 31, 32, 33, 36, 39]
+            },
+            {
+                id: 'arsenal',
+                name: '⚔️ CYBER ARSENAL',
+                desc: 'Оружие, клинки, смарт-винтовки ($1,200 - $80,000 VEX)',
+                price: 4500,
+                color: 'var(--rarity-rare)',
+                pool: [20, 21, 23, 24, 25, 26, 28, 29, 34, 38, 39]
+            },
+            {
+                id: 'militech',
+                name: '🛡️ MILITECH DROP',
+                desc: 'Элитное военное снаряжение и камуфляж ($6,000 - $150,000 VEX)',
+                price: 15000,
+                color: 'var(--rarity-epic)',
+                pool: [28, 29, 30, 31, 32, 33, 34, 35, 37, 41]
+            },
+            {
+                id: 'garage',
+                name: '🏎️ CYBER GARAGE',
+                desc: 'Мотоциклы, спорткары и гиперкары ($125,000 - $1,000,000 VEX)',
+                price: 80000,
+                color: 'var(--rarity-legendary)',
+                pool: [40, 42, 43, 44]
+            },
+            {
+                id: 'godlike',
+                name: '👑 GODLIKE CASE',
+                desc: 'Легендарные орбитальные станции и Ядра ИИ (до $5,000,000 VEX)',
+                price: 350000,
+                color: 'var(--rarity-godlike)',
+                pool: [36, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48]
+            }
         ];
 
         let achievements = [
@@ -721,14 +834,16 @@
         let myInventory = [ITEMS[0], ITEMS[2], ITEMS[4], ITEMS[6]];
         let myItem = myInventory[0];
         let targetItem = ITEMS[1];
+        let selectedCaseIndex = 0;
+        let isCaseOpening = false;
 
         let marketListings = [
             { id: 101, seller: "@cyber_jack", item: ITEMS[5], price: 270 },
             { id: 102, seller: "@matrix_ninja", item: ITEMS[11], price: 1100 },
-            { id: 103, seller: "@araka_boss", item: ITEMS[13], price: 3000 }
+            { id: 103, seller: "@araka_boss", item: ITEMS[24], price: 3000 }
         ];
 
-        // ФУНКЦИИ СОХРАНЕНИЯ И ЗАГРУЗКИ (LOCALSTORAGE)
+        // ФУНКЦИИ СОХРАНЕНИЯ И ЗАГРУЗКИ
         function saveData() {
             const data = {
                 balance,
@@ -888,6 +1003,7 @@
             renderInventory();
             renderMarket();
             renderAchievements();
+            renderCasesList();
             saveData();
         }
 
@@ -909,7 +1025,7 @@
             { label: "1,000 VEX", type: "vex", val: 1000, color: "#ffe600" },
             { label: "2,500 VEX", type: "vex", val: 2500, color: "#00ff66" },
             { label: "5,000 VEX", type: "vex", val: 5000, color: "#ff0055" },
-            { label: "📼 Скин", type: "item", item: ITEMS[1], color: "#ff8c00" }
+            { label: "📼 Скин", type: "item", item: ITEMS[10], color: "#ff8c00" }
         ];
 
         let hasFreeSpin = true;
@@ -1005,7 +1121,7 @@
             }, 3900);
         }
 
-        /* НОВАЯ МЕХАНИКА: КИБЕР-ДУЭЛЬ */
+        /* КИБЕР-ДУЭЛЬ */
         let isDuelRunning = false;
         function startCyberDuel() {
             if (isDuelRunning) return;
@@ -1079,9 +1195,9 @@
             const grid = document.getElementById('catalog-grid');
             grid.innerHTML = '';
             ITEMS.forEach(item => {
-                if (activeCatalogFilter === 'common' && item.price > 1000) return;
-                if (activeCatalogFilter === 'rare' && (item.price <= 1000 || item.price > 20000)) return;
-                if (activeCatalogFilter === 'legendary' && item.price <= 20000) return;
+                if (activeCatalogFilter === 'common' && item.price > 500) return;
+                if (activeCatalogFilter === 'rare' && (item.price <= 500 || item.price > 15000)) return;
+                if (activeCatalogFilter === 'legendary' && item.price <= 15000) return;
 
                 const isTarget = targetItem && targetItem.id === item.id;
                 const card = document.createElement('div');
@@ -1382,21 +1498,86 @@
             updateUI();
         }
 
-        function openCase(cost) {
-            if (balance < cost) { alert("Недостаточно VEX!"); return; }
-            balance -= cost;
+        // СИСТЕМА КЕЙСОВ
+        function renderCasesList() {
+            const grid = document.getElementById('cases-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            CASES.forEach((c, idx) => {
+                const card = document.createElement('div');
+                card.className = `case-select-card ${idx === selectedCaseIndex ? 'active' : ''}`;
+                card.style.borderColor = idx === selectedCaseIndex ? 'var(--neon-cyan)' : c.color;
+                card.onclick = () => selectCase(idx);
+                card.innerHTML = `
+                    <div class="c-title">${c.name}</div>
+                    <div class="c-price">${c.price.toLocaleString()} VEX</div>
+                `;
+                grid.appendChild(card);
+            });
+
+            renderActiveCase();
+        }
+
+        function selectCase(idx) {
+            if (isCaseOpening) return;
+            selectedCaseIndex = idx;
+            renderCasesList();
+        }
+
+        function renderActiveCase() {
+            const c = CASES[selectedCaseIndex];
+            if (!c) return;
+
+            document.getElementById('active-case-title').innerText = c.name;
+            document.getElementById('active-case-desc').innerText = c.desc;
+            document.getElementById('btn-open-case').innerText = `ОТКРЫТЬ ЗА ${c.price.toLocaleString()} VEX`;
+
+            const previewGrid = document.getElementById('case-preview-grid');
+            previewGrid.innerHTML = '';
+            
+            const poolItems = ITEMS.filter(item => c.pool.includes(item.id));
+            poolItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'grid-card';
+                card.innerHTML = `
+                    <div class="rarity-line" style="background:${item.color}"></div>
+                    <div class="emoji">${item.emoji}</div>
+                    <div class="name">${item.name}</div>
+                    <div class="price">${item.price.toLocaleString()} VEX</div>
+                `;
+                previewGrid.appendChild(card);
+            });
+        }
+
+        function openSelectedCase() {
+            if (isCaseOpening) return;
+            const c = CASES[selectedCaseIndex];
+            if (!c) return;
+
+            if (balance < c.price) {
+                alert("Недостаточно VEX для открытия этого кейса!");
+                return;
+            }
+
+            balance -= c.price;
+            isCaseOpening = true;
 
             const track = document.getElementById('case-track');
             track.style.transition = 'none';
             track.style.transform = 'translateX(0px)';
             track.innerHTML = '';
 
+            const poolItems = ITEMS.filter(item => c.pool.includes(item.id));
+            if (poolItems.length === 0) poolItems.push(ITEMS[0]);
+
             const reelItems = [];
             for (let i = 0; i < 30; i++) {
-                const randItem = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+                const randItem = poolItems[Math.floor(Math.random() * poolItems.length)];
                 reelItems.push(randItem);
                 const el = document.createElement('div');
                 el.className = 'reel-item';
+                el.style.borderColor = randItem.color;
                 el.innerHTML = `<div class="emoji">${randItem.emoji}</div>`;
                 track.appendChild(el);
             }
@@ -1408,11 +1589,20 @@
                 track.style.transform = 'translateX(-1550px)';
             }, 50);
 
+            let tickCount = 0;
+            const tickInterval = setInterval(() => {
+                playSound('tick');
+                tickCount++;
+                if (tickCount > 18) clearInterval(tickInterval);
+            }, 180);
+
             setTimeout(() => {
                 playSound('win');
                 myInventory.push(winItem);
+                isCaseOpening = false;
+                triggerParticles();
+                alert(`🎉 ВЫ ВЫБИЛИ ИЗ ${c.name}: ${winItem.name} (${winItem.price.toLocaleString()} VEX)!`);
                 updateUI();
-                alert(`🎉 ВЫ ВЫБИЛИ: ${winItem.name}!`);
             }, 3600);
         }
 
@@ -1453,7 +1643,7 @@
         }
 
         function initLiveFeed() {
-            const names = ['@alex_v', '@cyber_sam', '@matrix_99', '@v_punk', '@neon_fox'];
+            const names = ['@alex_v', '@cyber_sam', '@matrix_99', '@v_punk', '@neon_fox', '@netrunner_x'];
             const track = document.getElementById('feed-track');
             
             setInterval(() => {
@@ -1500,7 +1690,7 @@
             requestAnimationFrame(animateParticles);
         }
 
-        // СТАРТ ИНИЦИАЛИЗАЦИИ
+        // ИНИЦИАЛИЗАЦИЯ
         loadData();
         animateParticles();
         initLiveFeed();
