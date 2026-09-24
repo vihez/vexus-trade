@@ -53,7 +53,6 @@
             pointer-events: none; z-index: 999;
         }
 
-        /* LIVE FEED */
         .live-feed-wrapper {
             background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 243, 255, 0.2);
             padding: 6px 0; overflow: hidden; white-space: nowrap; display: flex; align-items: center;
@@ -74,7 +73,6 @@
 
         @keyframes feedScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* ШАПКА */
         .app-header {
             padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
             background: rgba(10, 15, 26, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -105,7 +103,6 @@
             align-items: center; justify-content: center; cursor: pointer; font-size: 14px;
         }
 
-        /* БАННЕР БАНКРОТСТВА */
         .bankrupt-banner {
             display: none; background: linear-gradient(135deg, rgba(255,0,85,0.2), rgba(255,230,0,0.2));
             border: 1px solid var(--neon-pink); border-radius: 12px; padding: 10px; margin-bottom: 10px;
@@ -114,7 +111,6 @@
         .bankrupt-banner.show { display: block; }
         @keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(255,0,85,0.4); } 100% { box-shadow: 0 0 15px rgba(255,0,85,0.8); } }
 
-        /* НАВИГАЦИЯ */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
             background: rgba(8, 12, 20, 0.95); border-top: 1px solid rgba(0, 243, 255, 0.2);
@@ -132,17 +128,18 @@
         .view-section { display: none; padding: 12px; }
         .view-section.active { display: block; }
 
-        /* ТАПАЛКА */
         .cyber-tap-btn {
             background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(157,0,255,0.1));
-            border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 8px;
+            border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 12px;
             text-align: center; cursor: pointer; margin-bottom: 10px;
-            box-shadow: 0 0 12px rgba(0,243,255,0.15);
+            box-shadow: 0 0 12px rgba(0,243,255,0.15); display: flex; flex-direction: column; align-items: center;
         }
         .cyber-tap-btn:active { transform: scale(0.98); background: rgba(0,243,255,0.2); }
-        .tap-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 800; color: var(--neon-cyan); }
+        .tap-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-cyan); }
+        .tap-energy { font-size: 10px; color: var(--neon-yellow); margin-top: 4px; font-weight: 800; }
+        .energy-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+        .energy-bar-fill { height: 100%; background: var(--neon-yellow); transition: width 0.2s ease; }
 
-        /* АРЕНА (АПГРЕЙДЕР) */
         .arena-card {
             background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
@@ -167,9 +164,7 @@
             color: var(--neon-green); border-radius: 8px; padding: 6px; font-family: 'Orbitron', sans-serif;
             font-size: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px; text-align: center;
         }
-        .btn-quick-90:active { background: rgba(0, 255, 102, 0.25); }
 
-        /* SVG Wheel */
         .wheel-wrap { position: relative; width: 105px; height: 105px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
         .wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
         .wheel-bg-circle { fill: none; stroke: rgba(255, 0, 85, 0.2); stroke-width: 8; }
@@ -181,13 +176,12 @@
             position: absolute; top: 0px; left: 50%; transform: translateX(-50%);
             width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent;
             border-top: 12px solid #fff; z-index: 10; filter: drop-shadow(0 0 8px var(--neon-cyan));
-            transition: transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1); transform-origin: 50% 52px;
+            transform-origin: 50% 52px;
         }
         .wheel-info { position: absolute; text-align: center; }
         .chance-num { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: #fff; }
         .chance-lbl { font-size: 8px; font-weight: 800; color: var(--text-sub); }
 
-        /* Страховка и кнопка */
         .insurance-bar {
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
@@ -210,7 +204,6 @@
         .btn-upgrade-main:active { transform: scale(0.97); }
         .btn-upgrade-main:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; filter: grayscale(1); }
 
-        /* КАТАЛОГ */
         .catalog-filter { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
         .filter-chip {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -230,7 +223,6 @@
         .grid-card .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
         .grid-card .price { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; color: var(--neon-yellow); }
 
-        /* РЕЖИМ CYBER-CRASH */
         .crash-card {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px;
@@ -267,7 +259,6 @@
         }
         .btn-crash-action.cashout { background: linear-gradient(135deg, var(--neon-green), #00b341); color: #000; }
 
-        /* P2P МАРКЕТ */
         .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .market-item-card {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08);
@@ -278,14 +269,12 @@
         .market-item-info .emoji { font-size: 28px; }
         .market-seller { font-size: 9px; color: var(--text-sub); }
 
-        /* ПРОМОКОДЫ, БОНУСЫ И ДОСТИЖЕНИЯ */
         .promo-box {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 14px; padding: 12px; margin-bottom: 12px;
         }
         .promo-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-yellow); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* КОЛЕСО УДАЧИ */
         .fortune-wheel-wrapper {
             position: relative; width: 220px; height: 220px; margin: 15px auto;
         }
@@ -300,19 +289,12 @@
             transition: transform 3.8s cubic-bezier(0.15, 0.85, 0.1, 1);
         }
 
-        /* МНОГО КЕЙСОВ */
-        .cases-selector-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;
-        }
+        .cases-selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
         .case-select-card {
             background: rgba(10, 14, 23, 0.8); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 10px; text-align: center; cursor: pointer;
-            transition: all 0.2s ease;
+            border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s ease;
         }
-        .case-select-card.active {
-            border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3);
-            background: rgba(0, 243, 255, 0.1);
-        }
+        .case-select-card.active { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3); background: rgba(0, 243, 255, 0.1); }
         .case-select-card .c-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 900; color: #fff; margin-bottom: 2px; }
         .case-select-card .c-price { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); }
 
@@ -332,35 +314,22 @@
         .case-reel-track { display: flex; gap: 8px; position: absolute; left: 0; top: 5px; transition: transform 3.5s cubic-bezier(0.1, 0.85, 0.1, 1); }
         .reel-item {
             width: 65px; height: 65px; background: rgba(255,255,255,0.05); border-radius: 8px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
-            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1);
         }
         .reel-item .emoji { font-size: 26px; }
-
         .btn-open-case {
             width: 100%; background: linear-gradient(135deg, var(--neon-yellow), #ff8c00);
             color: #000; border: none; border-radius: 10px; padding: 12px;
             font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; cursor: pointer;
         }
 
-        /* PVP КИБЕР-ДУЭЛИ */
-        .duel-card {
-            background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.2);
-            border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px;
-        }
-        .duel-match-arena {
-            display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center;
-            background: rgba(0,0,0,0.6); border-radius: 12px; padding: 10px; margin: 10px 0;
-        }
+        .duel-card { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px; }
+        .duel-match-arena { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; background: rgba(0,0,0,0.6); border-radius: 12px; padding: 10px; margin: 10px 0; }
         .duel-avatar { font-size: 36px; margin-bottom: 4px; }
         .duel-versus { font-family: 'Orbitron'; font-size: 16px; font-weight: 900; color: var(--neon-pink); }
-        .duel-progress-bar {
-            width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;
-            overflow: hidden; margin-top: 8px;
-        }
+        .duel-progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 8px; }
         .duel-progress-fill { height: 100%; width: 0%; background: var(--neon-cyan); transition: width 0.1s linear; }
 
-        /* ДОСТИЖЕНИЯ */
         .achievement-row {
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
@@ -391,13 +360,11 @@
 
     <canvas id="particle-canvas"></canvas>
 
-    <!-- LIVE FEED -->
     <div class="live-feed-wrapper">
         <div class="live-feed-label">LIVE DROPS</div>
         <div class="live-feed-track" id="feed-track"></div>
     </div>
 
-    <!-- ШАПКА -->
     <div class="app-header">
         <div class="user-profile">
             <div class="level-badge" id="user-lvl">1</div>
@@ -410,15 +377,14 @@
             </div>
         </div>
         <div class="balance-group">
-            <div class="balance-box" id="balance-val">3,000 VEX</div>
+            <div class="balance-box" id="balance-val">4,500 VEX</div>
             <div class="btn-sound" onclick="toggleSound()" id="sound-btn">🔊</div>
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 1: АПГРЕЙДЕР ================= -->
+    <!-- АПГРЕЙДЕР -->
     <div class="view-section active" id="sec-upgrade">
         
-        <!-- АВАРИЙНЫЙ БАННЕР БАНКРОТСТВА -->
         <div class="bankrupt-banner" id="bankrupt-banner">
             <div style="font-family:'Orbitron'; font-size:12px; font-weight:900; color:var(--neon-pink);">🚨 ВСЕ ПРЕДМЕТЫ СГОРЕЛИ!</div>
             <div style="font-size:10px; color:#fff; margin:4px 0;">Заберите стартовый комплект для восстановления:</div>
@@ -426,14 +392,15 @@
         </div>
 
         <div class="cyber-tap-btn" onclick="handleTap(event)">
-            <div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+25 VEX)</div>
+            <div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+1 VEX)</div>
+            <div class="tap-energy">ЭНЕРГИЯ: <span id="energy-val">50</span>/50</div>
+            <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-fill" style="width: 100%;"></div></div>
         </div>
 
         <div class="arena-card" id="arena-card">
-            <button class="btn-quick-90" onclick="selectHighChanceTarget()">🎯 ПОДОБРАТЬ ЦЕЛЬ НА ~90% ШАНС</button>
+            <button class="btn-quick-90" onclick="selectHighChanceTarget()">🎯 ПОДОБРАТЬ ЦЕЛЬ (МАКС ШАНС)</button>
 
             <div class="arena-grid">
-                <!-- МОЙ ПРЕДМЕТ -->
                 <div class="slot-box" id="slot-my" onclick="switchTab('sec-inventory')">
                     <span class="slot-tag">Твой Скин</span>
                     <div class="slot-emoji" id="my-emoji">❓</div>
@@ -441,7 +408,6 @@
                     <div class="slot-val" id="my-val">0 VEX</div>
                 </div>
 
-                <!-- РУЛЕТКА В ЦЕНТРЕ -->
                 <div class="wheel-wrap">
                     <svg class="wheel-svg" viewBox="0 0 100 100">
                         <circle class="wheel-bg-circle" cx="50" cy="50" r="45"></circle>
@@ -454,7 +420,6 @@
                     </div>
                 </div>
 
-                <!-- ЦЕЛЬ -->
                 <div class="slot-box" id="slot-target">
                     <span class="slot-tag">Цель</span>
                     <div class="slot-emoji" id="target-emoji">❓</div>
@@ -471,10 +436,10 @@
                 </label>
             </div>
 
+            <div style="font-size:9px; text-align:center; color:var(--neon-pink); margin-bottom:8px;">Комиссия сети: 5% от стоимости предмета</div>
             <button class="btn-upgrade-main" id="btn-upgrade" onclick="runUpgrade()">🚀 ПРОКАЧАТЬ</button>
         </div>
 
-        <!-- КАТАЛОГ -->
         <div class="catalog-filter">
             <div class="filter-chip active" onclick="filterCatalog('all', this)">ВСЕ (48)</div>
             <div class="filter-chip" onclick="filterCatalog('common', this)">БЮДЖЕТ</div>
@@ -485,7 +450,7 @@
         <div class="items-grid" id="catalog-grid"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 2: CYBER-CRASH ================= -->
+    <!-- CYBER-CRASH -->
     <div class="view-section" id="sec-crash">
         <div class="crash-card">
             <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-cyan); margin-bottom:8px;">📈 CYBER-CRASH // MULTIPLIER</div>
@@ -500,6 +465,8 @@
                 <div class="crash-mult-display" id="crash-mult">x1.00</div>
             </div>
 
+            <div style="font-size:9px; color:var(--text-sub); margin-bottom:8px;">Комиссия входа: 3% от ставки | Лимит: x50</div>
+
             <div class="crash-inputs">
                 <input type="number" class="cyber-input" id="crash-bet-input" placeholder="Ставка VEX" value="200">
                 <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = Math.floor(balance/2)">1/2</button>
@@ -510,7 +477,7 @@
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 3: КИБЕР-ДУЭЛИ ================= -->
+    <!-- КИБЕР-ДУЭЛИ -->
     <div class="view-section" id="sec-duels">
         <div class="duel-card">
             <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-pink);">⚔️ КИБЕР-ДУЭЛЬ (PVP P2P)</div>
@@ -538,26 +505,58 @@
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 4: P2P МАРКЕТ ================= -->
+    <!-- P2P МАРКЕТ -->
     <div class="view-section" id="sec-market">
         <div class="market-header">
             <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">P2P МАРКЕТ</span>
-            <button class="filter-chip" onclick="openSellModal()">+ ВЫСТАВИТЬ СКИН</button>
         </div>
         <div id="market-listings-list"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 5: ИНВЕНТАРЬ ================= -->
+    <!-- ИНВЕНТАРЬ -->
     <div class="view-section" id="sec-inventory">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">МОИ ПРЕДМЕТЫ (<span id="inv-count">0</span>)</span>
-            <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink);" onclick="sellAllCommon()">ПРОДАТЬ ВСЕ ОБЫЧНЫЕ</button>
+            <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink);" onclick="sellAllCommon()">ПРОДАТЬ БЮДЖЕТ (≤ 500)</button>
         </div>
         <div class="items-grid" id="inventory-grid" style="max-height: none;"></div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 6: БОНУСЫ И ДОСТИЖЕНИЯ ================= -->
+    <!-- БОНУСЫ, КВЕСТЫ И ЛИДЕРБОРД -->
     <div class="view-section" id="sec-bonuses">
+        
+        <!-- TELEGRAM STARS (МОНЕТИЗАЦИЯ) -->
+        <div class="promo-box" style="background: linear-gradient(135deg, rgba(13, 18, 30, 0.88), rgba(0, 170, 255, 0.15)); border-color: var(--neon-cyan);">
+            <div class="promo-title">⭐️ TELEGRAM STARS MARKET</div>
+            <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Ускорьте свой прогресс, купив кредиты за Stars!</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <button class="btn-quick-90" style="margin-bottom:0;" onclick="buyStars(100, 1000)">100 ⭐️ = 1,000 VEX</button>
+                <button class="btn-quick-90" style="margin-bottom:0; background:rgba(255,230,0,0.1); border-color:var(--neon-yellow); color:var(--neon-yellow);" onclick="buyStars(500, 7500)">500 ⭐️ = 7,500 VEX</button>
+            </div>
+        </div>
+
+        <!-- ЕЖЕДНЕВНЫЕ КВЕСТЫ -->
+        <div class="promo-box">
+            <div class="promo-title">📋 ЕЖЕДНЕВНЫЕ КВЕСТЫ</div>
+            <div id="quests-list"></div>
+        </div>
+
+        <!-- ЛИДЕРБОРД -->
+        <div class="promo-box">
+            <div class="promo-title">🏆 ТОП-100 ХАКЕРОВ</div>
+            <div class="achievement-row">
+                <div class="achievement-info"><div class="achievement-icon">1️⃣</div><div><div class="achievement-title">@matrix_god</div></div></div>
+                <div style="font-size:10px; color:var(--neon-yellow); font-weight:800;">5,400,000 VEX</div>
+            </div>
+            <div class="achievement-row">
+                <div class="achievement-info"><div class="achievement-icon">2️⃣</div><div><div class="achievement-title">@cyber_ninja</div></div></div>
+                <div style="font-size:10px; color:var(--neon-yellow); font-weight:800;">2,150,000 VEX</div>
+            </div>
+            <div class="achievement-row" style="background:rgba(0,243,255,0.1); border-color:var(--neon-cyan);">
+                <div class="achievement-info"><div class="achievement-icon">98</div><div><div class="achievement-title">ВЫ</div></div></div>
+                <div style="font-size:10px; color:var(--neon-yellow); font-weight:800;" id="lb-my-balance">4,500 VEX</div>
+            </div>
+        </div>
         
         <!-- Ежедневный заход -->
         <div class="promo-box">
@@ -577,23 +576,9 @@
         <!-- Колесо Фортуны -->
         <div class="promo-box" style="text-align:center;">
             <div class="promo-title">🎰 КОЛЕСО УДАЧИ</div>
-            
-            <div class="fortune-wheel-wrapper">
-                <div class="fortune-pointer"></div>
-                <canvas id="fortune-canvas" width="220" height="220"></canvas>
-            </div>
-
+            <div class="fortune-wheel-wrapper"><div class="fortune-pointer"></div><canvas id="fortune-canvas" width="220" height="220"></canvas></div>
             <button class="btn-upgrade-main" id="btn-spin-fortune" style="background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;" onclick="spinFortuneWheel()">🎰 ВРАЩАТЬ (БЕСПЛАТНО)</button>
             <div id="fortune-timer" style="font-size:10px; color:var(--text-sub); margin-top:6px;">Бесплатный спин доступен!</div>
-        </div>
-
-        <!-- Промокоды -->
-        <div class="promo-box">
-            <div class="promo-title">🔑 ВВЕСТИ ПРОМОКОД</div>
-            <div style="display:flex; gap:6px;">
-                <input type="text" class="cyber-input" id="promo-input" placeholder="Код (напр. VEX2027)" style="text-transform:uppercase;">
-                <button class="filter-chip" style="background:var(--neon-cyan); color:#000; font-weight:900;" onclick="applyPromo()">АКТИВИРОВАТЬ</button>
-            </div>
         </div>
 
         <!-- Сброс сохранения -->
@@ -602,13 +587,11 @@
         </div>
     </div>
 
-    <!-- ================= СЕКЦИЯ 7: МНОГО КЕЙСОВ ================= -->
+    <!-- МНОГО КЕЙСОВ -->
     <div class="view-section" id="sec-cases">
-        <!-- КАТАЛОГ КЕЙСОВ -->
         <div style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan); margin-bottom:8px;">ВЫБЕРИТЕ КЕЙС:</div>
         <div class="cases-selector-grid" id="cases-grid"></div>
 
-        <!-- АКТИВНЫЙ КЕЙС -->
         <div class="case-card" id="active-case-card">
             <div class="case-title" id="active-case-title">📦 CYBER-CASE</div>
             <div style="font-size:11px; color:var(--text-sub); margin-bottom:6px;" id="active-case-desc">Загрузка...</div>
@@ -620,7 +603,6 @@
 
             <button class="btn-open-case" id="btn-open-case" onclick="openSelectedCase()">ОТКРЫТЬ</button>
 
-            <!-- ПРЕВЬЮ ДРОПА -->
             <div style="margin-top:14px; text-align:left;">
                 <div style="font-family:'Orbitron'; font-size:10px; font-weight:800; color:var(--text-sub); margin-bottom:6px;">ВОЗМОЖНЫЙ ДРОП:</div>
                 <div class="items-grid" id="case-preview-grid" style="max-height: 140px;"></div>
@@ -657,7 +639,7 @@
         const tg = window.Telegram.WebApp;
         if (tg.expand) tg.expand();
 
-        const SAVE_KEY = 'cyberpunk_upgrade_save_v3';
+        const SAVE_KEY = 'cyberpunk_upgrade_save_v4';
 
         let balance = 4500;
         let level = 1;
@@ -666,7 +648,19 @@
         let soundEnabled = true;
         let isRolling = false;
         let dailyClaimed = false;
-        let usedPromos = new Set();
+        
+        let energy = 50;
+        const MAX_ENERGY = 50;
+
+        let dailyQuests = [
+            { id: 'tap_q', text: 'Сделать 50 тапов', target: 50, progress: 0, reward: 200, done: false },
+            { id: 'upg_q', text: 'Сделать 3 апгрейда', target: 3, progress: 0, reward: 500, done: false },
+            { id: 'case_q', text: 'Открыть 1 кейс', target: 1, progress: 0, reward: 300, done: false }
+        ];
+
+        setInterval(() => {
+            if (energy < MAX_ENERGY) { energy++; updateUI(); }
+        }, 60000); // 1 энергия в минуту
 
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
@@ -677,7 +671,6 @@
             if (!soundEnabled) return;
             initAudio();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
@@ -711,7 +704,6 @@
 
         // БАЗА ПРЕДМЕТОВ (48 ПРЕДМЕТОВ)
         const ITEMS = [
-            // Common ($100 - $250)
             { id: 1, name: "Чип 64KB", price: 100, emoji: "💾", rarity: "common", color: "var(--rarity-common)" },
             { id: 2, name: "Чип 128KB", price: 110, emoji: "📼", rarity: "common", color: "var(--rarity-common)" },
             { id: 3, name: "Кабель Сверхпроводник", price: 125, emoji: "🔌", rarity: "common", color: "var(--rarity-common)" },
@@ -721,8 +713,6 @@
             { id: 7, name: "Модем NetRunner", price: 200, emoji: "📻", rarity: "common", color: "var(--rarity-common)" },
             { id: 8, name: "Портативный Терминал", price: 230, emoji: "💻", rarity: "common", color: "var(--rarity-common)" },
             { id: 9, name: "Паяльник Хакера", price: 250, emoji: "🛠️", rarity: "common", color: "var(--rarity-common)" },
-
-            // Uncommon ($300 - $900)
             { id: 10, name: "Очки AR Light", price: 300, emoji: "🕶️", rarity: "uncommon", color: "var(--rarity-uncommon)" },
             { id: 11, name: "Очки AR CyberPro", price: 350, emoji: "🥽", rarity: "uncommon", color: "var(--rarity-uncommon)" },
             { id: 12, name: "Сканер Сетки", price: 400, emoji: "🔍", rarity: "uncommon", color: "var(--rarity-uncommon)" },
@@ -732,8 +722,6 @@
             { id: 16, name: "Взломщик Протоколов", price: 700, emoji: "🔓", rarity: "uncommon", color: "var(--rarity-uncommon)" },
             { id: 17, name: "Перчатка Сигнала", price: 800, emoji: "🧤", rarity: "uncommon", color: "var(--rarity-uncommon)" },
             { id: 18, name: "Кибер-Дека Mk.1", price: 900, emoji: "📟", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-
-            // Rare ($1,000 - $4,500)
             { id: 19, name: "Дрон-Разведчик", price: 1000, emoji: "🛸", rarity: "rare", color: "var(--rarity-rare)" },
             { id: 20, name: "Боевой Дрон 'Кобра'", price: 1200, emoji: "🤖", rarity: "rare", color: "var(--rarity-rare)" },
             { id: 21, name: "Кибер-Пистолет Smart-G", price: 1500, emoji: "🔫", rarity: "rare", color: "var(--rarity-rare)" },
@@ -743,8 +731,6 @@
             { id: 25, name: "Плазменная Катана", price: 3000, emoji: "🗡️", rarity: "rare", color: "var(--rarity-rare)" },
             { id: 26, name: "Тяжелый Лазер Mk.2", price: 3800, emoji: "🔦", rarity: "rare", color: "var(--rarity-rare)" },
             { id: 27, name: "Модуль Скорости", price: 4500, emoji: "💨", rarity: "rare", color: "var(--rarity-rare)" },
-
-            // Epic ($6,000 - $28,000)
             { id: 28, name: "Кибер-Снайперка Рейл", price: 6000, emoji: "🎯", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 29, name: "Моноструна Arasaka", price: 7500, emoji: "🕸️", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 30, name: "Нано-Броня Титан", price: 10000, emoji: "🦺", rarity: "epic", color: "var(--rarity-epic)" },
@@ -753,16 +739,12 @@
             { id: 33, name: "Sandevistan Overclock", price: 18000, emoji: "🔥", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 34, name: "Оптический Камуфляж", price: 22000, emoji: "👻", rarity: "epic", color: "var(--rarity-epic)" },
             { id: 35, name: "Хакерская Дека Militech", price: 28000, emoji: "💻", rarity: "epic", color: "var(--rarity-epic)" },
-
-            // Legendary ($40,000 - $150,000)
             { id: 36, name: "Кибер-Глаз Kiroshi", price: 40000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
             { id: 37, name: "Плазменный Дрон Mk.X", price: 60000, emoji: "🛸", rarity: "legendary", color: "var(--rarity-legendary)" },
             { id: 38, name: "Моно-Клинок Орочи", price: 80000, emoji: "🗡️", rarity: "legendary", color: "var(--rarity-legendary)" },
             { id: 39, name: "Рука Mantis Blade", price: 100000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
             { id: 40, name: "Yaiba Kusanagi", price: 125000, emoji: "🏍️", rarity: "legendary", color: "var(--rarity-legendary)" },
             { id: 41, name: "Кибер-Экзоскелет", price: 150000, emoji: "🦾", rarity: "legendary", color: "var(--rarity-legendary)" },
-
-            // Godlike ($250,000 - $5,000,000)
             { id: 42, name: "Quadra Turbo-R", price: 250000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
             { id: 43, name: "Rayfield Aerondight", price: 500000, emoji: "🏎️", rarity: "godlike", color: "var(--rarity-godlike)" },
             { id: 44, name: "Аэродрокер AV-4", price: 1000000, emoji: "🚁", rarity: "godlike", color: "var(--rarity-godlike)" },
@@ -772,56 +754,14 @@
             { id: 48, name: "Ключ От Города", price: 5000000, emoji: "👑", rarity: "godlike", color: "var(--rarity-godlike)" }
         ];
 
-        // БАЗА КЕЙСОВ
+        // БАЗА КЕЙСОВ (ОБНОВЛЕННЫЕ ЦЕНЫ Х10 ДЛЯ БАЛАНСА)
         const CASES = [
-            {
-                id: 'starter',
-                name: '📦 STARTER CASE',
-                desc: 'Бюджетный кейс для начинающих ($100 - $500 VEX)',
-                price: 250,
-                color: 'var(--rarity-common)',
-                pool: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-            },
-            {
-                id: 'cyberware',
-                name: '⚙️ CYBERWARE CASE',
-                desc: 'Импланты, чипы и нейро-интерфейсы ($300 - $18,000 VEX)',
-                price: 1200,
-                color: 'var(--rarity-uncommon)',
-                pool: [10, 11, 13, 14, 15, 17, 18, 31, 32, 33, 36, 39]
-            },
-            {
-                id: 'arsenal',
-                name: '⚔️ CYBER ARSENAL',
-                desc: 'Оружие, клинки, смарт-винтовки ($1,200 - $80,000 VEX)',
-                price: 4500,
-                color: 'var(--rarity-rare)',
-                pool: [20, 21, 23, 24, 25, 26, 28, 29, 34, 38, 39]
-            },
-            {
-                id: 'militech',
-                name: '🛡️ MILITECH DROP',
-                desc: 'Элитное военное снаряжение и камуфляж ($6,000 - $150,000 VEX)',
-                price: 15000,
-                color: 'var(--rarity-epic)',
-                pool: [28, 29, 30, 31, 32, 33, 34, 35, 37, 41]
-            },
-            {
-                id: 'garage',
-                name: '🏎️ CYBER GARAGE',
-                desc: 'Мотоциклы, спорткары и гиперкары ($125,000 - $1,000,000 VEX)',
-                price: 80000,
-                color: 'var(--rarity-legendary)',
-                pool: [40, 42, 43, 44]
-            },
-            {
-                id: 'godlike',
-                name: '👑 GODLIKE CASE',
-                desc: 'Легендарные орбитальные станции и Ядра ИИ (до $5,000,000 VEX)',
-                price: 350000,
-                color: 'var(--rarity-godlike)',
-                pool: [36, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48]
-            }
+            { id: 'starter', name: '📦 STARTER CASE', desc: 'Бюджетный кейс для начинающих ($100 - $500 VEX)', price: 2500, color: 'var(--rarity-common)', pool: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] },
+            { id: 'cyberware', name: '⚙️ CYBERWARE CASE', desc: 'Импланты, чипы и нейро-интерфейсы ($300 - $18,000 VEX)', price: 12000, color: 'var(--rarity-uncommon)', pool: [10, 11, 13, 14, 15, 17, 18, 31, 32, 33, 36, 39] },
+            { id: 'arsenal', name: '⚔️ CYBER ARSENAL', desc: 'Оружие, клинки, смарт-винтовки ($1,200 - $80,000 VEX)', price: 45000, color: 'var(--rarity-rare)', pool: [20, 21, 23, 24, 25, 26, 28, 29, 34, 38, 39] },
+            { id: 'militech', name: '🛡️ MILITECH DROP', desc: 'Элитное военное снаряжение и камуфляж ($6,000 - $150,000 VEX)', price: 150000, color: 'var(--rarity-epic)', pool: [28, 29, 30, 31, 32, 33, 34, 35, 37, 41] },
+            { id: 'garage', name: '🏎️ CYBER GARAGE', desc: 'Мотоциклы, спорткары и гиперкары ($125,000 - $1,000,000 VEX)', price: 800000, color: 'var(--rarity-legendary)', pool: [40, 42, 43, 44] },
+            { id: 'godlike', name: '👑 GODLIKE CASE', desc: 'Легендарные орбитальные станции и Ядра ИИ (до $5,000,000 VEX)', price: 3500000, color: 'var(--rarity-godlike)', pool: [36, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48] }
         ];
 
         let achievements = [
@@ -836,6 +776,7 @@
         let targetItem = ITEMS[1];
         let selectedCaseIndex = 0;
         let isCaseOpening = false;
+        let isDuelRunning = false;
 
         let marketListings = [
             { id: 101, seller: "@cyber_jack", item: ITEMS[5], price: 270 },
@@ -843,18 +784,10 @@
             { id: 103, seller: "@araka_boss", item: ITEMS[24], price: 3000 }
         ];
 
-        // ФУНКЦИИ СОХРАНЕНИЯ И ЗАГРУЗКИ
         function saveData() {
             const data = {
-                balance,
-                level,
-                xp,
-                streak,
-                dailyClaimed,
-                hasFreeSpin,
-                myInventory,
-                usedPromos: Array.from(usedPromos),
-                achievements
+                balance, level, xp, streak, dailyClaimed, hasFreeSpin, myInventory,
+                achievements, energy, dailyQuests
             };
             localStorage.setItem(SAVE_KEY, JSON.stringify(data));
         }
@@ -870,31 +803,74 @@
                     streak = data.streak ?? 2;
                     dailyClaimed = data.dailyClaimed ?? false;
                     hasFreeSpin = data.hasFreeSpin ?? true;
+                    energy = data.energy ?? 50;
                     if (data.myInventory) myInventory = data.myInventory;
-                    if (data.usedPromos) data.usedPromos.forEach(p => usedPromos.add(p));
                     if (data.achievements) achievements = data.achievements;
+                    if (data.dailyQuests) dailyQuests = data.dailyQuests;
                 } catch (e) { console.error("Save load error", e); }
             }
         }
 
         function resetProgress() {
             if (confirm("Вы уверены, что хотите сбросить весь прогресс и инвентарь?")) {
-                localStorage.removeItem(SAVE_KEY);
-                location.reload();
+                localStorage.removeItem(SAVE_KEY); location.reload();
             }
         }
 
         function triggerAchievement(id) {
             const ach = achievements.find(a => a.id === id);
             if (ach && !ach.done) {
-                ach.done = true;
-                balance += ach.reward;
-                addXP(50);
-                playSound('win');
-                triggerParticles();
+                ach.done = true; balance += ach.reward; addXP(50);
+                playSound('win'); triggerParticles();
                 alert(`🏆 ДОСТИЖЕНИЕ ПОЛУЧЕНО: ${ach.title} (+${ach.reward} VEX)!`);
                 saveData();
             }
+        }
+
+        function trackQuest(id, amount = 1) {
+            const q = dailyQuests.find(q => q.id === id);
+            if (q && !q.done) {
+                q.progress += amount;
+                updateUI();
+            }
+        }
+
+        function claimQuest(id) {
+            const q = dailyQuests.find(q => q.id === id);
+            if (q && !q.done && q.progress >= q.target) {
+                q.done = true;
+                balance += q.reward;
+                playSound('win');
+                alert(`📋 Выполнено: ${q.text} (+${q.reward} VEX)`);
+                updateUI();
+            }
+        }
+
+        function renderQuests() {
+            const container = document.getElementById('quests-list');
+            if (!container) return;
+            container.innerHTML = '';
+            dailyQuests.forEach(q => {
+                const canClaim = !q.done && q.progress >= q.target;
+                const div = document.createElement('div');
+                div.className = 'achievement-row';
+                div.style.borderColor = canClaim ? 'var(--neon-green)' : 'rgba(255,255,255,0.08)';
+                div.innerHTML = `
+                    <div class="achievement-info" style="flex:1;">
+                        <div>
+                            <div class="achievement-title">${q.text}</div>
+                            <div class="achievement-desc">Прогресс: ${Math.min(q.progress, q.target)} / ${q.target}</div>
+                        </div>
+                    </div>
+                    <div>
+                        ${q.done ? `<span style="font-size:10px; color:var(--neon-green); font-weight:900;">ВЫПОЛНЕНО</span>` :
+                          canClaim ? `<button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="claimQuest('${q.id}')">ЗАБРАТЬ +${q.reward}</button>` :
+                          `<span style="font-size:10px; color:var(--neon-yellow); font-weight:800;">+${q.reward} VEX</span>`
+                        }
+                    </div>
+                `;
+                container.appendChild(div);
+            });
         }
 
         function renderAchievements() {
@@ -913,8 +889,7 @@
                         </div>
                     </div>
                     <div>
-                        ${ach.done 
-                            ? `<span style="font-size:10px; color:var(--neon-green); font-weight:900;">ВЫПОЛНЕНО</span>`
+                        ${ach.done ? `<span style="font-size:10px; color:var(--neon-green); font-weight:900;">ВЫПОЛНЕНО</span>`
                             : `<span style="font-size:10px; color:var(--neon-yellow); font-weight:800;">+${ach.reward} VEX</span>`}
                     </div>
                 `;
@@ -924,25 +899,21 @@
 
         function updateUI() {
             document.getElementById('balance-val').innerText = balance.toLocaleString() + ' VEX';
+            if (document.getElementById('lb-my-balance')) document.getElementById('lb-my-balance').innerText = balance.toLocaleString() + ' VEX';
             document.getElementById('user-lvl').innerText = level;
             document.getElementById('xp-fill').style.width = (xp % 100) + '%';
             document.getElementById('streak-days').innerText = streak;
             document.getElementById('streak-card-val').innerText = streak;
 
-            // Проверка на банкротство
+            document.getElementById('energy-val').innerText = energy;
+            document.getElementById('energy-fill').style.width = (energy / MAX_ENERGY * 100) + '%';
+
             const bankruptBanner = document.getElementById('bankrupt-banner');
-            if (myInventory.length === 0 && balance < 100) {
-                bankruptBanner.classList.add('show');
-            } else {
-                bankruptBanner.classList.remove('show');
-            }
+            if (myInventory.length === 0 && balance < 100) bankruptBanner.classList.add('show');
+            else bankruptBanner.classList.remove('show');
 
-            // Авто-подбор если выбранный предмет был продан
-            if (!myItem && myInventory.length > 0) {
-                myItem = myInventory[0];
-            }
+            if (!myItem && myInventory.length > 0) myItem = myInventory[0];
 
-            // Мой слот
             const slotMy = document.getElementById('slot-my');
             if (myItem) {
                 slotMy.classList.add('has-item');
@@ -958,7 +929,6 @@
                 document.getElementById('my-val').innerText = '0 VEX';
             }
 
-            // Цель
             const slotTarget = document.getElementById('slot-target');
             if (targetItem) {
                 slotTarget.classList.add('has-item');
@@ -968,54 +938,41 @@
                 document.getElementById('target-val').innerText = targetItem.price.toLocaleString() + ' VEX';
             }
 
-            // Шанс
             let chance = 0;
             if (myItem && targetItem) {
-                chance = (myItem.price / targetItem.price) * 100;
-                if (chance > 95) chance = 95;
+                chance = (myItem.price / targetItem.price) * 70; 
+                if (chance > 85) chance = 85; 
             }
             document.getElementById('chance-val').innerText = chance.toFixed(1) + '%';
 
-            // Рулетка SVG
             const circleArc = document.getElementById('wheel-arc');
             const strokeOffset = 283 - (283 * (chance / 100));
             circleArc.style.strokeDashoffset = strokeOffset;
-
-            if (chance >= 80) circleArc.style.stroke = 'var(--neon-green)';
-            else if (chance >= 40) circleArc.style.stroke = 'var(--neon-cyan)';
+            if (chance >= 70) circleArc.style.stroke = 'var(--neon-green)';
+            else if (chance >= 35) circleArc.style.stroke = 'var(--neon-cyan)';
             else circleArc.style.stroke = 'var(--neon-pink)';
 
-            // Кнопка апгрейда
             const btn = document.getElementById('btn-upgrade');
-            if (isRolling) {
-                btn.disabled = true; btn.innerText = "ПРОКАЧКА...";
-            } else if (!myItem) {
-                btn.disabled = true; btn.innerText = "ИНВЕНТАРЬ ПУСТ";
-            } else if (!targetItem || myItem.price >= targetItem.price) {
-                btn.disabled = true; btn.innerText = "ЦЕЛЬ ДЕШЕВЛЕ ТЕКУЩЕГО";
-            } else {
-                btn.disabled = false; btn.innerText = "🚀 ПРОКАЧАТЬ";
-            }
+            if (isRolling) { btn.disabled = true; btn.innerText = "ПРОКАЧКА..."; }
+            else if (!myItem) { btn.disabled = true; btn.innerText = "ИНВЕНТАРЬ ПУСТ"; }
+            else if (!targetItem || myItem.price >= targetItem.price) { btn.disabled = true; btn.innerText = "ЦЕЛЬ ДЕШЕВЛЕ ТЕКУЩЕГО"; }
+            else { btn.disabled = false; btn.innerText = "🚀 ПРОКАЧАТЬ"; }
 
             if (myInventory.length >= 5) triggerAchievement('inventory_5');
 
-            renderCatalog();
-            renderInventory();
-            renderMarket();
-            renderAchievements();
-            renderCasesList();
-            saveData();
+            renderCatalog(); renderInventory(); renderMarket(); renderAchievements(); renderQuests(); renderCasesList(); saveData();
         }
 
-        // АВАРИЙНЫЙ НАБОР ПРИ БАНКРОТСТВЕ
-        function claimBankruptcyKit() {
-            myInventory.push(ITEMS[0]);
-            balance += 250;
-            myItem = ITEMS[0];
-            playSound('win');
-            triggerParticles();
-            alert("🎁 ВЫ ПОЛУЧИЛИ: Чип 64KB и +250 VEX!");
+        function buyStars(starsCost, vexReward) {
+            alert(`Интеграция Telegram Stars.\nПокупка ${starsCost} ⭐️ за реальные деньги даст вам ${vexReward.toLocaleString()} VEX.`);
+            balance += vexReward;
             updateUI();
+        }
+
+        function claimBankruptcyKit() {
+            myInventory.push(ITEMS[0]); balance += 250; myItem = ITEMS[0];
+            playSound('win'); triggerParticles();
+            alert("🎁 ВЫ ПОЛУЧИЛИ: Чип 64KB и +250 VEX!"); updateUI();
         }
 
         /* КОЛЕСО УДАЧИ */
@@ -1040,42 +997,22 @@
             const arcSize = (2 * Math.PI) / numSectors;
 
             ctx.clearRect(0, 0, 220, 220);
-
             FORTUNE_SECTORS.forEach((sec, i) => {
                 const angle = i * arcSize;
-                ctx.beginPath();
-                ctx.fillStyle = sec.color;
-                ctx.moveTo(110, 110);
-                ctx.arc(110, 110, 105, angle, angle + arcSize);
-                ctx.lineTo(110, 110);
-                ctx.fill();
+                ctx.beginPath(); ctx.fillStyle = sec.color; ctx.moveTo(110, 110);
+                ctx.arc(110, 110, 105, angle, angle + arcSize); ctx.lineTo(110, 110); ctx.fill();
 
-                ctx.save();
-                ctx.translate(110, 110);
-                ctx.rotate(angle + arcSize / 2);
-                ctx.textAlign = "right";
-                ctx.fillStyle = "#000000";
-                ctx.font = "900 11px Orbitron, sans-serif";
-                ctx.fillText(sec.label, 95, 4);
-                ctx.restore();
+                ctx.save(); ctx.translate(110, 110); ctx.rotate(angle + arcSize / 2);
+                ctx.textAlign = "right"; ctx.fillStyle = "#000000"; ctx.font = "900 11px Orbitron, sans-serif";
+                ctx.fillText(sec.label, 95, 4); ctx.restore();
             });
-
-            ctx.beginPath();
-            ctx.arc(110, 110, 22, 0, 2 * Math.PI);
-            ctx.fillStyle = "#0a0f1a";
-            ctx.fill();
-            ctx.strokeStyle = "#00f3ff";
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            ctx.beginPath(); ctx.arc(110, 110, 22, 0, 2 * Math.PI); ctx.fillStyle = "#0a0f1a"; ctx.fill();
+            ctx.strokeStyle = "#00f3ff"; ctx.lineWidth = 2; ctx.stroke();
         }
 
         function spinFortuneWheel() {
             if (isFortuneSpinning) return;
-
-            if (!hasFreeSpin) {
-                if (balance < 500) { alert("Вращение стоит 500 VEX!"); return; }
-                balance -= 500;
-            }
+            if (!hasFreeSpin) { if (balance < 500) { alert("Вращение стоит 500 VEX!"); return; } balance -= 500; }
 
             isFortuneSpinning = true;
             const btn = document.getElementById('btn-spin-fortune');
@@ -1083,7 +1020,6 @@
 
             const winIndex = Math.floor(Math.random() * FORTUNE_SECTORS.length);
             const sectorDegree = 360 / FORTUNE_SECTORS.length;
-            
             const targetSectorAngle = 360 - (winIndex * sectorDegree) - (sectorDegree / 2) - 90;
             const totalRotation = currentFortuneAngle + 1800 + (targetSectorAngle - (currentFortuneAngle % 360));
             currentFortuneAngle = totalRotation;
@@ -1092,74 +1028,40 @@
             canvas.style.transform = `rotate(${totalRotation}deg)`;
 
             let ticks = 0;
-            const tickInterval = setInterval(() => {
-                playSound('tick');
-                if (++ticks > 15) clearInterval(tickInterval);
-            }, 200);
+            const tickInterval = setInterval(() => { playSound('tick'); if (++ticks > 15) clearInterval(tickInterval); }, 200);
 
             setTimeout(() => {
-                isFortuneSpinning = false;
-                hasFreeSpin = false;
-
+                isFortuneSpinning = false; hasFreeSpin = false;
                 const won = FORTUNE_SECTORS[winIndex];
-                if (won.type === "vex") {
-                    balance += won.val;
-                    alert(`🎰 ВЫ ВЫИГРАЛИ: ${won.val.toLocaleString()} VEX!`);
-                } else if (won.type === "item") {
-                    myInventory.push(won.item);
-                    alert(`🎰 ВЫ ВЫИГРАЛИ СКИН: ${won.item.name}!`);
-                }
-
-                playSound('win');
-                triggerParticles();
-
-                btn.disabled = false;
-                btn.innerText = "🎰 КРУТИТЬ ЗА 500 VEX";
+                if (won.type === "vex") { balance += won.val; alert(`🎰 ВЫ ВЫИГРАЛИ: ${won.val.toLocaleString()} VEX!`); }
+                else if (won.type === "item") { myInventory.push(won.item); alert(`🎰 ВЫ ВЫИГРАЛИ СКИН: ${won.item.name}!`); }
+                playSound('win'); triggerParticles();
+                btn.disabled = false; btn.innerText = "🎰 КРУТИТЬ ЗА 500 VEX";
                 document.getElementById('fortune-timer').innerText = "Следующий бесплатный спин завтра!";
-
                 updateUI();
             }, 3900);
         }
 
-        /* КИБЕР-ДУЭЛЬ */
-        let isDuelRunning = false;
         function startCyberDuel() {
             if (isDuelRunning) return;
             if (balance < 500) { alert("Недостаточно 500 VEX для дуэли!"); return; }
 
-            balance -= 500;
-            isDuelRunning = true;
+            balance -= 500; isDuelRunning = true;
             const btn = document.getElementById('btn-start-duel');
             btn.disabled = true; btn.innerText = "ИДЕТ ВЗЛОМ СЕТИ...";
 
             const bar = document.getElementById('duel-bar');
             let progress = 0;
-
             const oppNames = ['@hacker_x', '@phantom_99', '@v_cyber', '@neo_tokyo'];
             document.getElementById('duel-opp-name').innerText = oppNames[Math.floor(Math.random() * oppNames.length)];
 
             const interval = setInterval(() => {
-                progress += 5;
-                bar.style.width = progress + '%';
-                playSound('tick');
-
+                progress += 5; bar.style.width = progress + '%'; playSound('tick');
                 if (progress >= 100) {
-                    clearInterval(interval);
-                    isDuelRunning = false;
-                    btn.disabled = false;
-                    btn.innerText = "⚔️ ВЗЛОМАТЬ И НАЧАТЬ ДУЭЛЬ";
-                    bar.style.width = '0%';
-
-                    const win = Math.random() > 0.5;
-                    if (win) {
-                        balance += 1000;
-                        playSound('win');
-                        triggerParticles();
-                        alert("🎉 ВЫ ПОБЕДИЛИ В ДУЭЛИ! +1,000 VEX");
-                    } else {
-                        playSound('fail');
-                        alert("💀 ВАС ВЗЛОМАЛИ! Ставка 500 VEX потеряна.");
-                    }
+                    clearInterval(interval); isDuelRunning = false;
+                    btn.disabled = false; btn.innerText = "⚔️ ВЗЛОМАТЬ И НАЧАТЬ ДУЭЛЬ"; bar.style.width = '0%';
+                    if (Math.random() > 0.5) { balance += 1000; playSound('win'); triggerParticles(); alert("🎉 ВЫ ПОБЕДИЛИ В ДУЭЛИ! +1,000 VEX"); }
+                    else { playSound('fail'); alert("💀 ВАС ВЗЛОМАЛИ! Ставка 500 VEX потеряна."); }
                     updateUI();
                 }
             }, 100);
@@ -1167,27 +1069,15 @@
 
         function selectHighChanceTarget() {
             if (!myItem) { alert("Инвентарь пуст!"); return; }
-
-            let bestTarget = null;
-            let closestRatio = 0;
-
+            let bestTarget = null; let closestRatio = 0;
             ITEMS.forEach(item => {
                 if (item.price > myItem.price) {
                     let ratio = myItem.price / item.price;
-                    if (ratio <= 0.95 && ratio > closestRatio) {
-                        closestRatio = ratio;
-                        bestTarget = item;
-                    }
+                    if (ratio <= 0.95 && ratio > closestRatio) { closestRatio = ratio; bestTarget = item; }
                 }
             });
-
-            if (bestTarget) {
-                targetItem = bestTarget;
-                updateUI();
-                playSound('tap');
-            } else {
-                alert("Это самый топовый предмет!");
-            }
+            if (bestTarget) { targetItem = bestTarget; updateUI(); playSound('tap'); }
+            else { alert("Это самый топовый предмет!"); }
         }
 
         let activeCatalogFilter = 'all';
@@ -1216,15 +1106,13 @@
         function filterCatalog(type, el) {
             activeCatalogFilter = type;
             document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            renderCatalog();
+            el.classList.add('active'); renderCatalog();
         }
 
         function renderInventory() {
             document.getElementById('inv-count').innerText = myInventory.length;
             const grid = document.getElementById('inventory-grid');
             grid.innerHTML = '';
-
             myInventory.forEach((item, idx) => {
                 const card = document.createElement('div');
                 card.className = 'grid-card';
@@ -1233,25 +1121,25 @@
                     <div class="emoji">${item.emoji}</div>
                     <div class="name">${item.name}</div>
                     <div class="price">${item.price.toLocaleString()} VEX</div>
-                    <button style="width:100%; margin-top:4px; font-size:8px; background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:4px;" onclick="sellItem(${idx})">ПРОДАТЬ</button>
+                    <div style="display:flex; gap:4px; margin-top:4px;">
+                        <button style="flex:1; font-size:8px; background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:4px;" onclick="sellItem(${idx}, event)">ПРОДАТЬ</button>
+                        <button style="flex:1; font-size:8px; background:rgba(0,243,255,0.15); border:none; color:var(--neon-cyan); border-radius:4px;" onclick="openSellModal(${idx}, event)">НА МАРКЕТ</button>
+                    </div>
                 `;
                 card.onclick = (e) => {
                     if (e.target.tagName === 'BUTTON') return;
-                    myItem = item;
-                    selectHighChanceTarget();
-                    switchTab('sec-upgrade');
-                    updateUI();
+                    myItem = item; selectHighChanceTarget(); switchTab('sec-upgrade'); updateUI();
                 };
                 grid.appendChild(card);
             });
         }
 
-        function sellItem(idx) {
+        function sellItem(idx, e) {
+            if(e) e.stopPropagation();
             balance += Math.floor(myInventory[idx].price * 0.8);
             if (myItem === myInventory[idx]) myItem = null;
             myInventory.splice(idx, 1);
-            updateUI();
-            playSound('tap');
+            updateUI(); playSound('tap');
         }
 
         function sellAllCommon() {
@@ -1271,65 +1159,56 @@
 
             const isInsured = document.getElementById('insurance-check').checked;
             const insuranceCost = Math.floor(myItem.price * 0.2);
+            const fee = Math.floor(myItem.price * 0.05);
 
-            if (isInsured && balance < insuranceCost) {
-                alert("Нехватка VEX на страховку!"); return;
+            if (balance < (isInsured ? insuranceCost + fee : fee)) {
+                alert("Нехватка VEX на комиссию или страховку!"); return;
             }
 
+            balance -= fee;
             if (isInsured) balance -= insuranceCost;
 
-            const chance = Math.min(95, (myItem.price / targetItem.price) * 100);
+            const chance = Math.min(85, (myItem.price / targetItem.price) * 70);
             isRolling = true;
             updateUI();
 
             const needle = document.getElementById('needle');
-            const winAngle = (chance / 100) * 360;
-            const isSuccess = (Math.random() * 100) <= chance;
-
-            let finalDegrees = isSuccess ? Math.random() * (winAngle - 6) + 3 : Math.random() * (350 - winAngle) + winAngle + 3;
-            const totalRotation = 2160 + finalDegrees;
-
-            needle.style.transform = `translateX(-50%) rotate(${totalRotation}deg)`;
-
-            let tickCount = 0;
-            const tickInterval = setInterval(() => {
-                playSound('tick');
-                tickCount++;
-                if (tickCount > 12) clearInterval(tickInterval);
-            }, 150);
-
+            needle.style.transition = 'none';
+            needle.style.transform = 'translateX(-50%) rotate(0deg)';
+            
             setTimeout(() => {
-                const arena = document.getElementById('arena-card');
+                needle.style.transition = 'transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1)';
+                const winAngle = (chance / 100) * 360;
+                const isSuccess = (Math.random() * 100) <= chance;
 
-                if (isSuccess) {
-                    playSound('win');
-                    triggerParticles();
-                    
-                    const idx = myInventory.indexOf(myItem);
-                    if (idx !== -1) myInventory[idx] = targetItem;
-                    myItem = targetItem;
+                let finalDegrees = isSuccess ? Math.random() * (winAngle - 6) + 3 : Math.random() * (350 - winAngle) + winAngle + 3;
+                const totalRotation = 2160 + finalDegrees;
 
-                    addXP(25);
-                    triggerAchievement('upgrade_win');
-                } else {
-                    playSound('fail');
-                    arena.classList.add('shake');
-                    setTimeout(() => arena.classList.remove('shake'), 500);
+                needle.style.transform = `translateX(-50%) rotate(${totalRotation}deg)`;
 
-                    if (!isInsured) {
+                let tickCount = 0;
+                const tickInterval = setInterval(() => { playSound('tick'); tickCount++; if (tickCount > 12) clearInterval(tickInterval); }, 150);
+
+                setTimeout(() => {
+                    const arena = document.getElementById('arena-card');
+                    if (isSuccess) {
+                        playSound('win'); triggerParticles();
                         const idx = myInventory.indexOf(myItem);
-                        if (idx !== -1) myInventory.splice(idx, 1);
-                        myItem = null;
+                        if (idx !== -1) myInventory[idx] = targetItem;
+                        myItem = targetItem;
+                        addXP(25); triggerAchievement('upgrade_win'); trackQuest('upg_q');
+                    } else {
+                        playSound('fail'); arena.classList.add('shake');
+                        setTimeout(() => arena.classList.remove('shake'), 500);
+                        if (!isInsured) {
+                            const idx = myInventory.indexOf(myItem);
+                            if (idx !== -1) myInventory.splice(idx, 1);
+                            myItem = null;
+                        }
                     }
-                }
-
-                needle.style.transition = 'none';
-                needle.style.transform = `translateX(-50%) rotate(${finalDegrees % 360}deg)`;
-                setTimeout(() => needle.style.transition = 'transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1)', 50);
-
-                isRolling = false;
-                updateUI();
-            }, 2200);
+                    isRolling = false; updateUI();
+                }, 2200);
+            }, 50);
         }
 
         // РЕЖИМ CYBER-CRASH
@@ -1344,63 +1223,52 @@
             const btn = document.getElementById('btn-crash-toggle');
             if (!isCrashRunning) {
                 const betVal = parseInt(document.getElementById('crash-bet-input').value);
-                if (isNaN(betVal) || betVal <= 0 || betVal > balance) {
-                    alert("Некорректная ставка!"); return;
-                }
+                if (isNaN(betVal) || betVal <= 0 || betVal > balance) { alert("Некорректная ставка!"); return; }
+                
+                const fee = Math.floor(betVal * 0.03);
+                if (balance < betVal + fee) { alert("Недостаточно VEX для ставки и 3% комиссии сети!"); return; }
+
                 crashBet = betVal;
-                balance -= crashBet;
-                hasCashedOut = false;
-                isCrashRunning = true;
-                crashMultiplier = 1.00;
+                balance -= (crashBet + fee);
+                
+                if (crashInterval) clearInterval(crashInterval);
+                hasCashedOut = false; isCrashRunning = true; crashMultiplier = 1.00;
 
                 crashCrashPoint = Math.max(1.05, (100 / (Math.random() * 95 + 1)).toFixed(2));
 
-                btn.innerText = "ЗАБРАТЬ (CASHOUT)";
-                btn.className = "btn-crash-action cashout";
+                btn.innerText = "ЗАБРАТЬ (CASHOUT)"; btn.className = "btn-crash-action cashout";
                 document.getElementById('crash-mult').classList.remove('crashed');
 
-                triggerAchievement('crash_play');
-                updateUI();
+                triggerAchievement('crash_play'); updateUI();
 
                 crashInterval = setInterval(() => {
                     crashMultiplier += 0.03 + (crashMultiplier * 0.015);
                     document.getElementById('crash-mult').innerText = 'x' + crashMultiplier.toFixed(2);
                     playSound('tick');
 
-                    if (crashMultiplier >= crashCrashPoint) {
-                        clearInterval(crashInterval);
-                        isCrashRunning = false;
-                        document.getElementById('crash-mult').innerText = 'x' + crashCrashPoint + ' CRASHED!';
+                    if (crashMultiplier >= crashCrashPoint || crashMultiplier >= 50) {
+                        clearInterval(crashInterval); isCrashRunning = false;
+                        const finalCrash = crashMultiplier >= 50 ? 50 : crashCrashPoint;
+                        document.getElementById('crash-mult').innerText = 'x' + finalCrash + ' CRASHED!';
                         document.getElementById('crash-mult').classList.add('crashed');
                         playSound('fail');
 
-                        btn.innerText = "ПОСТАВИТЬ И СТАРТ";
-                        btn.className = "btn-crash-action";
-
+                        btn.innerText = "ПОСТАВИТЬ И СТАРТ"; btn.className = "btn-crash-action";
                         const hist = document.getElementById('crash-history');
                         const pill = document.createElement('div');
-                        pill.className = `history-pill ${crashCrashPoint >= 2 ? 'high' : 'low'}`;
-                        pill.innerText = 'x' + crashCrashPoint;
-                        hist.prepend(pill);
-
+                        pill.className = `history-pill ${finalCrash >= 2 ? 'high' : 'low'}`;
+                        pill.innerText = 'x' + finalCrash; hist.prepend(pill);
                         updateUI();
                     }
                 }, 100);
 
             } else {
                 if (!hasCashedOut) {
-                    hasCashedOut = true;
-                    clearInterval(crashInterval);
-                    isCrashRunning = false;
+                    hasCashedOut = true; clearInterval(crashInterval); isCrashRunning = false;
                     const winAmt = Math.floor(crashBet * crashMultiplier);
-                    balance += winAmt;
-                    playSound('win');
-                    triggerParticles();
-
-                    btn.innerText = "ПОСТАВИТЬ И СТАРТ";
-                    btn.className = "btn-crash-action";
+                    balance += winAmt; playSound('win'); triggerParticles();
+                    btn.innerText = "ПОСТАВИТЬ И СТАРТ"; btn.className = "btn-crash-action";
                     document.getElementById('crash-mult').innerText = 'ВЫИГРЫШ ' + winAmt + ' VEX!';
-
                     updateUI();
                 }
             }
@@ -1410,23 +1278,15 @@
         function renderMarket() {
             const list = document.getElementById('market-listings-list');
             list.innerHTML = '';
-
             marketListings.forEach(listObj => {
                 const card = document.createElement('div');
                 card.className = 'market-item-card';
                 card.innerHTML = `
                     <div class="market-item-info">
                         <div class="emoji">${listObj.item.emoji}</div>
-                        <div>
-                            <div style="font-size:11px; font-weight:800; color:#fff;">${listObj.item.name}</div>
-                            <div class="market-seller">Продавец: ${listObj.seller}</div>
-                        </div>
+                        <div><div style="font-size:11px; font-weight:800; color:#fff;">${listObj.item.name}</div><div class="market-seller">Продавец: ${listObj.seller}</div></div>
                     </div>
-                    <div>
-                        <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="buyMarketItem(${listObj.id})">
-                            ${listObj.price.toLocaleString()} VEX
-                        </button>
-                    </div>
+                    <div><button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900;" onclick="buyMarketItem(${listObj.id})">${listObj.price.toLocaleString()} VEX</button></div>
                 `;
                 list.appendChild(card);
             });
@@ -1437,115 +1297,60 @@
             if (idx !== -1) {
                 const itemObj = marketListings[idx];
                 if (balance >= itemObj.price) {
-                    balance -= itemObj.price;
-                    myInventory.push(itemObj.item);
-                    marketListings.splice(idx, 1);
-                    playSound('win');
-                    alert(`✅ Вы успешно купили ${itemObj.item.name}!`);
-                    updateUI();
-                } else {
-                    alert("Недостаточно VEX!");
-                }
+                    balance -= itemObj.price; myInventory.push(itemObj.item); marketListings.splice(idx, 1);
+                    playSound('win'); alert(`✅ Вы успешно купили ${itemObj.item.name}!`); updateUI();
+                } else { alert("Недостаточно VEX!"); }
             }
         }
 
-        function openSellModal() {
-            if (myInventory.length === 0) { alert("У вас нет скинов для продажи!"); return; }
-            const sellItemObj = myInventory[0];
+        function openSellModal(idx, e) {
+            if(e) e.stopPropagation();
+            if (idx >= myInventory.length) return;
+            const sellItemObj = myInventory[idx];
             const price = prompt(`Выставить на маркет ${sellItemObj.name}. Укажите цену VEX:`, sellItemObj.price);
             if (price && !isNaN(price) && price > 0) {
-                marketListings.unshift({
-                    id: Date.now(),
-                    seller: "@you",
-                    item: sellItemObj,
-                    price: parseInt(price)
-                });
-                myInventory.splice(0, 1);
-                updateUI();
-                alert("✅ Предмет выставлен на маркет!");
+                marketListings.unshift({ id: Date.now(), seller: "@you", item: sellItemObj, price: parseInt(price) });
+                if(myItem === myInventory[idx]) myItem = null;
+                myInventory.splice(idx, 1); updateUI(); alert("✅ Предмет выставлен на маркет!");
             }
         }
 
-        // БОНУСЫ И ПРОМО
         function claimDailyReward() {
             if (dailyClaimed) { alert("Вы уже забирали бонус!"); return; }
-            dailyClaimed = true;
-            balance += 500;
-            streak += 1;
-            document.getElementById('btn-claim-daily').disabled = true;
-            document.getElementById('btn-claim-daily').innerText = "ПОЛУЧЕНО";
-            playSound('win'); triggerParticles();
-            updateUI();
-            alert("🎁 Ежедневный бонус забран! +500 VEX");
+            dailyClaimed = true; balance += 500; streak += 1;
+            document.getElementById('btn-claim-daily').disabled = true; document.getElementById('btn-claim-daily').innerText = "ПОЛУЧЕНО";
+            playSound('win'); triggerParticles(); updateUI(); alert("🎁 Ежедневный бонус забран! +500 VEX");
         }
 
-        function applyPromo() {
-            const codeInput = document.getElementById('promo-input');
-            const code = codeInput.value.trim().toUpperCase();
-
-            if (usedPromos.has(code)) { alert("Код уже активирован!"); return; }
-
-            if (code === 'VEX2027') {
-                balance += 2000; usedPromos.add(code); playSound('win'); triggerParticles();
-                alert("🎉 +2,000 VEX!");
-            } else if (code === 'CYBERPUNK') {
-                balance += 5000; usedPromos.add(code); playSound('win'); triggerParticles();
-                alert("🎉 +5,000 VEX!");
-            } else {
-                alert("Неверный промокод!");
-            }
-            codeInput.value = '';
-            updateUI();
-        }
-
-        // СИСТЕМА КЕЙСОВ
         function renderCasesList() {
             const grid = document.getElementById('cases-grid');
             if (!grid) return;
             grid.innerHTML = '';
-
             CASES.forEach((c, idx) => {
                 const card = document.createElement('div');
                 card.className = `case-select-card ${idx === selectedCaseIndex ? 'active' : ''}`;
                 card.style.borderColor = idx === selectedCaseIndex ? 'var(--neon-cyan)' : c.color;
-                card.onclick = () => selectCase(idx);
-                card.innerHTML = `
-                    <div class="c-title">${c.name}</div>
-                    <div class="c-price">${c.price.toLocaleString()} VEX</div>
-                `;
+                card.onclick = () => { if(!isCaseOpening) { selectedCaseIndex = idx; renderCasesList(); } };
+                card.innerHTML = `<div class="c-title">${c.name}</div><div class="c-price">${c.price.toLocaleString()} VEX</div>`;
                 grid.appendChild(card);
             });
-
             renderActiveCase();
-        }
-
-        function selectCase(idx) {
-            if (isCaseOpening) return;
-            selectedCaseIndex = idx;
-            renderCasesList();
         }
 
         function renderActiveCase() {
             const c = CASES[selectedCaseIndex];
             if (!c) return;
-
             document.getElementById('active-case-title').innerText = c.name;
             document.getElementById('active-case-desc').innerText = c.desc;
             document.getElementById('btn-open-case').innerText = `ОТКРЫТЬ ЗА ${c.price.toLocaleString()} VEX`;
 
             const previewGrid = document.getElementById('case-preview-grid');
             previewGrid.innerHTML = '';
-            
             const poolItems = ITEMS.filter(item => c.pool.includes(item.id));
             poolItems.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'grid-card';
-                card.innerHTML = `
-                    <div class="rarity-line" style="background:${item.color}"></div>
-                    <div class="emoji">${item.emoji}</div>
-                    <div class="name">${item.name}</div>
-                    <div class="price">${item.price.toLocaleString()} VEX</div>
-                `;
+                card.innerHTML = `<div class="rarity-line" style="background:${item.color}"></div><div class="emoji">${item.emoji}</div><div class="name">${item.name}</div><div class="price">${item.price.toLocaleString()} VEX</div>`;
                 previewGrid.appendChild(card);
             });
         }
@@ -1554,19 +1359,12 @@
             if (isCaseOpening) return;
             const c = CASES[selectedCaseIndex];
             if (!c) return;
+            if (balance < c.price) { alert("Недостаточно VEX для открытия этого кейса!"); return; }
 
-            if (balance < c.price) {
-                alert("Недостаточно VEX для открытия этого кейса!");
-                return;
-            }
-
-            balance -= c.price;
-            isCaseOpening = true;
+            balance -= c.price; isCaseOpening = true;
 
             const track = document.getElementById('case-track');
-            track.style.transition = 'none';
-            track.style.transform = 'translateX(0px)';
-            track.innerHTML = '';
+            track.style.transition = 'none'; track.style.transform = 'translateX(0px)'; track.innerHTML = '';
 
             const poolItems = ITEMS.filter(item => c.pool.includes(item.id));
             if (poolItems.length === 0) poolItems.push(ITEMS[0]);
@@ -1576,8 +1374,7 @@
                 const randItem = poolItems[Math.floor(Math.random() * poolItems.length)];
                 reelItems.push(randItem);
                 const el = document.createElement('div');
-                el.className = 'reel-item';
-                el.style.borderColor = randItem.color;
+                el.className = 'reel-item'; el.style.borderColor = randItem.color;
                 el.innerHTML = `<div class="emoji">${randItem.emoji}</div>`;
                 track.appendChild(el);
             }
@@ -1590,41 +1387,33 @@
             }, 50);
 
             let tickCount = 0;
-            const tickInterval = setInterval(() => {
-                playSound('tick');
-                tickCount++;
-                if (tickCount > 18) clearInterval(tickInterval);
-            }, 180);
+            const tickInterval = setInterval(() => { playSound('tick'); tickCount++; if (tickCount > 18) clearInterval(tickInterval); }, 180);
 
             setTimeout(() => {
-                playSound('win');
-                myInventory.push(winItem);
-                isCaseOpening = false;
-                triggerParticles();
+                playSound('win'); myInventory.push(winItem); isCaseOpening = false; triggerParticles();
                 alert(`🎉 ВЫ ВЫБИЛИ ИЗ ${c.name}: ${winItem.name} (${winItem.price.toLocaleString()} VEX)!`);
-                updateUI();
+                trackQuest('case_q'); updateUI();
             }, 3600);
         }
 
         function handleTap(e) {
-            balance += 25;
-            playSound('tap');
-            const x = e.clientX || window.innerWidth / 2;
-            const y = e.clientY || window.innerHeight / 2;
-            spawnFloatText('+25 VEX', '#ffe600', x, y);
-            triggerAchievement('tap_10');
-            updateUI();
+            if (energy <= 0) { alert("Энергия исчерпана! Восстанавливается со временем."); return; }
+            energy--; balance += 1; playSound('tap');
+            
+            let x = window.innerWidth / 2; let y = window.innerHeight / 2;
+            if (e.clientX || e.clientY) { x = e.clientX; y = e.clientY; }
+            else if (e.touches && e.touches.length > 0) { x = e.touches[0].clientX; y = e.touches[0].clientY; }
+            
+            spawnFloatText('+1 VEX', '#ffe600', x, y);
+            triggerAchievement('tap_10'); trackQuest('tap_q'); updateUI();
         }
 
-        function addXP(amount) {
-            xp += amount;
-            if (xp >= 100) { level++; xp = 0; alert("🎖️ НОВЫЙ УРОВЕНЬ: " + level); }
-        }
+        function addXP(amount) { xp += amount; if (xp >= 100) { level++; xp = 0; alert("🎖️ НОВЫЙ УРОВЕНЬ: " + level); } }
 
         function switchTab(secId, tabEl) {
+            if (isRolling || isCrashRunning || isCaseOpening || isDuelRunning) return; 
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
             document.getElementById(secId).classList.add('active');
-
             if (tabEl) {
                 document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
                 tabEl.classList.add('active');
@@ -1633,69 +1422,41 @@
 
         function spawnFloatText(text, color, x, y) {
             const el = document.createElement('div');
-            el.className = 'float-text';
-            el.innerText = text;
-            el.style.color = color;
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
+            el.className = 'float-text'; el.innerText = text; el.style.color = color;
+            el.style.left = x + 'px'; el.style.top = (y - 20) + 'px';
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 600);
         }
 
-        function initLiveFeed() {
-            const names = ['@alex_v', '@cyber_sam', '@matrix_99', '@v_punk', '@neon_fox', '@netrunner_x'];
-            const track = document.getElementById('feed-track');
-            
-            setInterval(() => {
-                const name = names[Math.floor(Math.random() * names.length)];
-                const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-                const chance = (Math.random() * 40 + 50).toFixed(1);
-
-                const div = document.createElement('div');
-                div.className = 'feed-item';
-                div.innerHTML = `<span class="user">${name}</span> прокачал ${item.emoji} <span class="chance">(${chance}%)</span>`;
-                track.prepend(div);
-                if (track.children.length > 10) track.removeChild(track.lastChild);
-            }, 3000);
-        }
-
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
         function triggerParticles() {
-            for (let i = 0; i < 60; i++) {
+            const cvs = document.getElementById('particle-canvas');
+            const ctx = cvs.getContext('2d');
+            cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+            let particles = [];
+            for(let i=0; i<40; i++) {
                 particles.push({
-                    x: canvas.width / 2, y: canvas.height / 3,
-                    vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 0.5) * 12,
-                    color: ['#00f3ff', '#ff0055', '#ffe600', '#00ff66'][Math.floor(Math.random() * 4)],
-                    size: Math.random() * 4 + 2, alpha: 1
+                    x: cvs.width/2, y: cvs.height/2,
+                    vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
+                    size: Math.random()*4+2,
+                    color: ['#00f3ff','#ff0055','#ffe600'][Math.floor(Math.random()*3)]
                 });
             }
+            function animate() {
+                ctx.clearRect(0,0,cvs.width,cvs.height);
+                let alive = false;
+                particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy; p.size *= 0.95;
+                    if(p.size > 0.5) {
+                        alive = true; ctx.fillStyle = p.color;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+                    }
+                });
+                if(alive) requestAnimationFrame(animate); else ctx.clearRect(0,0,cvs.width,cvs.height);
+            }
+            animate();
         }
 
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p, idx) => {
-                p.x += p.vx; p.y += p.vy; p.alpha -= 0.02;
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = Math.max(0, p.alpha);
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-                if (p.alpha <= 0) particles.splice(idx, 1);
-            });
-            requestAnimationFrame(animateParticles);
-        }
-
-        // ИНИЦИАЛИЗАЦИЯ
-        loadData();
-        animateParticles();
-        initLiveFeed();
-        drawFortuneWheel();
-        updateUI();
+        window.onload = () => { loadData(); updateUI(); drawFortuneWheel(); };
     </script>
 </body>
 </html>
