@@ -1,965 +1,625 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>CYBERPUNK UPGRADE // ULTIMATE PERSISTENT EDITION</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #030509;
-            --card-bg: rgba(13, 18, 30, 0.88);
-            --neon-cyan: #00f3ff;
-            --neon-pink: #ff0055;
-            --neon-yellow: #ffe600;
-            --neon-purple: #9d00ff;
-            --neon-green: #00ff66;
-            --text-main: #f0f5ff;
-            --text-sub: #5c6b8a;
-
-            --rarity-common: #7d8b9e;
-            --rarity-uncommon: #00aaff;
-            --rarity-rare: #a000ff;
-            --rarity-epic: #ff00aa;
-            --rarity-legendary: #ffaa00;
-            --rarity-godlike: #00ffaa;
-        }
-
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.15), transparent 70%),
-                radial-gradient(circle at 100% 100%, rgba(255, 0, 85, 0.1), transparent 60%),
-                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
-            color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
-            margin: 0; padding: 0; padding-bottom: 75px;
-            min-height: 100vh; overflow-x: hidden;
-        }
-
-        body::before {
-            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px; z-index: 900; pointer-events: none; opacity: 0.5;
-        }
-
-        #particle-canvas {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 999;
-        }
-
-        /* LIVE FEED */
-        .live-feed-wrapper {
-            background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 243, 255, 0.2);
-            padding: 6px 0; overflow: hidden; white-space: nowrap; display: flex; align-items: center;
-        }
-        .live-feed-label {
-            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 900; color: var(--neon-pink);
-            background: rgba(255,0,85,0.15); padding: 3px 8px; border-radius: 4px; margin: 0 10px;
-            border: 1px solid var(--neon-pink); letter-spacing: 1px; flex-shrink: 0;
-        }
-        .live-feed-track { display: flex; gap: 10px; animation: feedScroll 25s linear infinite; }
-        .feed-item {
-            display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700;
-            background: rgba(255,255,255,0.03); padding: 2px 8px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
-        }
-        .feed-item .user { color: var(--neon-cyan); }
-        .feed-item .chance { color: var(--neon-yellow); font-weight: 800; }
-
-        @keyframes feedScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        /* ШАПКА */
-        .app-header {
-            padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(10, 15, 26, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 850;
-        }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .avatar-container { position: relative; width: 38px; height: 38px; }
-        .user-avatar-img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
-        .level-badge {
-            position: absolute; bottom: -4px; right: -4px;
-            width: 18px; height: 18px; border-radius: 4px; background: var(--neon-cyan);
-            display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif;
-            font-weight: 900; font-size: 10px; color: #000; box-shadow: 0 0 8px var(--neon-cyan);
-        }
-        .user-meta { display: flex; flex-direction: column; }
-        .user-name { font-size: 12px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 4px; }
-        .user-title-tag { font-size: 8px; font-weight: 900; color: var(--neon-cyan); background: rgba(0,243,255,0.15); padding: 1px 4px; border-radius: 4px; border: 1px solid var(--neon-cyan); }
-        .streak-badge { font-size: 9px; color: var(--neon-pink); font-weight: 800; background: rgba(255,0,85,0.15); padding: 1px 5px; border-radius: 6px; border: 1px solid var(--neon-pink); }
-        .xp-bar-bg { width: 80px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 3px; overflow: hidden; }
-        .xp-bar-fill { height: 100%; width: 45%; background: var(--neon-cyan); }
-
-        .balance-group { display: flex; align-items: center; gap: 6px; }
-        .balance-box {
-            font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900;
-            color: var(--neon-yellow); text-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
-            background: rgba(255, 230, 0, 0.1); padding: 6px 8px; border-radius: 16px;
-            border: 1px solid rgba(255, 230, 0, 0.3);
-        }
-        .btn-sound {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50%; width: 30px; height: 30px; color: #fff; display: flex;
-            align-items: center; justify-content: center; cursor: pointer; font-size: 13px;
-        }
-
-        /* БАННЕР БАНКРОТСТВА */
-        .bankrupt-banner {
-            display: none; background: linear-gradient(135deg, rgba(255,0,85,0.2), rgba(255,230,0,0.2));
-            border: 1px solid var(--neon-pink); border-radius: 12px; padding: 10px; margin-bottom: 10px;
-            text-align: center; animation: pulseGlow 1.5s infinite alternate;
-        }
-        .bankrupt-banner.show { display: block; }
-        @keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(255,0,85,0.4); } 100% { box-shadow: 0 0 15px rgba(255,0,85,0.8); } }
-
-        /* СКРОЛЛИРУЕМАЯ НАВИГАЦИЯ */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 62px;
-            background: rgba(8, 12, 20, 0.96); border-top: 1px solid rgba(0, 243, 255, 0.25);
-            display: flex; overflow-x: auto; scrollbar-width: none; z-index: 800;
-            backdrop-filter: blur(15px); padding: 0 4px;
-        }
-        .bottom-nav::-webkit-scrollbar { display: none; }
-        .nav-tab {
-            flex: 0 0 auto; min-width: 62px; padding: 6px 8px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-sub); font-size: 8px; font-weight: 800; cursor: pointer; gap: 2px;
-            transition: all 0.2s ease; white-space: nowrap;
-        }
-        .nav-tab .icon { font-size: 16px; }
-        .nav-tab.active { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
-
-        .view-section { display: none; padding: 12px; }
-        .view-section.active { display: block; }
-
-        /* ТАПАЛКА */
-        .cyber-tap-btn {
-            background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(157,0,255,0.1));
-            border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 8px;
-            text-align: center; cursor: pointer; margin-bottom: 10px;
-            box-shadow: 0 0 12px rgba(0,243,255,0.15);
-        }
-        .cyber-tap-btn:active { transform: scale(0.98); background: rgba(0,243,255,0.2); }
-        .tap-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 800; color: var(--neon-cyan); }
-
-        /* АРЕНА (АПГРЕЙДЕР) */
-        .arena-card {
-            background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            margin-bottom: 12px; position: relative; backdrop-filter: blur(10px);
-        }
-        .arena-grid { display: grid; grid-template-columns: 1fr 110px 1fr; gap: 6px; align-items: center; margin-bottom: 12px; }
-
-        .slot-box {
-            background: rgba(0, 0, 0, 0.5); border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 14px; padding: 8px 4px; text-align: center; min-height: 125px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative; transition: all 0.3s ease;
-        }
-        .slot-box.has-item { border-style: solid; box-shadow: 0 0 15px rgba(0,0,0,0.6); }
-        .slot-tag { position: absolute; top: 6px; font-size: 8px; font-weight: 800; text-transform: uppercase; color: var(--text-sub); }
-        .slot-emoji { font-size: 32px; margin: 6px 0 2px 0; }
-        .slot-title { font-size: 10px; font-weight: 700; line-height: 1.2; height: 24px; overflow: hidden; color: #fff; }
-        .slot-val { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); margin-top: 2px; }
-
-        .btn-quick-90 {
-            width: 100%; background: rgba(0, 255, 102, 0.12); border: 1px solid var(--neon-green);
-            color: var(--neon-green); border-radius: 8px; padding: 6px; font-family: 'Orbitron', sans-serif;
-            font-size: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px; text-align: center;
-        }
-
-        /* SVG Wheel */
-        .wheel-wrap { position: relative; width: 105px; height: 105px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-        .wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-        .wheel-bg-circle { fill: none; stroke: rgba(255, 0, 85, 0.2); stroke-width: 8; }
-        .wheel-active-arc {
-            fill: none; stroke: var(--neon-cyan); stroke-width: 8; stroke-dasharray: 283; stroke-dashoffset: 141;
-            stroke-linecap: round; transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
-        }
-        .wheel-needle {
-            position: absolute; top: 0px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent;
-            border-top: 12px solid #fff; z-index: 10; filter: drop-shadow(0 0 8px var(--neon-cyan));
-            transition: transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1); transform-origin: 50% 52px;
-        }
-        .wheel-info { position: absolute; text-align: center; }
-        .chance-num { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: #fff; }
-        .chance-lbl { font-size: 8px; font-weight: 800; color: var(--text-sub); }
-
-        .insurance-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 6px 12px; margin-bottom: 10px; font-size: 10px; font-weight: 700;
-        }
-        .toggle-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #222; transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
-        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--neon-green); }
-        input:checked + .slider:before { transform: translateX(16px); }
-
-        .btn-upgrade-main {
-            width: 100%; background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-            color: #fff; border: none; border-radius: 12px; padding: 12px;
-            font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900;
-            letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: all 0.15s ease;
-        }
-        .btn-upgrade-main:active { transform: scale(0.97); }
-        .btn-upgrade-main:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; filter: grayscale(1); }
-
-        /* КАТАЛОГ И ИНВЕНТАРЬ */
-        .catalog-filter { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
-        .filter-chip {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; padding: 4px 10px; font-size: 10px; font-weight: 800;
-            color: var(--text-sub); cursor: pointer; white-space: nowrap;
-        }
-        .filter-chip.active { background: rgba(0,243,255,0.15); border-color: var(--neon-cyan); color: #fff; }
-
-        .items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 260px; overflow-y: auto; }
-        .grid-card {
-            background: rgba(10, 14, 23, 0.7); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 6px; text-align: center; cursor: pointer; position: relative;
-        }
-        .grid-card.selected-target { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3); background: rgba(0,243,255,0.1); }
-        .grid-card .rarity-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
-        .grid-card .emoji { font-size: 24px; margin: 4px 0; }
-        .grid-card .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
-        .grid-card .price { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; color: var(--neon-yellow); }
-
-        /* МИНЫ (MINES 5x5) */
-        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 12px 0; }
-        .mine-cell {
-            aspect-ratio: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; cursor: pointer; transition: all 0.2s ease;
-        }
-        .mine-cell.revealed-safe { background: rgba(0, 255, 102, 0.2); border-color: var(--neon-green); }
-        .mine-cell.revealed-virus { background: rgba(255, 0, 85, 0.3); border-color: var(--neon-pink); }
-
-        /* COINFLIP */
-        .coinflip-container { text-align: center; margin: 15px 0; }
-        .coin-chip {
-            width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-            margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 38px;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); border: 3px solid #fff; transition: transform 0.6s ease;
-        }
-        .coin-chip.flipping { animation: spinCoin 0.8s infinite linear; }
-        @keyframes spinCoin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
-
-        /* РЕЙД-БОСС */
-        .boss-card {
-            background: linear-gradient(135deg, rgba(255,0,85,0.15), rgba(10,15,26,0.9));
-            border: 1px solid var(--neon-pink); border-radius: 16px; padding: 14px; text-align: center;
-        }
-        .boss-hp-bg { width: 100%; height: 16px; background: rgba(0,0,0,0.6); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin: 8px 0; overflow: hidden; position: relative; }
-        .boss-hp-fill { height: 100%; background: linear-gradient(90deg, var(--neon-pink), var(--neon-yellow)); width: 100%; transition: width 0.2s; }
-        .boss-hp-text { position: absolute; top: 0; left: 0; right: 0; bottom: 0; font-family: 'Orbitron'; font-size: 10px; font-weight: 900; line-height: 16px; color: #fff; }
-
-        /* РЕЖИМ CYBER-CRASH */
-        .crash-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 14px; text-align: center; }
-        .crash-canvas-container {
-            position: relative; width: 100%; height: 150px; background: rgba(0,0,0,0.7);
-            border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; overflow: hidden; margin-bottom: 12px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .crash-mult-display { font-family: 'Orbitron', sans-serif; font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 0 15px var(--neon-cyan); }
-        .crash-mult-display.crashed { color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); }
-        .crash-history { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
-        .history-pill { background: rgba(255,255,255,0.05); border-radius: 6px; padding: 2px 8px; font-family: 'Orbitron'; font-size: 9px; font-weight: 800; }
-        .history-pill.high { color: var(--neon-green); border: 1px solid var(--neon-green); }
-        .history-pill.low { color: var(--neon-pink); border: 1px solid var(--neon-pink); }
-
-        .cyber-input {
-            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px; padding: 8px 12px; color: #fff; font-family: 'Orbitron', sans-serif;
-            font-size: 12px; outline: none; margin-bottom: 6px;
-        }
-
-        /* КАРТОЧКИ МОДУЛЕЙ И МАЙНИНГА */
-        .card-box { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px; margin-bottom: 10px; }
-        .card-box-title { font-family: 'Orbitron'; font-size: 12px; font-weight: 900; color: var(--neon-cyan); margin-bottom: 8px; display: flex; justify-content: space-between; }
-
-        /* ТАБЛИЦА ЛИДЕРОВ И СТАТИСТИКА */
-        .leader-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; }
-
-        .float-text {
-            position: fixed; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 18px;
-            pointer-events: none; z-index: 9999; animation: floatUp 0.6s forwards;
-        }
-        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -90px) scale(1.2); } }
-        .shake { animation: shakeAnim 0.4s ease-in-out; }
-        @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>CYBERPUNK UPGRADE // ULTIMATE EDITION</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-color: #030509;
+  --card-bg: rgba(13, 18, 30, 0.88);
+  --neon-cyan: #00f3ff;
+  --neon-pink: #ff0055;
+  --neon-yellow: #ffe600;
+  --neon-purple: #9d00ff;
+  --neon-green: #00ff66;
+  --text-main: #f0f5ff;
+  --text-sub: #5c6b8a;
+  --rarity-common: #7d8b9e;
+  --rarity-uncommon: #00aaff;
+  --rarity-rare: #a000ff;
+  --rarity-epic: #ff00aa;
+  --rarity-legendary: #ffaa00;
+  --rarity-godlike: #00ffaa;
+}
+* { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+body {
+  background-color: var(--bg-color);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.15), transparent 70%),
+    radial-gradient(circle at 100% 100%, rgba(255, 0, 85, 0.1), transparent 60%),
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+  color: var(--text-main);
+  font-family: 'Rajdhani', sans-serif;
+  margin: 0; padding: 0; padding-bottom: 75px;
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px; z-index: 900; pointer-events: none; opacity: 0.5;
+}
+#particle-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 999; }
+.live-feed-wrapper { background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 243, 255, 0.2); padding: 6px 0; overflow: hidden; white-space: nowrap; display: flex; align-items: center; }
+.live-feed-label { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 900; color: var(--neon-pink); background: rgba(255,0,85,0.15); padding: 3px 8px; border-radius: 4px; margin: 0 10px; border: 1px solid var(--neon-pink); letter-spacing: 1px; flex-shrink: 0; }
+.live-feed-track { display: flex; gap: 10px; animation: feedScroll 25s linear infinite; }
+.feed-item { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.03); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.feed-item .user { color: var(--neon-cyan); }
+.feed-item .chance { color: var(--neon-yellow); font-weight: 800; }
+@keyframes feedScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.app-header { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; background: rgba(10, 15, 26, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); }
+.user-profile { display: flex; align-items: center; gap: 10px; }
+.level-badge { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 13px; color: #000; box-shadow: 0 0 10px var(--neon-cyan); }
+.user-meta { display: flex; flex-direction: column; }
+.user-name { font-size: 13px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
+.streak-badge { font-size: 10px; color: var(--neon-pink); font-weight: 800; background: rgba(255,0,85,0.15); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--neon-pink); }
+.xp-bar-bg { width: 80px; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 3px; overflow: hidden; }
+.xp-bar-fill { height: 100%; width: 45%; background: var(--neon-cyan); }
+.balance-group { display: flex; align-items: center; gap: 8px; }
+.balance-box { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900; color: var(--neon-yellow); text-shadow: 0 0 8px rgba(255, 230, 0, 0.4); background: rgba(255, 230, 0, 0.1); padding: 6px 10px; border-radius: 20px; border: 1px solid rgba(255, 230, 0, 0.3); }
+.btn-sound { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 32px; height: 32px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; }
+.bankrupt-banner { display: none; background: linear-gradient(135deg, rgba(255,0,85,0.2), rgba(255,230,0,0.2)); border: 1px solid var(--neon-pink); border-radius: 12px; padding: 10px; margin-bottom: 10px; text-align: center; animation: pulseGlow 1.5s infinite alternate; }
+.bankrupt-banner.show { display: block; }
+@keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(255,0,85,0.4); } 100% { box-shadow: 0 0 15px rgba(255,0,85,0.8); } }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: rgba(8, 12, 20, 0.95); border-top: 1px solid rgba(0, 243, 255, 0.2); display: flex; overflow-x: auto; z-index: 800; backdrop-filter: blur(15px); scrollbar-width: none; }
+.bottom-nav::-webkit-scrollbar { display: none; }
+.nav-tab { flex: 0 0 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-sub); font-size: 8px; font-weight: 800; cursor: pointer; gap: 2px; transition: all 0.2s ease; }
+.nav-tab .icon { font-size: 15px; }
+.nav-tab.active { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
+.view-section { display: none; padding: 12px; }
+.view-section.active { display: block; }
+.cyber-tap-btn { background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(157,0,255,0.1)); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 8px; text-align: center; cursor: pointer; margin-bottom: 10px; box-shadow: 0 0 12px rgba(0,243,255,0.15); }
+.cyber-tap-btn:active { transform: scale(0.98); background: rgba(0,243,255,0.2); }
+.tap-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 800; color: var(--neon-cyan); }
+.arena-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin-bottom: 12px; position: relative; backdrop-filter: blur(10px); }
+.arena-grid { display: grid; grid-template-columns: 1fr 110px 1fr; gap: 6px; align-items: center; margin-bottom: 12px; }
+.slot-box { background: rgba(0, 0, 0, 0.5); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 8px 4px; text-align: center; min-height: 125px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: all 0.3s ease; }
+.slot-box.has-item { border-style: solid; box-shadow: 0 0 15px rgba(0,0,0,0.6); }
+.slot-tag { position: absolute; top: 6px; font-size: 8px; font-weight: 800; text-transform: uppercase; color: var(--text-sub); }
+.slot-emoji { font-size: 32px; margin: 6px 0 2px 0; }
+.slot-title { font-size: 10px; font-weight: 700; line-height: 1.2; height: 24px; overflow: hidden; color: #fff; }
+.slot-val { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); margin-top: 2px; }
+.btn-quick-90 { width: 100%; background: rgba(0, 255, 102, 0.12); border: 1px solid var(--neon-green); color: var(--neon-green); border-radius: 8px; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px; text-align: center; }
+.btn-quick-90:active { background: rgba(0, 255, 102, 0.25); }
+.wheel-wrap { position: relative; width: 105px; height: 105px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+.wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.wheel-bg-circle { fill: none; stroke: rgba(255, 0, 85, 0.2); stroke-width: 8; }
+.wheel-active-arc { fill: none; stroke: var(--neon-cyan); stroke-width: 8; stroke-dasharray: 283; stroke-dashoffset: 141; stroke-linecap: round; transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease; }
+.wheel-needle { position: absolute; top: 0px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 12px solid #fff; z-index: 10; filter: drop-shadow(0 0 8px var(--neon-cyan)); transition: transform 2.2s cubic-bezier(0.1, 0.85, 0.15, 1); transform-origin: 50% 52px; }
+.wheel-info { position: absolute; text-align: center; }
+.chance-num { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: #fff; }
+.chance-lbl { font-size: 8px; font-weight: 800; color: var(--text-sub); }
+.insurance-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px 12px; margin-bottom: 10px; font-size: 10px; font-weight: 700; }
+.toggle-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #222; transition: .3s; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
+.slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--neon-green); }
+input:checked + .slider:before { transform: translateX(16px); }
+.btn-upgrade-main { width: 100%; background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)); color: #fff; border: none; border-radius: 12px; padding: 12px; font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: all 0.15s ease; }
+.btn-upgrade-main:active { transform: scale(0.97); }
+.btn-upgrade-main:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; filter: grayscale(1); }
+.catalog-filter { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
+.filter-chip { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 10px; font-size: 10px; font-weight: 800; color: var(--text-sub); cursor: pointer; white-space: nowrap; }
+.filter-chip.active { background: rgba(0,243,255,0.15); border-color: var(--neon-cyan); color: #fff; }
+.items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 240px; overflow-y: auto; }
+.grid-card { background: rgba(10, 14, 23, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px; text-align: center; cursor: pointer; position: relative; }
+.grid-card.selected-target { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3); background: rgba(0,243,255,0.1); }
+.grid-card .rarity-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
+.grid-card .emoji { font-size: 24px; margin: 4px 0; }
+.grid-card .name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+.grid-card .price { font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; color: var(--neon-yellow); }
+.crash-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px; }
+.crash-canvas-container { position: relative; width: 100%; height: 160px; background: rgba(0,0,0,0.7); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; overflow: hidden; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; }
+.crash-mult-display { position: relative; z-index: 5; font-family: 'Orbitron', sans-serif; font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 0 15px var(--neon-cyan); }
+.crash-mult-display.crashed { color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); }
+.crash-history { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; }
+.history-pill { background: rgba(255,255,255,0.05); border-radius: 6px; padding: 2px 8px; font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 800; flex-shrink: 0; }
+.history-pill.high { color: var(--neon-green); border: 1px solid var(--neon-green); }
+.history-pill.low { color: var(--neon-pink); border: 1px solid var(--neon-pink); }
+.crash-inputs { display: flex; gap: 8px; margin-bottom: 10px; }
+.cyber-input { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 12px; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 12px; outline: none; }
+.btn-crash-action { width: 100%; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); color: #000; border: none; border-radius: 10px; padding: 12px; font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
+.btn-crash-action.cashout { background: linear-gradient(135deg, var(--neon-green), #00b341); color: #000; }
+.market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.market-item-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.market-item-info { display: flex; align-items: center; gap: 10px; }
+.market-item-info .emoji { font-size: 28px; }
+.market-seller { font-size: 9px; color: var(--text-sub); }
+.promo-box { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+.promo-title { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--neon-yellow); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.fortune-wheel-wrapper { position: relative; width: 220px; height: 220px; margin: 15px auto; }
+.fortune-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid #ffffff; z-index: 30; filter: drop-shadow(0 0 10px var(--neon-pink)); }
+#fortune-canvas { width: 220px; height: 220px; border-radius: 50%; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); border: 4px solid rgba(255,255,255,0.2); transition: transform 3.8s cubic-bezier(0.15, 0.85, 0.1, 1); }
+.cases-selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+.case-select-card { background: rgba(10, 14, 23, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; }
+.case-select-card.active { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,243,255,0.3); background: rgba(0, 243, 255, 0.1); }
+.case-select-card .c-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 900; color: #fff; margin-bottom: 2px; }
+.case-select-card .c-price { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; color: var(--neon-yellow); }
+.case-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 14px; }
+.case-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; color: var(--neon-cyan); margin-bottom: 6px; }
+.case-reel-container { position: relative; width: 100%; height: 80px; background: rgba(0,0,0,0.6); border: 1px solid rgba(0,243,255,0.3); border-radius: 12px; overflow: hidden; margin: 10px 0; }
+.case-reel-pointer { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 3px; background: var(--neon-yellow); z-index: 10; box-shadow: 0 0 10px var(--neon-yellow); }
+.case-reel-track { display: flex; gap: 8px; position: absolute; left: 0; top: 5px; transition: transform 3.5s cubic-bezier(0.1, 0.85, 0.1, 1); }
+.reel-item { width: 65px; height: 65px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
+.reel-item .emoji { font-size: 26px; }
+.btn-open-case { width: 100%; background: linear-gradient(135deg, var(--neon-yellow), #ff8c00); color: #000; border: none; border-radius: 10px; padding: 12px; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; cursor: pointer; }
+.duel-card { background: var(--card-bg); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 16px; padding: 14px; text-align: center; margin-bottom: 12px; }
+.duel-match-arena { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; background: rgba(0,0,0,0.6); border-radius: 12px; padding: 10px; margin: 10px 0; }
+.duel-avatar { font-size: 36px; margin-bottom: 4px; }
+.duel-versus { font-family: 'Orbitron'; font-size: 16px; font-weight: 900; color: var(--neon-pink); }
+.duel-progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.duel-progress-fill { height: 100%; width: 0%; background: var(--neon-cyan); transition: width 0.1s linear; }
+.achievement-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; }
+.achievement-info { display: flex; align-items: center; gap: 8px; text-align: left; }
+.achievement-icon { font-size: 20px; }
+.achievement-title { font-size: 11px; font-weight: 800; color: #fff; }
+.achievement-desc { font-size: 9px; color: var(--text-sub); }
+.float-text { position: fixed; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 18px; pointer-events: none; z-index: 9999; animation: floatUp 0.6s forwards; }
+@keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -90px) scale(1.2); } }
+.shake { animation: shakeAnim 0.4s ease-in-out; }
+@keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+</style>
 </head>
 <body>
-
-    <canvas id="particle-canvas"></canvas>
-
-    <!-- LIVE FEED -->
-    <div class="live-feed-wrapper">
-        <div class="live-feed-label">LIVE DROPS</div>
-        <div class="live-feed-track" id="feed-track"></div>
+<canvas id="particle-canvas"></canvas>
+<div class="live-feed-wrapper">
+  <div class="live-feed-label">LIVE DROPS</div>
+  <div class="live-feed-track" id="feed-track"></div>
+</div>
+<div class="app-header">
+  <div class="user-profile">
+    <div class="level-badge" id="user-lvl">1</div>
+    <div class="user-meta">
+      <span class="user-name">CyberPawn <span class="streak-badge" id="streak-tag">🔥 <span id="streak-days">0</span> дн.</span></span>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-fill"></div></div>
     </div>
+  </div>
+  <div class="balance-group">
+    <div class="balance-box" id="balance-val">4,500 VEX</div>
+    <div class="btn-sound" onclick="toggleSound()" id="sound-btn">🔊</div>
+  </div>
+</div>
 
-    <!-- ШАПКА ПОЛЬЗОВАТЕЛЯ -->
-    <div class="app-header">
-        <div class="user-profile">
-            <div class="avatar-container">
-                <img id="user-avatar" class="user-avatar-img" src="https://via.placeholder.com/40/00f3ff/000000?text=CP" alt="User">
-                <div class="level-badge" id="user-lvl">1</div>
-            </div>
-            <div class="user-meta">
-                <span class="user-name">
-                    <span id="user-name-txt">NetRunner</span>
-                    <span class="user-title-tag" id="user-title-display">NetRunner</span>
-                    <span class="streak-badge" id="streak-tag">🔥 <span id="streak-days">2</span>д</span>
-                </span>
-                <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-fill"></div></div>
-            </div>
+<div class="view-section active" id="sec-upgrade">
+  <div class="bankrupt-banner" id="bankrupt-banner">
+    <div style="font-family:'Orbitron'; font-size:12px; font-weight:900; color:var(--neon-pink);">🚨 ВСЕ ПРЕДМЕТЫ СГОРЕЛИ!</div>
+    <div style="font-size:10px; color:#fff; margin:4px 0;">Заберите стартовый комплект:</div>
+    <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900; padding:6px 14px;" onclick="claimBankruptcyKit()">🎁 ПОЛУЧИТЬ ЧИП + 250 VEX</button>
+  </div>
+  <div class="cyber-tap-btn" onclick="handleTap(event)"><div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+25 VEX)</div></div>
+  <div class="arena-card" id="arena-card">
+    <button class="btn-quick-90" onclick="selectHighChanceTarget()">🎯 ПОДОБРАТЬ ЦЕЛЬ НА ~90% ШАНС</button>
+    <button class="btn-quick-90" style="background:rgba(255,230,0,0.12); border-color:var(--neon-yellow); color:var(--neon-yellow);" onclick="runMultiUpgrade(3)">⚡ МУЛЬТИ-АПГРЕЙД x3</button>
+    <div class="arena-grid">
+      <div class="slot-box" id="slot-my" onclick="switchTab('sec-inventory')">
+        <span class="slot-tag">Твой Скин</span>
+        <div class="slot-emoji" id="my-emoji">❓</div>
+        <div class="slot-title" id="my-title">Выбрать</div>
+        <div class="slot-val" id="my-val">0 VEX</div>
+      </div>
+      <div class="wheel-wrap">
+        <svg class="wheel-svg" viewBox="0 0 100 100">
+          <circle class="wheel-bg-circle" cx="50" cy="50" r="45"></circle>
+          <circle class="wheel-active-arc" id="wheel-arc" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="wheel-needle" id="needle"></div>
+        <div class="wheel-info">
+          <span class="chance-num" id="chance-val">0.0%</span>
+          <span class="chance-lbl">ШАНС</span>
         </div>
-        <div class="balance-group">
-            <div class="balance-box" id="balance-val">4,500 VEX</div>
-            <div class="btn-sound" onclick="toggleSound()" id="sound-btn">🔊</div>
-        </div>
+      </div>
+      <div class="slot-box" id="slot-target">
+        <span class="slot-tag">Цель</span>
+        <div class="slot-emoji" id="target-emoji">❓</div>
+        <div class="slot-title" id="target-title">Выберите ниже</div>
+        <div class="slot-val" id="target-val">0 VEX</div>
+      </div>
     </div>
-
-    <!-- ================= 1. АПГРЕЙДЕР ================= -->
-    <div class="view-section active" id="sec-upgrade">
-        <div class="bankrupt-banner" id="bankrupt-banner">
-            <div style="font-family:'Orbitron'; font-size:12px; font-weight:900; color:var(--neon-pink);">🚨 ВСЕ ПРЕДМЕТЫ СГОРЕЛИ!</div>
-            <div style="font-size:10px; color:#fff; margin:4px 0;">Заберите стартовый комплект:</div>
-            <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900; padding:6px 14px;" onclick="claimBankruptcyKit()">🎁 ЧИП + 250 VEX</button>
-        </div>
-
-        <div class="cyber-tap-btn" onclick="handleTap(event)">
-            <div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+25 VEX)</div>
-        </div>
-
-        <div class="arena-card" id="arena-card">
-            <button class="btn-quick-90" onclick="selectHighChanceTarget()">🎯 ЦЕЛЬ НА ~90% ШАНС</button>
-            <div class="arena-grid">
-                <div class="slot-box" id="slot-my" onclick="switchTab('sec-inventory')">
-                    <span class="slot-tag">Твой Скин</span>
-                    <div class="slot-emoji" id="my-emoji">❓</div>
-                    <div class="slot-title" id="my-title">Выбрать скин</div>
-                    <div class="slot-val" id="my-val">0 VEX</div>
-                </div>
-
-                <div class="wheel-wrap">
-                    <svg class="wheel-svg" viewBox="0 0 100 100">
-                        <circle class="wheel-bg-circle" cx="50" cy="50" r="45"></circle>
-                        <circle class="wheel-active-arc" id="wheel-arc" cx="50" cy="50" r="45"></circle>
-                    </svg>
-                    <div class="wheel-needle" id="needle"></div>
-                    <div class="wheel-info">
-                        <span class="chance-num" id="chance-val">0.0%</span>
-                        <span class="chance-lbl">ШАНС</span>
-                    </div>
-                </div>
-
-                <div class="slot-box" id="slot-target">
-                    <span class="slot-tag">Цель</span>
-                    <div class="slot-emoji" id="target-emoji">❓</div>
-                    <div class="slot-title" id="target-title">Выберите ниже</div>
-                    <div class="slot-val" id="target-val">0 VEX</div>
-                </div>
-            </div>
-
-            <div class="insurance-bar">
-                <span>🛡️ Страховка предмета (+20% VEX)</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="insurance-check" onchange="updateUI()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <button class="btn-upgrade-main" id="btn-upgrade" onclick="runUpgrade()">🚀 ПРОКАЧАТЬ</button>
-        </div>
-
-        <div class="catalog-filter">
-            <div class="filter-chip active" onclick="filterCatalog('all', this)">ВСЕ</div>
-            <div class="filter-chip" onclick="filterCatalog('common', this)">БЮДЖЕТ</div>
-            <div class="filter-chip" onclick="filterCatalog('rare', this)">СРЕДНИЕ</div>
-            <div class="filter-chip" onclick="filterCatalog('legendary', this)">ТОП И GODLIKE</div>
-        </div>
-        <div class="items-grid" id="catalog-grid"></div>
+    <div class="insurance-bar">
+      <span>🛡️ Страховка (+20% VEX)</span>
+      <label class="toggle-switch"><input type="checkbox" id="insurance-check" onchange="updateUI()"><span class="slider"></span></label>
     </div>
+    <button class="btn-upgrade-main" id="btn-upgrade" onclick="runUpgrade()">🚀 ПРОКАЧАТЬ</button>
+  </div>
+  <div class="catalog-filter">
+    <div class="filter-chip active" onclick="filterCatalog('all', this)">ВСЕ (48)</div>
+    <div class="filter-chip" onclick="filterCatalog('common', this)">БЮДЖЕТ</div>
+    <div class="filter-chip" onclick="filterCatalog('rare', this)">СРЕДНИЕ</div>
+    <div class="filter-chip" onclick="filterCatalog('legendary', this)">ТОП</div>
+  </div>
+  <div class="items-grid" id="catalog-grid"></div>
+</div>
 
-    <!-- ================= 2. КИБЕР-МИНЫ ================= -->
-    <div class="view-section" id="sec-mines">
-        <div class="card-box">
-            <div class="card-box-title">💣 КИБЕР-МИНЫ (MINES 5x5)</div>
-            <div style="display:flex; gap:6px; margin-bottom:8px;">
-                <input type="number" class="cyber-input" id="mines-bet" placeholder="Ставка VEX" value="200" style="margin:0;">
-                <select class="cyber-input" id="mines-count" style="margin:0; width:110px;">
-                    <option value="3">3 Вируса</option>
-                    <option value="5">5 Вирусов</option>
-                    <option value="10">10 Вирусов</option>
-                </select>
-            </div>
-            <button class="btn-upgrade-main" id="btn-mines-start" onclick="startMinesGame()">НАЧАТЬ ИГРУ</button>
-            <div class="mines-grid" id="mines-grid"></div>
-            <button class="btn-upgrade-main" id="btn-mines-cashout" style="background:linear-gradient(135deg, var(--neon-green), #00b341); display:none;" onclick="cashoutMines()">ЗАБРАТЬ КУШ</button>
-        </div>
+<div class="view-section" id="sec-crash">
+  <div class="crash-card">
+    <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-cyan); margin-bottom:8px;">📈 CYBER-CRASH</div>
+    <div class="crash-history" id="crash-history"></div>
+    <div class="crash-canvas-container"><div class="crash-mult-display" id="crash-mult">x1.00</div></div>
+    <div class="crash-inputs">
+      <input type="number" class="cyber-input" id="crash-bet-input" placeholder="Ставка VEX" value="200">
+      <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = Math.floor(balance/2)">1/2</button>
+      <button class="filter-chip" onclick="document.getElementById('crash-bet-input').value = balance">MAX</button>
     </div>
+    <button class="btn-crash-action" id="btn-crash-toggle" onclick="handleCrashBtn()">ПОСТАВИТЬ И СТАРТ</button>
+  </div>
+</div>
 
-    <!-- ================= 3. COINFLIP ================= -->
-    <div class="view-section" id="sec-coinflip">
-        <div class="card-box" style="text-align:center;">
-            <div class="card-box-title">🪙 COINFLIP (ДУЭЛЬ НА МОНЕТЕ)</div>
-            <div class="coinflip-container">
-                <div class="coin-chip" id="coin-chip">💎</div>
-            </div>
-            <input type="number" class="cyber-input" id="coinflip-bet" placeholder="Ставка VEX" value="300">
-            <div style="display:flex; gap:8px; margin-bottom:10px;">
-                <button class="btn-upgrade-main" style="background:var(--neon-cyan); color:#000;" onclick="runCoinflip('cyan')">01 // КИБЕР-ЧИП</button>
-                <button class="btn-upgrade-main" style="background:var(--neon-pink);" onclick="runCoinflip('pink')">10 // ВИРУС-ЧИП</button>
-            </div>
-        </div>
+<div class="view-section" id="sec-duels">
+  <div class="duel-card">
+    <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-pink);">⚔️ КИБЕР-ДУЭЛЬ (PVP)</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-top:4px;">Сразитесь с хакером!</div>
+    <div class="duel-match-arena">
+      <div><div class="duel-avatar">👤</div><div style="font-size:10px; font-weight:800; color:var(--neon-cyan);">ВЫ</div></div>
+      <div class="duel-versus">VS</div>
+      <div><div class="duel-avatar" id="duel-opp-avatar">🤖</div><div style="font-size:10px; font-weight:800; color:var(--neon-pink);" id="duel-opp-name">NetRunner_99</div></div>
     </div>
+    <div style="font-family:'Orbitron'; font-size:11px; font-weight:800; color:var(--neon-yellow); margin-bottom:6px;">СТАВКА: 500 VEX</div>
+    <div class="duel-progress-bar"><div class="duel-progress-fill" id="duel-bar"></div></div>
+    <button class="btn-upgrade-main" style="margin-top:12px; background:linear-gradient(135deg, var(--neon-pink), var(--neon-yellow)); color:#000;" id="btn-start-duel" onclick="startCyberDuel()">⚔️ НАЧАТЬ ДУЭЛЬ</button>
+  </div>
+</div>
 
-    <!-- ================= 4. РЕЙД-БОСС ================= -->
-    <div class="view-section" id="sec-raid">
-        <div class="boss-card">
-            <div style="font-family:'Orbitron'; font-size:16px; font-weight:900; color:var(--neon-pink);">👾 СЕТЕВОЙ ИИ «АРАСАКА»</div>
-            <div style="font-size:10px; color:var(--text-sub);">Групповой серверный босс</div>
-            <div class="boss-hp-bg">
-                <div class="boss-hp-fill" id="boss-hp-fill"></div>
-                <div class="boss-hp-text" id="boss-hp-txt">750,000 / 1,000,000 HP</div>
-            </div>
-            <div style="font-size:11px; margin-bottom:10px;">Нанесено вами урона: <b id="user-raid-dmg" style="color:var(--neon-yellow)">0</b></div>
-            <button class="btn-upgrade-main" style="background:linear-gradient(135deg, var(--neon-pink), var(--neon-yellow)); color:#000;" onclick="attackRaidBoss()">⚔️ АТАКОВАТЬ ІИ (-100 HP)</button>
-        </div>
+<div class="view-section" id="sec-market">
+  <div class="market-header">
+    <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">P2P МАРКЕТ</span>
+    <button class="filter-chip" onclick="openSellModal()">+ ВЫСТАВИТЬ</button>
+  </div>
+  <div id="market-listings-list"></div>
+</div>
+
+<div class="view-section" id="sec-inventory">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">МОИ ПРЕДМЕТЫ (<span id="inv-count">0</span>)</span>
+    <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink);" onclick="sellAllCommon()">ПРОДАТЬ ОБЫЧНЫЕ</button>
+  </div>
+  <div class="items-grid" id="inventory-grid" style="max-height:none;"></div>
+</div>
+
+<div class="view-section" id="sec-bonuses">
+  <div class="promo-box">
+    <div class="promo-title"><span>🎁 ЕЖЕДНЕВНЫЙ БОНУС</span><span style="font-size:10px; color:var(--neon-green);">СТРИК: <b id="streak-card-val">0</b> ДН.</span></div>
+    <button class="btn-upgrade-main" style="font-size:11px; padding:10px; margin-top:6px;" id="btn-claim-daily" onclick="claimDailyReward()">ЗАБРАТЬ +500 VEX</button>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">🏆 ДОСТИЖЕНИЯ</div>
+    <div id="achievements-list"></div>
+  </div>
+  <div class="promo-box" style="text-align:center;">
+    <div class="promo-title">🎰 КОЛЕСО УДАЧИ</div>
+    <div class="fortune-wheel-wrapper">
+      <div class="fortune-pointer"></div>
+      <canvas id="fortune-canvas" width="220" height="220"></canvas>
     </div>
-
-    <!-- ================= 5. КОНТРАКТЫ (CRAFTING) ================= -->
-    <div class="view-section" id="sec-crafting">
-        <div class="card-box">
-            <div class="card-box-title">📜 КОНТРАКТЫ ОБМЕНА (5 к 1)</div>
-            <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Сэшьте 5 предметов одинаковой редкости для получения 1 высшего!</div>
-            <div style="display:flex; justify-content:space-between; gap:4px; margin-bottom:12px;" id="contract-slots">
-                <div class="slot-box" style="min-height:70px; flex:1;">❓</div>
-                <div class="slot-box" style="min-height:70px; flex:1;">❓</div>
-                <div class="slot-box" style="min-height:70px; flex:1;">❓</div>
-                <div class="slot-box" style="min-height:70px; flex:1;">❓</div>
-                <div class="slot-box" style="min-height:70px; flex:1;">❓</div>
-            </div>
-            <button class="btn-upgrade-main" id="btn-sign-contract" onclick="signContract()">✍️ ПОДПИСАТЬ КОНТРАКТ</button>
-        </div>
+    <button class="btn-upgrade-main" id="btn-spin-fortune" style="background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;" onclick="spinFortuneWheel()">🎰 ВРАЩАТЬ (БЕСПЛАТНО)</button>
+    <div id="fortune-timer" style="font-size:10px; color:var(--text-sub); margin-top:6px;">Бесплатный спин доступен!</div>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">🔑 ПРОМОКОД</div>
+    <div style="display:flex; gap:6px;">
+      <input type="text" class="cyber-input" id="promo-input" placeholder="Код" style="text-transform:uppercase;">
+      <button class="filter-chip" style="background:var(--neon-cyan); color:#000; font-weight:900;" onclick="applyPromo()">АКТИВИРОВАТЬ</button>
     </div>
+  </div>
+  <div class="promo-box" style="text-align:center;">
+    <button class="filter-chip" style="color:var(--neon-pink); border-color:var(--neon-pink); font-weight:900;" onclick="resetProgress()">🗑️ СБРОСИТЬ ПРОГРЕСС</button>
+  </div>
+</div>
 
-    <!-- ================= 6. МАЙНИНГ И АВТО-БОТ ================= -->
-    <div class="view-section" id="sec-mining">
-        <div class="card-box">
-            <div class="card-box-title">🖥️ ДАТА-ЦЕНТРЫ И ПАССИВНЫЙ ДОХОД</div>
-            <div style="font-size:11px; margin-bottom:8px;">Текущий пассивный доход: <b id="mining-rate-val" style="color:var(--neon-green)">0 VEX/час</b></div>
-            <button class="btn-upgrade-main" style="margin-bottom:8px;" onclick="buyMiningRig(1)">Купить Сервер Mk.1 (2,000 VEX -> +100/ч)</button>
-            <button class="btn-upgrade-main" style="margin-bottom:8px; background:linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));" onclick="buyMiningRig(2)">Купить Дата-Стойку (10,000 VEX -> +600/ч)</button>
-        </div>
-        <div class="card-box">
-            <div class="card-box-title">🤖 АВТО-ТАПЕР (AUTO-BOT)</div>
-            <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Собирает кредиты в оффлайне до 8 часов.</div>
-            <button class="btn-upgrade-main" id="btn-buy-autobot" onclick="buyAutoBot()">Купить Авто-Бота (5,000 VEX)</button>
-        </div>
+<div class="view-section" id="sec-cases">
+  <div style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan); margin-bottom:8px;">ВЫБЕРИТЕ КЕЙС:</div>
+  <div class="cases-selector-grid" id="cases-grid"></div>
+  <div class="case-card" id="active-case-card">
+    <div class="case-title" id="active-case-title">📦 CASE</div>
+    <div style="font-size:11px; color:var(--text-sub); margin-bottom:6px;" id="active-case-desc">Загрузка...</div>
+    <div class="case-reel-container">
+      <div class="case-reel-pointer"></div>
+      <div class="case-reel-track" id="case-track"></div>
     </div>
-
-    <!-- ================= 7. CYBER-CRASH ================= -->
-    <div class="view-section" id="sec-crash">
-        <div class="crash-card">
-            <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:var(--neon-cyan); margin-bottom:8px;">📈 CYBER-CRASH // MULTIPLIER</div>
-            <div class="crash-history" id="crash-history">
-                <div class="history-pill high">x2.45</div>
-                <div class="history-pill low">x1.12</div>
-            </div>
-            <div class="crash-canvas-container">
-                <div class="crash-mult-display" id="crash-mult">x1.00</div>
-            </div>
-            <input type="number" class="cyber-input" id="crash-bet-input" placeholder="Ставка VEX" value="200">
-            <button class="btn-upgrade-main" id="btn-crash-toggle" onclick="handleCrashBtn()">ПОСТАВИТЬ И СТАРТ</button>
-        </div>
+    <button class="btn-open-case" id="btn-open-case" onclick="openSelectedCase()">ОТКРЫТЬ</button>
+    <div style="margin-top:14px; text-align:left;">
+      <div style="font-family:'Orbitron'; font-size:10px; font-weight:800; color:var(--text-sub); margin-bottom:6px;">ВОЗМОЖНЫЙ ДРОП:</div>
+      <div class="items-grid" id="case-preview-grid" style="max-height:140px;"></div>
     </div>
+  </div>
+</div>
 
-    <!-- ================= 8. P2P МАРКЕТ ================= -->
-    <div class="view-section" id="sec-market">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-family:'Orbitron'; font-size:12px; font-weight:800; color:var(--neon-cyan);">P2P МАРКЕТ</span>
-            <button class="filter-chip" onclick="openSellModal()">+ ВЫСТАВИТЬ СКИН</button>
-        </div>
-        <div id="market-listings-list"></div>
+<div class="view-section" id="sec-quests">
+  <div class="promo-box">
+    <div class="promo-title">🎯 ЕЖЕДНЕВНЫЕ КВЕСТЫ</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Обновляются каждый день</div>
+    <div id="quests-list"></div>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">📅 СТРИК ЗАХОДОВ</div>
+    <div style="font-size:24px; font-weight:900; color:var(--neon-yellow); text-align:center;" id="quest-streak">🔥 0 дн.</div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-skills">
+  <div class="promo-box">
+    <div class="promo-title">🌳 ДЕРЕВО ПРОКАЧКИ</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Очки навыков: <b id="skill-points" style="color:var(--neon-yellow);">0</b></div>
+    <div id="skills-list"></div>
+  </div>
+</div>
+
+<div class="view-section" id="sec-craft">
+  <div class="promo-box">
+    <div class="promo-title">⚗️ КРАФТ</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">3 common → 1 uncommon | 5 uncommon → 1 rare | 10 rare → 1 epic</div>
+    <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+      <button class="filter-chip" onclick="craftItems('common')">3 COMMON</button>
+      <button class="filter-chip" onclick="craftItems('uncommon')">5 UNCOMMON</button>
+      <button class="filter-chip" onclick="craftItems('rare')">10 RARE</button>
     </div>
+    <div class="items-grid" id="craft-preview" style="max-height:140px;"></div>
+  </div>
+</div>
 
-    <!-- ================= 9. ИНВЕНТАРЬ И МОДУЛИ ================= -->
-    <div class="view-section" id="sec-inventory">
-        <div style="display:flex; gap:6px; margin-bottom:8px;">
-            <input type="text" class="cyber-input" id="inv-search" placeholder="🔍 Поиск..." oninput="renderInventory()" style="margin:0;">
-            <select class="cyber-input" id="inv-sort" onchange="renderInventory()" style="margin:0; width:110px;">
-                <option value="price-desc">Дорогие</option>
-                <option value="price-asc">Дешевые</option>
-            </select>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-family:'Orbitron'; font-size:11px; color:var(--neon-cyan);">ПРЕДМЕТЫ (<span id="inv-count">0</span>)</span>
-            <button class="filter-chip" style="color:var(--neon-pink);" onclick="sellAllCommon()">ПРОДАТЬ ОБЫЧНЫЕ</button>
-        </div>
-        <div class="items-grid" id="inventory-grid" style="max-height:none;"></div>
-    </div>
+<div class="view-section" id="sec-pet">
+  <div class="promo-box" style="text-align:center;">
+    <div class="promo-title">🐾 КИБЕР-ПИТОМЕЦ</div>
+    <div style="font-size:64px; margin:10px 0;" id="pet-emoji">🥚</div>
+    <div style="font-family:'Orbitron'; font-size:14px; font-weight:900; color:#fff;" id="pet-name">Яйцо</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;" id="pet-level">Уровень 1</div>
+    <div style="font-size:11px; color:var(--neon-green); margin-bottom:10px;" id="pet-income">+0 VEX/мин</div>
+    <button class="btn-upgrade-main" id="btn-feed-pet" onclick="feedPet()" style="font-size:11px; padding:10px;">ПОКОРМИТЬ (500 VEX)</button>
+    <button class="btn-upgrade-main" id="btn-upgrade-pet" onclick="upgradePet()" style="font-size:11px; padding:10px; margin-top:6px; background:linear-gradient(135deg, var(--neon-purple), var(--neon-pink));">УЛУЧШИТЬ (2000 VEX)</button>
+  </div>
+</div>
 
-    <!-- ================= 10. КЕЙСЫ ================= -->
-    <div class="view-section" id="sec-cases">
-        <div class="cases-selector-grid" id="cases-grid"></div>
-        <div class="case-card" id="active-case-card">
-            <div class="case-title" id="active-case-title">📦 CYBER-CASE</div>
-            <div class="case-reel-container">
-                <div class="case-reel-pointer"></div>
-                <div class="case-reel-track" id="case-track"></div>
-            </div>
-            <button class="btn-open-case" id="btn-open-case" onclick="openSelectedCase()">ОТКРЫТЬ</button>
-            <div class="items-grid" id="case-preview-grid" style="max-height: 120px; margin-top:10px;"></div>
-        </div>
-    </div>
+<div class="view-section" id="sec-auction">
+  <div class="promo-box">
+    <div class="promo-title">🔨 АУКЦИОН</div>
+    <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">Ставки на редкие предметы. Таймер 60 сек.</div>
+    <div id="auction-list"></div>
+  </div>
+</div>
 
-    <!-- ================= 11. ЗАЛ СЛАВЫ И СТАТИСТИКА ================= -->
-    <div class="view-section" id="sec-leaderboard">
-        <div class="card-box">
-            <div class="card-box-title">🏆 ЗАЛ СЛАВЫ (LEADERBOARD)</div>
-            <div id="leaderboard-list"></div>
-        </div>
-        <div class="card-box">
-            <div class="card-box-title">📊 ДЕТАЛЬНАЯ СТАТИСТИКА</div>
-            <div style="font-size:11px; line-height:1.6;" id="stats-container"></div>
-        </div>
-    </div>
+<div class="view-section" id="sec-leaderboard">
+  <div class="promo-box">
+    <div class="promo-title">🏆 ЛИДЕРБОРД</div>
+    <div id="leaderboard-list"></div>
+  </div>
+  <div class="promo-box">
+    <div class="promo-title">📊 СТАТИСТИКА</div>
+    <div id="stats-list"></div>
+  </div>
+</div>
 
-    <!-- ================= 12. ПРОФИЛЬ, БОНУСЫ И STARS ================= -->
-    <div class="view-section" id="sec-profile">
-        <div class="card-box">
-            <div class="card-box-title">👑 ТИТУЛЫ ПРОФИЛЯ</div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                <button class="filter-chip" onclick="setTitle('NetRunner')">NetRunner</button>
-                <button class="filter-chip" onclick="setTitle('Призрак Сетки')">Призрак Сетки</button>
-                <button class="filter-chip" onclick="setTitle('Кибер-Барон')">Кибер-Барон</button>
-            </div>
-        </div>
-        <div class="card-box">
-            <div class="card-box-title">👥 РЕФЕРАЛЬНАЯ СИСТЕМА</div>
-            <div style="font-size:10px; color:var(--text-sub); margin-bottom:6px;">Приглашайте друзей и получайте +10% от фармируемых ими VEX!</div>
-            <button class="btn-upgrade-main" onclick="copyRefLink()">СКОПИРОВАТЬ РЕФ-ССЫЛКУ</button>
-        </div>
-        <div class="card-box">
-            <div class="card-box-title">⭐ TELEGRAM STARS</div>
-            <button class="btn-upgrade-main" style="background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;" onclick="buyVexStars()">КУПИТЬ 10,000 VEX (50 ⭐)</button>
-        </div>
-    </div>
+<div class="view-section" id="sec-clans">
+  <div class="promo-box">
+    <div class="promo-title">🛡️ КЛАНЫ</div>
+    <div id="clan-info"></div>
+  </div>
+</div>
 
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-    <div class="bottom-nav">
-        <div class="nav-tab active" onclick="switchTab('sec-upgrade', this)"><span class="icon">🎰</span>Апгрейд</div>
-        <div class="nav-tab" onclick="switchTab('sec-mines', this)"><span class="icon">💣</span>Мины</div>
-        <div class="nav-tab" onclick="switchTab('sec-coinflip', this)"><span class="icon">🪙</span>Coinflip</div>
-        <div class="nav-tab" onclick="switchTab('sec-raid', this)"><span class="icon">👾</span>Рейд</div>
-        <div class="nav-tab" onclick="switchTab('sec-crafting', this)"><span class="icon">📜</span>Крафт</div>
-        <div class="nav-tab" onclick="switchTab('sec-mining', this)"><span class="icon">🖥️</span>Майнинг</div>
-        <div class="nav-tab" onclick="switchTab('sec-crash', this)"><span class="icon">📈</span>Краш</div>
-        <div class="nav-tab" onclick="switchTab('sec-market', this)"><span class="icon">🛒</span>Маркет</div>
-        <div class="nav-tab" onclick="switchTab('sec-inventory', this)"><span class="icon">🎒</span>Склад</div>
-        <div class="nav-tab" onclick="switchTab('sec-cases', this)"><span class="icon">📦</span>Кейсы</div>
-        <div class="nav-tab" onclick="switchTab('sec-leaderboard', this)"><span class="icon">🏆</span>Топ</div>
-        <div class="nav-tab" onclick="switchTab('sec-profile', this)"><span class="icon">👤</span>Профиль</div>
-    </div>
+<div class="view-section" id="sec-premium">
+  <div class="promo-box" style="text-align:center;">
+    <div class="promo-title" style="justify-content:center;">💎 ПРЕМИУМ</div>
+    <div style="font-size:11px; color:var(--text-sub); margin-bottom:10px;">+50% к доходу, +1 бесплатный спин</div>
+    <div id="premium-status"></div>
+    <button class="btn-upgrade-main" onclick="buyPremium()" style="background:linear-gradient(135deg, var(--neon-yellow), #ff8c00); color:#000;">КУПИТЬ ЗА 5000 VEX</button>
+  </div>
+</div>
 
-    <script>
-        const tg = window.Telegram?.WebApp;
-        if (tg?.expand) tg.expand();
+<div class="bottom-nav">
+  <div class="nav-tab active" onclick="switchTab('sec-upgrade', this)"><span class="icon">🎰</span>Апгрейд</div>
+  <div class="nav-tab" onclick="switchTab('sec-crash', this)"><span class="icon">📈</span>Краш</div>
+  <div class="nav-tab" onclick="switchTab('sec-duels', this)"><span class="icon">⚔️</span>Дуэли</div>
+  <div class="nav-tab" onclick="switchTab('sec-cases', this)"><span class="icon">📦</span>Кейсы</div>
+  <div class="nav-tab" onclick="switchTab('sec-quests', this)"><span class="icon">🎯</span>Квесты</div>
+  <div class="nav-tab" onclick="switchTab('sec-skills', this)"><span class="icon">🌳</span>Скиллы</div>
+  <div class="nav-tab" onclick="switchTab('sec-craft', this)"><span class="icon">⚗️</span>Крафт</div>
+  <div class="nav-tab" onclick="switchTab('sec-pet', this)"><span class="icon">🐾</span>Питомец</div>
+  <div class="nav-tab" onclick="switchTab('sec-market', this)"><span class="icon">🛒</span>Маркет</div>
+  <div class="nav-tab" onclick="switchTab('sec-auction', this)"><span class="icon">🔨</span>Аукцион</div>
+  <div class="nav-tab" onclick="switchTab('sec-inventory', this)"><span class="icon">🎒</span>Склад</div>
+  <div class="nav-tab" onclick="switchTab('sec-bonuses', this)"><span class="icon">🎁</span>Бонусы</div>
+  <div class="nav-tab" onclick="switchTab('sec-leaderboard', this)"><span class="icon">🏆</span>Топ</div>
+  <div class="nav-tab" onclick="switchTab('sec-clans', this)"><span class="icon">🛡️</span>Клан</div>
+  <div class="nav-tab" onclick="switchTab('sec-premium', this)"><span class="icon">💎</span>Премиум</div>
+</div>
 
-        // TELEGRAM USER DATA
-        const tgUser = tg?.initDataUnsafe?.user;
-        const userName = tgUser ? (tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '')) : "NetRunner";
-        const userPhoto = tgUser?.photo_url || "https://via.placeholder.com/40/00f3ff/000000?text=CP";
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg?.expand) tg.expand();
 
-        const SAVE_KEY = 'cyberpunk_upgrade_save_v4';
+const SAVE_KEY = 'cyberpunk_upgrade_save_v4';
 
-        let balance = 4500;
-        let level = 1;
-        let xp = 0;
-        let streak = 2;
-        let soundEnabled = true;
-        let isRolling = false;
-        let userTitle = "NetRunner";
+let balance = 4500;
+let level = 1;
+let xp = 0;
+let streak = 0;
+let soundEnabled = true;
+let isRolling = false;
+let dailyClaimed = false;
+let usedPromos = new Set();
+let skillPoints = 0;
+let skills = { luck: 0, crash: 0, market: 0, cases: 0, income: 0 };
+let pet = { level: 1 };
+let premium = { active: false, expires: 0 };
+let dailyQuests = [];
+let questsDate = '';
+let leaderboard = [];
+let clan = { name: 'Без клана', bonus: 0, members: 1 };
+let auctionItems = [];
+let caseGuarantee = { starter: 0, cyberware: 0, arsenal: 0, militech: 0, garage: 0, godlike: 0 };
 
-        let stats = {
-            totalVexWon: 0,
-            upgradesCount: 0,
-            upgradesWin: 0,
-            casesOpened: 0,
-            maxCrashX: 1.0,
-            raidDmg: 0
-        };
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+function initAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
+function playSound(type) {
+  if (!soundEnabled) return;
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  const now = audioCtx.currentTime;
+  if (type === 'tap') { osc.type='sine'; osc.frequency.setValueAtTime(600,now); gain.gain.setValueAtTime(0.15,now); gain.gain.linearRampToValueAtTime(0.01,now+0.05); osc.start(now); osc.stop(now+0.05); }
+  else if (type === 'tick') { osc.type='square'; osc.frequency.setValueAtTime(800,now); gain.gain.setValueAtTime(0.04,now); gain.gain.linearRampToValueAtTime(0.001,now+0.02); osc.start(now); osc.stop(now+0.02); }
+  else if (type === 'win') { osc.type='triangle'; osc.frequency.setValueAtTime(440,now); osc.frequency.setValueAtTime(659,now+0.15); gain.gain.setValueAtTime(0.2,now); gain.gain.linearRampToValueAtTime(0.01,now+0.4); osc.start(now); osc.stop(now+0.4); }
+  else if (type === 'fail') { osc.type='sawtooth'; osc.frequency.setValueAtTime(250,now); osc.frequency.linearRampToValueAtTime(80,now+0.3); gain.gain.setValueAtTime(0.2,now); gain.gain.linearRampToValueAtTime(0.01,now+0.3); osc.start(now); osc.stop(now+0.3); }
+}
+function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇'; }
 
-        let miningRigs = { rig1: 0, rig2: 0 };
-        let autoBot = false;
-        let lastTimestamp = Date.now();
+const ITEMS = [
+  { id:1, name:"Чип 64KB", price:100, emoji:"💾", rarity:"common", color:"var(--rarity-common)" },
+  { id:2, name:"Чип 128KB", price:110, emoji:"📼", rarity:"common", color:"var(--rarity-common)" },
+  { id:3, name:"Кабель", price:125, emoji:"🔌", rarity:"common", color:"var(--rarity-common)" },
+  { id:4, name:"Дисплей", price:140, emoji:"📺", rarity:"common", color:"var(--rarity-common)" },
+  { id:5, name:"Флешка", price:150, emoji:"📟", rarity:"common", color:"var(--rarity-common)" },
+  { id:6, name:"Батарея", price:180, emoji:"🔋", rarity:"common", color:"var(--rarity-common)" },
+  { id:7, name:"Модем", price:200, emoji:"📻", rarity:"common", color:"var(--rarity-common)" },
+  { id:8, name:"Терминал", price:230, emoji:"💻", rarity:"common", color:"var(--rarity-common)" },
+  { id:9, name:"Паяльник", price:250, emoji:"🛠️", rarity:"common", color:"var(--rarity-common)" },
+  { id:10, name:"Очки AR", price:300, emoji:"🕶️", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:11, name:"Очки CyberPro", price:350, emoji:"🥽", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:12, name:"Сканер", price:400, emoji:"🔍", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:13, name:"Нейро-Интерфейс", price:450, emoji:"⚡", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:14, name:"ИИ-Процессор V1", price:500, emoji:"🧠", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:15, name:"ИИ-Процессор V2", price:600, emoji:"🧬", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:16, name:"Взломщик", price:700, emoji:"🔓", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:17, name:"Перчатка", price:800, emoji:"🧤", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:18, name:"Кибер-Дека", price:900, emoji:"📟", rarity:"uncommon", color:"var(--rarity-uncommon)" },
+  { id:19, name:"Дрон-Разведчик", price:1000, emoji:"🛸", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:20, name:"Дрон Кобра", price:1200, emoji:"🤖", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:21, name:"Smart-G", price:1500, emoji:"🔫", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:22, name:"Броня Trauma", price:1800, emoji:"🛡️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:23, name:"Винтовка", price:2200, emoji:"💥", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:24, name:"Неоновый Клинок", price:2500, emoji:"⚔️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:25, name:"Плазменная Катана", price:3000, emoji:"🗡️", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:26, name:"Лазер Mk.2", price:3800, emoji:"🔦", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:27, name:"Модуль Скорости", price:4500, emoji:"💨", rarity:"rare", color:"var(--rarity-rare)" },
+  { id:28, name:"Снайперка Рейл", price:6000, emoji:"🎯", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:29, name:"Моноструна", price:7500, emoji:"🕸️", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:30, name:"Нано-Броня", price:10000, emoji:"🦺", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:31, name:"Кибер-Сердце", price:12500, emoji:"🫀", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:32, name:"Sandevistan", price:15000, emoji:"⚡", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:33, name:"Sandevistan OC", price:18000, emoji:"🔥", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:34, name:"Камуфляж", price:22000, emoji:"👻", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:35, name:"Дека Militech", price:28000, emoji:"💻", rarity:"epic", color:"var(--rarity-epic)" },
+  { id:36, name:"Кибер-Глаз", price:40000, emoji:"👁️", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:37, name:"Дрон Mk.X", price:60000, emoji:"🛸", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:38, name:"Клинок Орочи", price:80000, emoji:"🗡️", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:39, name:"Mantis Blade", price:100000, emoji:"🦾", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:40, name:"Yaiba Kusanagi", price:125000, emoji:"🏍️", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:41, name:"Экзоскелет", price:150000, emoji:"🦾", rarity:"legendary", color:"var(--rarity-legendary)" },
+  { id:42, name:"Quadra Turbo-R", price:250000, emoji:"🏎️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:43, name:"Rayfield", price:500000, emoji:"🏎️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:44, name:"AV-4", price:1000000, emoji:"🚁", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:45, name:"Шаттл", price:1500000, emoji:"🚀", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:46, name:"Станция Net", price:2000000, emoji:"🛰️", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:47, name:"Ядро Нейромант", price:3000000, emoji:"🔮", rarity:"godlike", color:"var(--rarity-godlike)" },
+  { id:48, name:"Ключ Города", price:5000000, emoji:"👑", rarity:"godlike", color:"var(--rarity-godlike)" }
+];
 
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        let audioCtx = null;
-        function initAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
+const CASES = [
+  { id:'starter', name:'📦 STARTER', desc:'$100-$500', price:250, color:'var(--rarity-common)', pool:[1,2,3,4,5,6,7,8,9,10,11,12,13,14] },
+  { id:'cyberware', name:'⚙️ CYBERWARE', desc:'$300-$18,000', price:1200, color:'var(--rarity-uncommon)', pool:[10,11,13,14,15,17,18,31,32,33,36,39] },
+  { id:'arsenal', name:'⚔️ ARSENAL', desc:'$1,200-$80,000', price:4500, color:'var(--rarity-rare)', pool:[20,21,23,24,25,26,28,29,34,38,39] },
+  { id:'militech', name:'🛡️ MILITECH', desc:'$6,000-$150,000', price:15000, color:'var(--rarity-epic)', pool:[28,29,30,31,32,33,34,35,37,41] },
+  { id:'garage', name:'🏎️ GARAGE', desc:'$125,000-$1,000,000', price:80000, color:'var(--rarity-legendary)', pool:[40,42,43,44] },
+  { id:'godlike', name:'👑 GODLIKE', desc:'до $5,000,000', price:350000, color:'var(--rarity-godlike)', pool:[36,38,39,41,42,43,44,45,46,47,48] }
+];
 
-        function triggerHaptic(style = 'medium') {
-            if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
-        }
+let achievements = [
+  { id:'tap_10', icon:'⚡', title:'Первый фарм', desc:'Нафармить кликом', reward:100, done:false },
+  { id:'upgrade_win', icon:'🚀', title:'Успешный хак', desc:'Прокачать скин', reward:300, done:false },
+  { id:'crash_play', icon:'📈', title:'Трейдер', desc:'Сыграть в Краш', reward:250, done:false },
+  { id:'inventory_5', icon:'🎒', title:'Коллекционер', desc:'5 предметов', reward:500, done:false }
+];
 
-        function playSound(type) {
-            if (!soundEnabled) return;
-            initAudio();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            const now = audioCtx.currentTime;
+let myInventory = [ITEMS[0], ITEMS[2], ITEMS[4], ITEMS[6]];
+let myItem = myInventory[0];
+let targetItem = ITEMS[1];
+let selectedCaseIndex = 0;
+let isCaseOpening = false;
+let marketListings = [
+  { id:101, seller:"@cyber_jack", item:ITEMS[5], price:270 },
+  { id:102, seller:"@matrix_ninja", item:ITEMS[11], price:1100 },
+  { id:103, seller:"@araka_boss", item:ITEMS[24], price:3000 }
+];
 
-            if (type === 'tap') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
-                gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
-                osc.start(now); osc.stop(now + 0.05);
-            } else if (type === 'win') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(440, now);
-                osc.frequency.setValueAtTime(659, now + 0.15);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                osc.start(now); osc.stop(now + 0.4);
-            } else if (type === 'fail') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(250, now);
-                osc.frequency.linearRampToValueAtTime(80, now + 0.3);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
-            }
-        }
+function saveData() {
+  const data = { balance, level, xp, streak, dailyClaimed, hasFreeSpin, myInventory, usedPromos:Array.from(usedPromos), achievements, skillPoints, skills, pet, premium, dailyQuests, questsDate, leaderboard, clan };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+}
+function loadData() {
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      balance = data.balance ?? 4500;
+      level = data.level ?? 1;
+      xp = data.xp ?? 0;
+      streak = data.streak ?? 0;
+      dailyClaimed = data.dailyClaimed ?? false;
+      hasFreeSpin = data.hasFreeSpin ?? true;
+      if (data.myInventory) myInventory = data.myInventory;
+      if (data.usedPromos) data.usedPromos.forEach(p => usedPromos.add(p));
+      if (data.achievements) achievements = data.achievements;
+      if (data.skillPoints !== undefined) skillPoints = data.skillPoints;
+      if (data.skills) skills = data.skills;
+      if (data.pet) pet = data.pet;
+      if (data.premium) premium = data.premium;
+      if (data.dailyQuests) dailyQuests = data.dailyQuests;
+      if (data.questsDate) questsDate = data.questsDate;
+      if (data.leaderboard) leaderboard = data.leaderboard;
+      if (data.clan) clan = data.clan;
+    } catch(e){ console.error(e); }
+  }
+}
+function resetProgress() {
+  if (confirm('Сбросить весь прогресс?')) { localStorage.removeItem(SAVE_KEY); location.reload(); }
+}
 
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
-        }
+function generateDailyQuests() {
+  const today = new Date().toDateString();
+  if (questsDate === today && dailyQuests.length > 0) return;
+  questsDate = today;
+  const pool = [
+    { id:'tap', icon:'⚡', title:'Фармила', desc:'Натапай 500 VEX', target:500, progress:0, reward:300 },
+    { id:'upgrade', icon:'🚀', title:'Хакер', desc:'Сделай 3 апгрейда', target:3, progress:0, reward:500 },
+    { id:'crash', icon:'📈', title:'Трейдер', desc:'Сыграй 2 раза в Краш', target:2, progress:0, reward:400 },
+    { id:'case', icon:'📦', title:'Лудоман', desc:'Открой 2 кейса', target:2, progress:0, reward:600 },
+    { id:'duel', icon:'⚔️', title:'Дуэлянт', desc:'Выиграй 1 дуэль', target:1, progress:0, reward:700 },
+    { id:'fortune', icon:'🎰', title:'Счастливчик', desc:'Крути колесо', target:1, progress:0, reward:400 }
+  ];
+  dailyQuests = pool.sort(() => Math.random()-0.5).slice(0,3).map(q => ({...q}));
+  saveData();
+}
+function updateQuestProgress(id, amount=1) {
+  const q = dailyQuests.find(q => q.id === id);
+  if (q && q.progress < q.target && !q.claimed) { q.progress = Math.min(q.target, q.progress + amount); saveData(); }
+}
+function claimQuestReward(id) {
+  const q = dailyQuests.find(q => q.id === id);
+  if (!q || q.progress < q.target || q.claimed) return;
+  q.claimed = true;
+  balance += q.reward;
+  playSound('win'); triggerParticles();
+  alert('🎉 Квест выполнен! +' + q.reward + ' VEX');
+  updateUI();
+}
+function renderQuests() {
+  const list = document.getElementById('quests-list');
+  if (!list) return;
+  list.innerHTML = '';
+  dailyQuests.forEach(q => {
+    const done = q.progress >= q.target;
+    const div = document.createElement('div');
+    div.className = 'achievement-row';
+    div.innerHTML = '<div class="achievement-info"><div class="achievement-icon">'+q.icon+'</div><div><div class="achievement-title">'+q.title+'</div><div class="achievement-desc">'+q.desc+' ('+q.progress+'/'+q.target+')</div></div></div><div>'+(q.claimed ? '<span style="font-size:10px;color:var(--neon-green);font-weight:900;">ПОЛУЧЕНО</span>' : done ? '<button class="filter-chip" style="background:var(--neon-green);color:#000;font-weight:900;" onclick="claimQuestReward(\''+q.id+'\')">+'+q.reward+'</button>' : '<span style="font-size:10px;color:var(--text-sub);">+'+q.reward+'</span>')+'</div>';
+    list.appendChild(div);
+  });
+}
 
-        const ITEMS = [
-            { id: 1, name: "Чип 64KB", price: 100, emoji: "💾", rarity: "common", color: "var(--rarity-common)" },
-            { id: 2, name: "Чип 128KB", price: 110, emoji: "📼", rarity: "common", color: "var(--rarity-common)" },
-            { id: 3, name: "Кабель Сверхпроводник", price: 125, emoji: "🔌", rarity: "common", color: "var(--rarity-common)" },
-            { id: 10, name: "Очки AR Light", price: 300, emoji: "🕶️", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 11, name: "Сканер Сетки", price: 400, emoji: "🔍", rarity: "uncommon", color: "var(--rarity-uncommon)" },
-            { id: 19, name: "Дрон-Разведчик", price: 1000, emoji: "🛸", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 21, name: "Кибер-Пистолет Smart-G", price: 1500, emoji: "🔫", rarity: "rare", color: "var(--rarity-rare)" },
-            { id: 28, name: "Кибер-Снайперка Рейл", price: 6000, emoji: "🎯", rarity: "epic", color: "var(--rarity-epic)" },
-            { id: 36, name: "Кибер-Глаз Kiroshi", price: 40000, emoji: "👁️", rarity: "legendary", color: "var(--rarity-legendary)" },
-            { id: 48, name: "Ключ От Города", price: 5000000, emoji: "👑", rarity: "godlike", color: "var(--rarity-godlike)" }
-        ];
-
-        const CASES = [
-            { id: 'starter', name: '📦 STARTER CASE', price: 250, pool: [1, 2, 3, 10] },
-            { id: 'cyberware', name: '⚙️ CYBERWARE CASE', price: 1200, pool: [10, 11, 19, 21] }
-        ];
-
-        let myInventory = [ITEMS[0], ITEMS[1]];
-        let myItem = myInventory[0];
-        let targetItem = ITEMS[3];
-        let selectedCaseIndex = 0;
-
-        let marketListings = [
-            { id: 101, seller: "@matrix_ninja", item: ITEMS[3], price: 280 }
-        ];
-
-        function saveData() {
-            const data = { balance, level, xp, streak, myInventory, userTitle, stats, miningRigs, autoBot, lastTimestamp: Date.now() };
-            localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem(SAVE_KEY);
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    balance = data.balance ?? 4500;
-                    level = data.level ?? 1;
-                    xp = data.xp ?? 0;
-                    streak = data.streak ?? 2;
-                    userTitle = data.userTitle ?? "NetRunner";
-                    if (data.myInventory) myInventory = data.myInventory;
-                    if (data.stats) stats = data.stats;
-                    if (data.miningRigs) miningRigs = data.miningRigs;
-                    autoBot = data.autoBot ?? false;
-
-                    // Оффлайн доход
-                    const diffHours = (Date.now() - (data.lastTimestamp || Date.now())) / (1000 * 3600);
-                    if (diffHours > 0.05) {
-                        const rate = (miningRigs.rig1 * 100) + (miningRigs.rig2 * 600);
-                        const earned = Math.floor(rate * Math.min(diffHours, 8));
-                        if (earned > 0) {
-                            balance += earned;
-                            alert(`🤖 За время вашего отсутствия заработано: ${earned} VEX!`);
-                        }
-                    }
-                } catch(e){}
-            }
-            document.getElementById('user-name-txt').innerText = userName;
-            document.getElementById('user-avatar').src = userPhoto;
-        }
-
-        function updateUI() {
-            document.getElementById('balance-val').innerText = balance.toLocaleString() + ' VEX';
-            document.getElementById('user-lvl').innerText = level;
-            document.getElementById('xp-fill').style.width = (xp % 100) + '%';
-            document.getElementById('streak-days').innerText = streak;
-            document.getElementById('user-title-display').innerText = userTitle;
-
-            const bankruptBanner = document.getElementById('bankrupt-banner');
-            if (myInventory.length === 0 && balance < 100) bankruptBanner.classList.add('show');
-            else bankruptBanner.classList.remove('show');
-
-            if (!myItem && myInventory.length > 0) myItem = myInventory[0];
-
-            const slotMy = document.getElementById('slot-my');
-            if (myItem) {
-                slotMy.classList.add('has-item');
-                document.getElementById('my-emoji').innerText = myItem.emoji;
-                document.getElementById('my-title').innerText = myItem.name;
-                document.getElementById('my-val').innerText = myItem.price.toLocaleString() + ' VEX';
-            }
-
-            const slotTarget = document.getElementById('slot-target');
-            if (targetItem) {
-                slotTarget.classList.add('has-item');
-                document.getElementById('target-emoji').innerText = targetItem.emoji;
-                document.getElementById('target-title').innerText = targetItem.name;
-                document.getElementById('target-val').innerText = targetItem.price.toLocaleString() + ' VEX';
-            }
-
-            let chance = (myItem && targetItem) ? Math.min(95, (myItem.price / targetItem.price) * 100) : 0;
-            document.getElementById('chance-val').innerText = chance.toFixed(1) + '%';
-            document.getElementById('wheel-arc').style.strokeDashoffset = 283 - (283 * (chance / 100));
-
-            const rate = (miningRigs.rig1 * 100) + (miningRigs.rig2 * 600);
-            document.getElementById('mining-rate-val').innerText = rate + ' VEX/час';
-
-            renderCatalog();
-            renderInventory();
-            renderMarket();
-            renderLeaderboard();
-            renderStats();
-            saveData();
-        }
-
-        /* ИГРОВЫЕ МЕХАНИКИ */
-        // КИБЕР-МИНЫ
-        let minesActive = false, minesGridData = [], gemsFound = 0;
-        function startMinesGame() {
-            const bet = parseInt(document.getElementById('mines-bet').value);
-            if (isNaN(bet) || bet <= 0 || bet > balance) { alert("Некорректная ставка!"); return; }
-            balance -= bet; minesActive = true; gemsFound = 0;
-            const count = parseInt(document.getElementById('mines-count').value);
-            minesGridData = Array(25).fill(false);
-            let placed = 0;
-            while(placed < count) {
-                let idx = Math.floor(Math.random() * 25);
-                if (!minesGridData[idx]) { minesGridData[idx] = true; placed++; }
-            }
-            const grid = document.getElementById('mines-grid'); grid.innerHTML = '';
-            for(let i=0; i<25; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'mine-cell'; cell.innerText = '❓';
-                cell.onclick = () => clickMineCell(i, cell, bet, count);
-                grid.appendChild(cell);
-            }
-            document.getElementById('btn-mines-cashout').style.display = 'block';
-            updateUI();
-        }
-
-        function clickMineCell(idx, el, bet, count) {
-            if(!minesActive || el.classList.contains('revealed-safe')) return;
-            triggerHaptic('light');
-            if(minesGridData[idx]) {
-                el.classList.add('revealed-virus'); el.innerText = '🦠';
-                playSound('fail'); alert("💥 ВИРУС! Ставка сгорела.");
-                minesActive = false; document.getElementById('btn-mines-cashout').style.display = 'none';
-            } else {
-                el.classList.add('revealed-safe'); el.innerText = '💎';
-                gemsFound++; playSound('tap');
-            }
-        }
-
-        function cashoutMines() {
-            if(!minesActive || gemsFound === 0) return;
-            const bet = parseInt(document.getElementById('mines-bet').value);
-            const win = Math.floor(bet * (1 + gemsFound * 0.25));
-            balance += win; playSound('win'); triggerHaptic('heavy');
-            alert(`🎉 Забрано ${win} VEX!`);
-            minesActive = false; document.getElementById('btn-mines-cashout').style.display = 'none';
-            updateUI();
-        }
-
-        // COINFLIP
-        function runCoinflip(choice) {
-            const bet = parseInt(document.getElementById('coinflip-bet').value);
-            if(isNaN(bet) || bet <= 0 || bet > balance) { alert("Некорректная ставка!"); return; }
-            balance -= bet; triggerHaptic('medium');
-            const chip = document.getElementById('coin-chip');
-            chip.classList.add('flipping');
-            setTimeout(() => {
-                chip.classList.remove('flipping');
-                const win = Math.random() > 0.5;
-                if(win) {
-                    balance += Math.floor(bet * 1.95); playSound('win'); alert("🎉 ПОБЕДАВ COINFLIP!");
-                } else {
-                    playSound('fail'); alert("💀 ПРОИГРЫШ!");
-                }
-                updateUI();
-            }, 800);
-        }
-
-        // РЕЙД-БОСС
-        function attackRaidBoss() {
-            balance += 50; stats.raidDmg += 100; playSound('tap'); triggerHaptic('light');
-            document.getElementById('user-raid-dmg').innerText = stats.raidDmg;
-            updateUI();
-        }
-
-        // КОНТРАКТЫ
-        function signContract() {
-            if (myInventory.length < 5) { alert("Нужно минимум 5 предметов!"); return; }
-            myInventory.splice(0, 5); myInventory.push(ITEMS[5]);
-            playSound('win'); alert("📜 Контракт подписан! Получен предмет более высокой редкости.");
-            updateUI();
-        }
-
-        // МАЙНИНГ
-        function buyMiningRig(type) {
-            if(type === 1 && balance >= 2000) { balance -= 2000; miningRigs.rig1++; }
-            else if(type === 2 && balance >= 10000) { balance -= 10000; miningRigs.rig2++; }
-            else { alert("Недостаточно VEX!"); }
-            updateUI();
-        }
-
-        function buyAutoBot() {
-            if(balance >= 5000) { balance -= 5000; autoBot = true; alert("🤖 Авто-Бот активирован!"); }
-            updateUI();
-        }
-
-        // ТИТУЛЫ И STARS
-        function setTitle(t) { userTitle = t; updateUI(); }
-        function copyRefLink() { alert("🔗 Реферальная ссылка скопирована в буфер обмена!"); }
-        function buyVexStars() { balance += 10000; playSound('win'); alert("⭐ Зачислено 10,000 VEX!"); updateUI(); }
-
-        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-        function handleTap(e) {
-            balance += 25; playSound('tap'); triggerHaptic('light');
-            spawnFloatText('+25 VEX', '#ffe600', e.clientX, e.clientY);
-            updateUI();
-        }
-
-        function spawnFloatText(txt, col, x, y) {
-            const el = document.createElement('div');
-            el.className = 'float-text'; el.innerText = txt; el.style.color = col;
-            el.style.left = x + 'px'; el.style.top = y + 'px';
-            document.body.appendChild(el); setTimeout(() => el.remove(), 600);
-        }
-
-        function selectHighChanceTarget() {
-            if (!myItem) return;
-            targetItem = ITEMS.find(i => i.price > myItem.price) || ITEMS[3];
-            updateUI();
-        }
-
-        function renderCatalog() {
-            const grid = document.getElementById('catalog-grid'); grid.innerHTML = '';
-            ITEMS.forEach(item => {
-                const card = document.createElement('div');
-                card.className = `grid-card ${targetItem?.id === item.id ? 'selected-target' : ''}`;
-                card.onclick = () => { targetItem = item; updateUI(); };
-                card.innerHTML = `<div class="rarity-line" style="background:${item.color}"></div><div class="emoji">${item.emoji}</div><div class="name">${item.name}</div><div class="price">${item.price} VEX</div>`;
-                grid.appendChild(card);
-            });
-        }
-
-        function filterCatalog(type, el) {
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        function renderInventory() {
-            document.getElementById('inv-count').innerText = myInventory.length;
-            const grid = document.getElementById('inventory-grid'); grid.innerHTML = '';
-            myInventory.forEach((item, idx) => {
-                const card = document.createElement('div');
-                card.className = 'grid-card';
-                card.innerHTML = `<div class="rarity-line" style="background:${item.color}"></div><div class="emoji">${item.emoji}</div><div class="name">${item.name}</div><div class="price">${item.price} VEX</div>`;
-                card.onclick = () => { myItem = item; selectHighChanceTarget(); switchTab('sec-upgrade'); updateUI(); };
-                grid.appendChild(card);
-            });
-        }
-
-        function sellAllCommon() {
-            myInventory = myInventory.filter(i => { if(i.price <= 200) { balance += i.price; return false; } return true; });
-            updateUI();
-        }
-
-        function renderLeaderboard() {
-            const container = document.getElementById('leaderboard-list');
-            container.innerHTML = `
-                <div class="leader-row"><span>1. 🥇 @araka_boss</span><b>5,200,000 VEX</b></div>
-                <div class="leader-row"><span>2. 🥈 ${userName} (ВЫ)</span><b style="color:var(--neon-cyan)">${balance.toLocaleString()} VEX</b></div>
-                <div class="leader-row"><span>3. 🥉 @cyber_sam</span><b>120,000 VEX</b></div>
-            `;
-        }
-
-        function renderStats() {
-            document.getElementById('stats-container').innerHTML = `
-                <div>Всего выиграно VEX: <b>${stats.totalVexWon}</b></div>
-                <div>Урон в рейдах: <b>${stats.raidDmg} HP</b></div>
-            `;
-        }
-
-        function switchTab(secId, tabEl) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(secId).classList.add('active');
-            if (tabEl) {
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                tabEl.classList.add('active');
-            }
-            triggerHaptic('selection');
-        }
-
-        function claimBankruptcyKit() {
-            myInventory.push(ITEMS[0]); balance += 250; myItem = ITEMS[0];
-            playSound('win'); updateUI();
-        }
-
-        function runUpgrade() {
-            if (!myItem || !targetItem || isRolling) return;
-            isRolling = true; triggerHaptic('medium');
-            const chance = Math.min(95, (myItem.price / targetItem.price) * 100);
-            const isSuccess = (Math.random() * 100) <= chance;
-            setTimeout(() => {
-                if (isSuccess) {
-                    playSound('win'); triggerHaptic('heavy');
-                    const idx = myInventory.indexOf(myItem);
-                    if (idx !== -1) myInventory[idx] = targetItem;
-                    myItem = targetItem;
-                } else {
-                    playSound('fail');
-                    const idx = myInventory.indexOf(myItem);
-                    if (idx !== -1) myInventory.splice(idx, 1);
-                    myItem = null;
-                }
-                isRolling = false; updateUI();
-            }, 1000);
-        }
-
-        // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
-        loadData();
-        updateUI();
-    </script>
-</body>
-</html>
+function updateLeaderboard() {
+  const name = tg?.initData
