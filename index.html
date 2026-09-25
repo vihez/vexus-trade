@@ -190,7 +190,7 @@ input:checked + .slider:before { transform: translateX(16px); }
     <div style="font-size:10px; color:#fff; margin:4px 0;">Заберите стартовый комплект:</div>
     <button class="filter-chip" style="background:var(--neon-green); color:#000; font-weight:900; padding:6px 14px;" onclick="claimBankruptcyKit()">🎁 ПОЛУЧИТЬ ЧИП + 250 VEX</button>
   </div>
-  <div class="cyber-tap-btn" onclick="handleTap(event)"><div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+1 VEX)</div></div>
+  <div class="cyber-tap-btn" onclick="handleTap(event)"><div class="tap-title">⚡ ФАРМИТЬ КРЕДИТЫ (+3 VEX)</div></div>
   <div class="arena-card" id="arena-card">
     <button class="btn-quick-90" onclick="selectHighChanceTarget()">🎯 ПОДОБРАТЬ ЦЕЛЬ НА ~90% ШАНС</button>
     <button class="btn-quick-90" style="background:rgba(255,230,0,0.12); border-color:var(--neon-yellow); color:var(--neon-yellow);" onclick="runMultiUpgrade(3)">⚡ МУЛЬТИ-АПГРЕЙД x3</button>
@@ -1808,13 +1808,13 @@ function openSelectedCase() {
 }
 
 // ================= ТАПАЛКА (энергия) =================
-let energy = 50;
-let maxEnergy = 50;
+let energy = 1000;
+let maxEnergy = 1000;
 let lastEnergyUpdate = Date.now();
 
 function regenEnergy() {
   const now = Date.now();
-  const diff = Math.floor((now - lastEnergyUpdate) / 60000); // 1 ед./мин
+  const diff = Math.floor((now - lastEnergyUpdate) / 5000); // 1 ед./мин
   if (diff > 0) {
     energy = Math.min(maxEnergy, energy + diff);
     lastEnergyUpdate = now;
@@ -1824,11 +1824,11 @@ function regenEnergy() {
 function handleTap(e) {
   regenEnergy();
   if (energy <= 0) {
-    alert('Энергия кончилась! Восстанавливается 1 ед./мин.');
+    alert('Энергия кончилась! Восстанавливается 1 ед./5 сек.');
     return;
   }
   energy--;
-  const gain = Math.floor(1 * getIncomeMultiplier());
+  const gain = Math.floor(3 * getIncomeMultiplier());
   balance += gain;
   playSound('tap');
   const x = (e?.clientX) || (e?.touches?.[0]?.clientX) || window.innerWidth / 2;
